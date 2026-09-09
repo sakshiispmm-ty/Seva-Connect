@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-teal: #087F73;
+  --color-dark-teal: #05665D;
+  --color-fresh-green: #2EAD62;
+  --color-light-mint: #EAF6F3;
+  --color-golden-yellow: #F7BA3E;
+  --color-light-yellow: #FFF4D6;
+  --color-dark-navy: #17243A;
+  --color-muted-grey: #667085;
+  --color-white: #FFFFFF;
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+:root {
+  --primary-teal: #087F73;
+  --dark-teal: #05665D;
+  --fresh-green: #2EAD62;
+  --light-mint: #EAF6F3;
+  --golden-yellow: #F7BA3E;
+  --light-yellow: #FFF4D6;
+  --dark-navy: #17243A;
+  --muted-grey: #667085;
+  --white: #FFFFFF;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #EAF6F3;
+  color: #17243A;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar matching SevaConnect brand */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #EAF6F3;
+}
+::-webkit-scrollbar-thumb {
+  background: #087F73;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #05665D;
+}

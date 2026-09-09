@@ -1,0 +1,27 @@
+{
+  "name": "sevaconnect",
+  "version": "1.1.0",
+  "description": "SevaConnect NGO Donation & Resource Management System - Version 1.1 Foundation",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"teal,yellow\" \"npm run server\" \"npm run client\"",
+    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"teal,yellow\" \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install"
+  },
+  "keywords": [
+    "ngo",
+    "donation",
+    "resource-management",
+    "sevaconnect",
+    "fullstack",
+    "react",
+    "express",
+    "mysql"
+  ],
+  "author": "SevaConnect Team",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
