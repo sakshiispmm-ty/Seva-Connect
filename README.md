@@ -27,13 +27,6 @@
 - Client-side and server-side route guards (unauthorized requests return 401/403).
 - Responsive design across desktop, laptop, tablet, and mobile viewports.
 
-### Excluded from V1.1 (Reserved for Future Versions):
-- Payment processing, Razorpay, Stripe, UPI, or QR donation tokens.
-- Functional campaign creation or donation transactions.
-- Volunteer recruitment and task assignments.
-- Beneficiary assistance workflow and intake tracking.
-- Inventory management, food/medical supply tracking, and resource matching.
-- Leaderboards, point systems, advanced analytics, and AI chatbots.
 
 ---
 
