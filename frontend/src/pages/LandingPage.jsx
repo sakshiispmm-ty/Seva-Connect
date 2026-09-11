@@ -78,31 +78,51 @@ export default function LandingPage() {
       title: 'Donation Management',
       icon: Gift,
       tag: 'Donation Module',
-      description: 'Facilitate secure monetary contributions and material donations with transparent fund allocation, automated 80G tax receipts, and complete donor auditability.'
+      description: 'Facilitate secure monetary contributions and material donations with transparent fund allocation, automated 80G tax receipts, and complete donor auditability.',
+      link: '/donate',
+      status: 'Live V1.2',
+      actionText: 'Make a Contribution →',
+      isLive: true
     },
     {
       title: 'Campaign Management',
       icon: Megaphone,
       tag: 'Campaign Module',
-      description: 'Create cause-driven appeals for disaster relief, girl-child education, health camps, and seasonal hunger alleviation with real-time progress tracking.'
+      description: 'Create cause-driven appeals for disaster relief, girl-child education, health camps, and seasonal hunger alleviation with real-time progress tracking.',
+      link: '/campaigns',
+      status: 'Live V1.2',
+      actionText: 'Explore Campaigns →',
+      isLive: true
     },
     {
       title: 'Volunteer Management',
       icon: Users,
       tag: 'Volunteer Module',
-      description: 'Recruit passionate local volunteers, assign on-ground relief tasks, coordinate disaster response teams, and celebrate volunteer milestones.'
+      description: 'Recruit passionate local volunteers, assign on-ground relief tasks, coordinate disaster response teams, and celebrate volunteer milestones.',
+      link: '/register',
+      status: 'Volunteer Onboarding',
+      actionText: 'Join as Volunteer →',
+      isLive: false
     },
     {
       title: 'Beneficiary Assistance',
       icon: HeartHandshake,
       tag: 'Beneficiary Module',
-      description: 'Dignified beneficiary intake, direct identity verification, family ration distribution, and transparent community social welfare delivery.'
+      description: 'Dignified beneficiary intake, direct identity verification, family ration distribution, and transparent community social welfare delivery.',
+      link: '/campaigns',
+      status: 'Grassroots Aid',
+      actionText: 'View Causes →',
+      isLive: false
     },
     {
       title: 'Resource Management',
       icon: Package,
       tag: 'Logistics Module',
-      description: 'Real-time warehouse inventory for grain supplies, medicine kits, winter blankets, emergency shelters, and rapid disaster logistics.'
+      description: 'Real-time warehouse inventory for grain supplies, medicine kits, winter blankets, emergency shelters, and rapid disaster logistics.',
+      link: '/donate',
+      status: 'Material Pledges Live',
+      actionText: 'Pledge Supplies →',
+      isLive: true
     }
   ];
 
@@ -490,27 +510,36 @@ export default function LandingPage() {
               {featurePreviews.map((feature, idx) => {
                 const Icon = feature.icon;
                 return (
-                  <div
+                  <Link
                     key={idx}
-                    className="p-6 rounded-2xl bg-white border border-gray-200 hover:border-[#087F73]/40 transition-all duration-200 flex flex-col justify-between shadow-xs"
+                    to={feature.link}
+                    className="p-6 rounded-2xl bg-white border border-gray-200 hover:border-[#087F73] hover:shadow-lg transition-all duration-200 flex flex-col justify-between shadow-xs group cursor-pointer"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <div className="p-3 rounded-xl bg-[#EAF6F3] text-[#087F73]">
+                        <div className="p-3 rounded-xl bg-[#EAF6F3] text-[#087F73] group-hover:bg-[#087F73] group-hover:text-white transition-colors">
                           <Icon className="w-6 h-6" />
                         </div>
                         <span className="text-[11px] font-bold text-[#087F73] bg-[#EAF6F3] px-2.5 py-1 rounded-full">
                           {feature.tag}
                         </span>
                       </div>
-                      <h3 className="text-lg font-bold text-[#17243A] mb-2">{feature.title}</h3>
+                      <h3 className="text-lg font-bold text-[#17243A] group-hover:text-[#087F73] transition-colors mb-2">
+                        {feature.title}
+                      </h3>
                       <p className="text-sm text-[#667085] leading-relaxed">{feature.description}</p>
                     </div>
-                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-[#667085]">
-                      <span className="italic">Informational Preview</span>
-                      <span className="font-semibold text-[#087F73]">Planned Capability</span>
+                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
+                      <span className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
+                        feature.isLive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {feature.status}
+                      </span>
+                      <span className="font-bold text-[#087F73] group-hover:translate-x-1 transition-transform inline-flex items-center">
+                        {feature.actionText}
+                      </span>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
