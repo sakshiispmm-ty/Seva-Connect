@@ -22,6 +22,93 @@ const dataFilePath = path.join(dataDir, 'users.json');
 const campaignsFilePath = path.join(dataDir, 'campaigns.json');
 const donationsFilePath = path.join(dataDir, 'donations.json');
 
+const INITIAL_CAMPAIGNS = [
+  {
+    id: 1,
+    title: "Slum Child Education & Evening Nutrition Drive",
+    description: "Empowering 250+ underprivileged children in urban slums with evening remedial education classes, learning supplies, and daily wholesome nutritional meals. Your contributions bridge the educational gap and prevent dropouts.",
+    goal_amount: 150000.0,
+    deadline: "2026-12-31",
+    category: "Education",
+    status: "Active",
+    created_by: 2,
+    created_at: "2026-09-10T10:00:00.000Z",
+    updated_at: "2026-09-10T10:00:00.000Z"
+  },
+  {
+    id: 2,
+    title: "Clean Drinking Water & Sanitation Well Project",
+    description: "Constructing deep borewells and gravity-fed water filtration stations across drought-affected rural communities in the dry belts. Eliminates waterborne illnesses and spares women and children hours of daily walking.",
+    goal_amount: 220000.0,
+    deadline: "2026-11-30",
+    category: "Healthcare",
+    status: "Active",
+    created_by: 2,
+    created_at: "2026-09-10T11:00:00.000Z",
+    updated_at: "2026-09-10T11:00:00.000Z"
+  },
+  {
+    id: 3,
+    title: "Emergency Flood Relief & Food Ration Kits",
+    description: "Mobilizing essential emergency relief kits containing dry grains, pulses, baby food, clean water packets, and hygiene essentials for 500 vulnerable families affected by seasonal monsoon floods.",
+    goal_amount: 300000.0,
+    deadline: "2026-10-15",
+    category: "Disaster Relief",
+    status: "Active",
+    created_by: 2,
+    created_at: "2026-09-10T12:00:00.000Z",
+    updated_at: "2026-09-10T12:00:00.000Z"
+  },
+  {
+    id: 4,
+    title: "Senior Citizen Warmth & Community Care Outreach",
+    description: "Providing shelter assistance, winter blankets, mobility walking aids, and daily companionship support for abandoned and destitute elderly citizens across suburban care centers.",
+    goal_amount: 120000.0,
+    deadline: "2026-11-20",
+    category: "Community Care",
+    status: "Active",
+    created_by: 2,
+    created_at: "2026-09-11T09:00:00.000Z",
+    updated_at: "2026-09-11T09:00:00.000Z"
+  },
+  {
+    id: 5,
+    title: "Daily Malnutrition Prevention & Midday Meal Drive",
+    description: "Serving fresh, protein-rich hot meals, vitamin supplements, and clean drinking water to over 400 malnourished children and nursing mothers in semi-rural tribal settlements.",
+    goal_amount: 180000.0,
+    deadline: "2026-12-15",
+    category: "Nutrition",
+    status: "Active",
+    created_by: 2,
+    created_at: "2026-09-11T10:00:00.000Z",
+    updated_at: "2026-09-11T10:00:00.000Z"
+  },
+  {
+    id: 6,
+    title: "Rural Mobile Medical Van & Diagnostic Health Camps",
+    description: "Operating free mobile health clinics equipped with basic diagnostic equipment, essential medicines, diabetic screening, and maternal care checkups for remote underserved villages.",
+    goal_amount: 250000.0,
+    deadline: "2026-11-30",
+    category: "Healthcare",
+    status: "Active",
+    created_by: 2,
+    created_at: "2026-09-11T11:00:00.000Z",
+    updated_at: "2026-09-11T11:00:00.000Z"
+  },
+  {
+    id: 7,
+    title: "Winter Clothes & Blanket Drive for Homeless Families",
+    description: "Successfully distributed thermal woollens, jackets, and heavy blankets to 800+ pavement dwellers and shelter inmates facing harsh northern winter waves.",
+    goal_amount: 100000.0,
+    deadline: "2026-08-31",
+    category: "Community Care",
+    status: "Completed",
+    created_by: 2,
+    created_at: "2026-08-01T10:00:00.000Z",
+    updated_at: "2026-09-01T10:00:00.000Z"
+  }
+];
+
 // Ensure data directory exists for fallback persistence
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
@@ -30,7 +117,7 @@ if (!fs.existsSync(dataFilePath)) {
   fs.writeFileSync(dataFilePath, JSON.stringify([], null, 2), 'utf8');
 }
 if (!fs.existsSync(campaignsFilePath)) {
-  fs.writeFileSync(campaignsFilePath, JSON.stringify([], null, 2), 'utf8');
+  fs.writeFileSync(campaignsFilePath, JSON.stringify(INITIAL_CAMPAIGNS, null, 2), 'utf8');
 }
 if (!fs.existsSync(donationsFilePath)) {
   fs.writeFileSync(donationsFilePath, JSON.stringify([], null, 2), 'utf8');
@@ -56,9 +143,12 @@ function writeFallbackData(data) {
 function readFallbackCampaigns() {
   try {
     const raw = fs.readFileSync(campaignsFilePath, 'utf8');
-    return JSON.parse(raw) || [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    fs.writeFileSync(campaignsFilePath, JSON.stringify(INITIAL_CAMPAIGNS, null, 2), 'utf8');
+    return INITIAL_CAMPAIGNS;
   } catch (err) {
-    return [];
+    return INITIAL_CAMPAIGNS;
   }
 }
 

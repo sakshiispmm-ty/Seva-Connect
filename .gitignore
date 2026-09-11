@@ -28,3 +28,4 @@ Thumbs.db
 
 # Local temporary data
 backend/data/*.json
+!backend/data/campaigns.json
