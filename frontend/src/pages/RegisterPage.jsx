@@ -16,7 +16,8 @@ export default function RegisterPage() {
     phone: '',
     password: '',
     confirmPassword: '',
-    role: 'Donor'
+    role: 'Donor',
+    adminSecretKey: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -49,8 +50,14 @@ export default function RegisterPage() {
 
     if (!formData.password) {
       errs.password = 'Password is required.';
-    } else if (formData.password.length < 6) {
-      errs.password = 'Password must be at least 6 characters long.';
+    } else if (formData.password.length < 8) {
+      errs.password = 'Password must be at least 8 characters long.';
+    } else if (!/[A-Z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+      errs.password = 'Password must contain at least 1 uppercase letter and 1 number.';
+    }
+
+    if (formData.role === 'Admin' && !formData.adminSecretKey?.trim()) {
+      errs.adminSecretKey = 'Admin invitation key is required for Admin registration.';
     }
 
     if (!formData.confirmPassword) {
@@ -261,6 +268,27 @@ export default function RegisterPage() {
               {errors.role && (
                 <p className="mt-1.5 text-xs text-rose-600 font-medium">{errors.role}</p>
               )}
+
+              {/* Admin Secret Verification Key Input (DEF-01) */}
+              {formData.role === 'Admin' && (
+                <div className="mt-3.5 p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+                  <Input
+                    id="adminSecretKey"
+                    name="adminSecretKey"
+                    label="Administrative Verification / Secret Key"
+                    type="password"
+                    placeholder="Enter official NGO Admin Secret"
+                    value={formData.adminSecretKey}
+                    onChange={handleChange}
+                    error={errors.adminSecretKey}
+                    required
+                    disabled={loading}
+                  />
+                  <p className="text-[11px] text-amber-700 mt-1">
+                    Administrative access requires an authorized verification key to prevent unvetted privilege escalation.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Password */}
@@ -269,7 +297,7 @@ export default function RegisterPage() {
               name="password"
               label="Password"
               type="password"
-              placeholder="Minimum 6 characters"
+              placeholder="Min 8 chars (1 uppercase & 1 number)"
               value={formData.password}
               onChange={handleChange}
               error={errors.password}

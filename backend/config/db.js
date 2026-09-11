@@ -350,6 +350,32 @@ async function query(sql, params = []) {
       users[idx].phone = phone;
       users[idx].updated_at = new Date().toISOString();
       writeFallbackData(users);
+      return [{ affectedRows: 1, matchedRows: 1 }];
+    }
+    return [{ affectedRows: 0, matchedRows: 0 }];
+  }
+
+  // 5b. UPDATE users SET password = ? WHERE email = ? (DEF-04)
+  if (normalizedSql.startsWith('UPDATE users SET password = ? WHERE email = ?')) {
+    const newHashedPassword = params[0];
+    const email = (params[1] || '').toLowerCase();
+    const idx = users.findIndex(u => u.email.toLowerCase() === email);
+    if (idx !== -1) {
+      users[idx].password = newHashedPassword;
+      users[idx].updated_at = new Date().toISOString();
+      writeFallbackData(users);
+      return [{ affectedRows: 1, matchedRows: 1 }];
+    }
+    return [{ affectedRows: 0, matchedRows: 0 }];
+  }
+
+  // 5c. DELETE FROM users WHERE id = ? (DEF-07)
+  if (normalizedSql.startsWith('DELETE FROM users WHERE id = ?')) {
+    const id = parseInt(params[0], 10);
+    const initialCount = users.length;
+    const remainingUsers = users.filter(u => u.id !== id);
+    if (remainingUsers.length !== initialCount) {
+      writeFallbackData(remainingUsers);
       return [{ affectedRows: 1 }];
     }
     return [{ affectedRows: 0 }];

@@ -47,6 +47,7 @@ const userModel = {
 
   /**
    * Update name and phone only (strictly preserves role and email)
+   * DEF-05: Returns true even if unchanged data causes affectedRows=0
    */
   async updateProfile(id, { name, phone }) {
     const userId = parseInt(id, 10);
@@ -56,6 +57,31 @@ const userModel = {
     const [result] = await query(
       'UPDATE users SET name = ?, phone = ? WHERE id = ?',
       [trimmedName, trimmedPhone, userId]
+    );
+    // Under MySQL, if identical values are submitted, affectedRows is 0 but matchedRows is 1
+    return true;
+  },
+
+  /**
+   * Update password hash by user email (DEF-04: Forgot / Reset Password)
+   */
+  async updatePasswordByEmail(email, hashedPassword) {
+    const trimmedEmail = String(email).trim().toLowerCase();
+    const [result] = await query(
+      'UPDATE users SET password = ? WHERE email = ?',
+      [hashedPassword, trimmedEmail]
+    );
+    return (result.affectedRows > 0 || result.matchedRows > 0);
+  },
+
+  /**
+   * Deactivate / Delete user account (DEF-07: Admin user management)
+   */
+  async delete(id) {
+    const userId = parseInt(id, 10);
+    const [result] = await query(
+      'DELETE FROM users WHERE id = ?',
+      [userId]
     );
     return result.affectedRows > 0;
   },

@@ -22,12 +22,13 @@ export default function DonorDashboard() {
 
   const activeModules = [
     {
-      title: 'My Donations',
+      title: 'My Donations & History',
       icon: Gift,
       description: 'View your registered monetary gifts and in-kind contributions, check verification status, and download 80G tax receipts.',
       tag: 'Live V1.2',
       link: '/donor/history',
-      actionText: 'View Donations',
+      actionText: 'My Donations',
+      id: 'btn-my-donations'
     },
     {
       title: 'Active Campaigns',
@@ -49,6 +50,7 @@ export default function DonorDashboard() {
 
   const sampleFeaturedCauses = [
     {
+      id: 1,
       title: 'Slum Child Nutrition & Evening School',
       ngo: 'Vidya Jyoti Trust',
       goal: '₹1,50,000',
@@ -56,6 +58,7 @@ export default function DonorDashboard() {
       category: 'Education & Meals'
     },
     {
+      id: 2,
       title: 'Clean Drinking Water Well in Drought Zone',
       ngo: 'Jal Seva Foundation',
       goal: '₹2,20,000',
@@ -260,6 +263,13 @@ export default function DonorDashboard() {
                   <div className="flex justify-between text-xs font-bold">
                     <span className="text-[#087F73]">{cause.raised} Raised</span>
                     <span className="text-gray-400">Target: {cause.goal}</span>
+                  </div>
+                  <div className="pt-2 border-t border-gray-100">
+                    <Link to={`/donate?campaignId=${cause.id}`}>
+                      <Button variant="primary" size="sm" className="w-full">
+                        Donate to Cause →
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}

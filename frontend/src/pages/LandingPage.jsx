@@ -163,18 +163,18 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Action CTA Buttons */}
+                {/* Action CTA Buttons (TC-LP-04 / DEF-09) */}
                 <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
-                  <Link to="/register" className="w-full sm:w-auto">
+                  <Link to="/donate" className="w-full sm:w-auto">
                     <Button variant="cta" size="lg" className="w-full sm:w-auto shadow-md hover:shadow-lg">
-                      Start Donating Now <ArrowRight className="ml-2 w-5 h-5" />
+                      Donate Now <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </Link>
-                  <a href="#about" className="w-full sm:w-auto">
+                  <Link to="/campaigns" className="w-full sm:w-auto">
                     <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                      Explore Our Mission
+                      Explore Causes
                     </Button>
-                  </a>
+                  </Link>
                 </div>
               </div>
 
@@ -235,10 +235,10 @@ export default function LandingPage() {
                       </p>
                     </div>
 
-                    {/* Direct CTA into Register */}
-                    <Link to="/register" className="block">
+                    {/* Direct CTA into Donate Flow */}
+                    <Link to={`/donate?amount=${selectedAmount || 1000}`} className="block">
                       <Button variant="primary" size="lg" className="w-full">
-                        Join as a Donor to Support <ArrowRight className="w-4 h-4 ml-2" />
+                        Donate ₹{selectedAmount || 1000} Now <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </Link>
 

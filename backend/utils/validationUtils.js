@@ -20,8 +20,12 @@ function validateRegistration(data) {
     errors.push('A valid phone number (7 to 20 digits/symbols) is required.');
   }
 
-  if (!password || typeof password !== 'string' || password.length < 6) {
-    errors.push('Password must be at least 6 characters long.');
+  if (!password || typeof password !== 'string') {
+    errors.push('Password is required.');
+  } else if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+    errors.push('Password must contain at least 1 uppercase and 1 number.');
+  } else if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long.');
   }
 
   if (password !== confirmPassword) {
@@ -30,6 +34,14 @@ function validateRegistration(data) {
 
   if (!role || !['Donor', 'Admin'].includes(role)) {
     errors.push('Role must be either "Donor" or "Admin".');
+  }
+
+  // DEF-01: Prevent public unvetted self-assignment of Admin role
+  if (role === 'Admin') {
+    const validSecret = process.env.ADMIN_SECRET_KEY || 'SEVA_ADMIN_2026';
+    if (!data.adminSecretKey || data.adminSecretKey !== validSecret) {
+      errors.push('Admin registration requires a valid administrative invitation / verification key.');
+    }
   }
 
   return {

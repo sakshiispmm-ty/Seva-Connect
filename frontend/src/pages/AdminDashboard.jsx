@@ -19,7 +19,10 @@ import {
   TrendingUp,
   Clock,
   IndianRupee,
-  ArrowRight
+  ArrowRight,
+  Search,
+  UserX,
+  Filter
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -37,6 +40,9 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
+  // Search and filter state for members directory (DEF-06)
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('All');
 
   const fetchStats = async () => {
     setLoading(true);
@@ -132,6 +138,37 @@ export default function AdminDashboard() {
       setActionLoading(false);
     }
   };
+
+  const handleDeleteUser = async (targetUser) => {
+    if (targetUser.id === user?.id) {
+      alert('You cannot deactivate your own administrative account.');
+      return;
+    }
+    if (!window.confirm(`Are you sure you want to deactivate and remove account #${targetUser.id} (${targetUser.name})?`)) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await adminService.deleteUser(targetUser.id);
+      await fetchStats();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete user account.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Filtered members list (DEF-06 / TC-ADM-04)
+  const filteredUsers = recentUsers.filter((u) => {
+    const matchesRole = userRoleFilter === 'All' || u.role === userRoleFilter;
+    const q = userSearchQuery.toLowerCase().trim();
+    const matchesSearch = !q ||
+      u.name?.toLowerCase().includes(q) ||
+      u.email?.toLowerCase().includes(q) ||
+      u.phone?.toLowerCase().includes(q) ||
+      String(u.id).includes(q);
+    return matchesRole && matchesSearch;
+  });
 
   const activeModules = [
     { title: 'Campaigns', icon: Megaphone, description: 'Manage fundraising drives & targets', path: '/admin/campaigns' },
@@ -445,16 +482,43 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* REGISTERED USERS TABLE */}
+          {/* REGISTERED USERS TABLE (DEF-06 & DEF-07 / TC-ADM-04 & TC-ADM-05) */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-wrap gap-4">
               <div>
                 <h3 className="text-lg font-bold text-[#17243A]">Registered Community Members & Staff</h3>
                 <p className="text-xs text-[#667085]">Directory of registered Donors and NGO Administrators stored in MySQL</p>
               </div>
-              <span className="text-xs font-semibold text-[#087F73] bg-[#EAF6F3] px-3 py-1 rounded-full">
-                {recentUsers.length} Active Records
-              </span>
+
+              {/* Search & Role Filter Controls */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="relative">
+                  <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, email..."
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    className="pl-9 pr-3 py-1.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#087F73] focus:ring-1 focus:ring-[#087F73] w-48 sm:w-56"
+                  />
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={userRoleFilter}
+                    onChange={(e) => setUserRoleFilter(e.target.value)}
+                    className="py-1.5 px-3 text-xs font-semibold rounded-xl border border-gray-200 bg-white text-[#17243A] focus:outline-none focus:border-[#087F73]"
+                  >
+                    <option value="All">All Roles</option>
+                    <option value="Donor">Donor</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+
+                <span className="text-xs font-semibold text-[#087F73] bg-[#EAF6F3] px-3 py-1 rounded-full">
+                  {filteredUsers.length} of {recentUsers.length} Records
+                </span>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -467,17 +531,18 @@ export default function AdminDashboard() {
                     <th className="py-3.5 px-6">Phone Number</th>
                     <th className="py-3.5 px-6">Assigned Role</th>
                     <th className="py-3.5 px-6">Registration Date</th>
+                    <th className="py-3.5 px-6 text-right">Account Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-[#17243A]">
-                  {recentUsers.length === 0 ? (
+                  {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="py-8 text-center text-sm text-[#667085]">
-                        No registered members found.
+                      <td colSpan="7" className="py-8 text-center text-sm text-[#667085]">
+                        No matching registered members found.
                       </td>
                     </tr>
                   ) : (
-                    recentUsers.map((u) => (
+                    filteredUsers.map((u) => (
                       <tr key={u.id} className="hover:bg-gray-50/80 transition-colors">
                         <td className="py-3.5 px-6 font-mono text-xs text-[#667085]">#{u.id}</td>
                         <td className="py-3.5 px-6 font-semibold">{u.name}</td>
@@ -496,6 +561,20 @@ export default function AdminDashboard() {
                         </td>
                         <td className="py-3.5 px-6 text-xs text-[#667085]">
                           {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-6 text-right whitespace-nowrap">
+                          {u.id === user?.id ? (
+                            <span className="text-xs text-gray-400 italic">Current User</span>
+                          ) : (
+                            <button
+                              onClick={() => handleDeleteUser(u)}
+                              disabled={actionLoading}
+                              className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white rounded-lg transition-colors border border-rose-200"
+                              title="Deactivate and delete user account"
+                            >
+                              <UserX className="w-3.5 h-3.5" /> Deactivate
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))

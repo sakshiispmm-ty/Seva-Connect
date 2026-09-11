@@ -158,6 +158,15 @@ export default function LoginPage() {
               autoComplete="current-password"
             />
 
+            <div className="flex items-center justify-end">
+              <Link
+                to="/forgot-password"
+                className="text-xs font-semibold text-[#087F73] hover:text-[#05665D] hover:underline"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
             <div className="pt-2">
               <Button
                 type="submit"

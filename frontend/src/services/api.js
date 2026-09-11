@@ -41,7 +41,9 @@ export const authService = {
   register: (userData) => api.post('/auth/register', userData),
   login: (credentials) => api.post('/auth/login', credentials),
   logout: () => api.post('/auth/logout'),
-  getMe: () => api.get('/auth/me')
+  getMe: () => api.get('/auth/me'),
+  forgotPassword: (data) => api.post('/auth/forgot-password', data),
+  resetPassword: (data) => api.post('/auth/reset-password', data)
 };
 
 // User Profile Service
@@ -53,7 +55,8 @@ export const userService = {
 // Administration Service
 export const adminService = {
   getUsers: () => api.get('/admin/users'),
-  getStats: () => api.get('/admin/stats')
+  getStats: () => api.get('/admin/stats'),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`)
 };
 
 // Campaign Service (V1.2)

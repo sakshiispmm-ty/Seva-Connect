@@ -55,7 +55,48 @@ async function getStats(req, res) {
   }
 }
 
+/**
+ * DELETE /api/admin/users/:id
+ * Deactivate / delete a user account (DEF-07 / TC-ADM-05)
+ * Admin-only
+ */
+async function deleteUser(req, res) {
+  try {
+    const targetUserId = parseInt(req.params.id, 10);
+    const requestingAdminId = req.user.id;
+
+    if (targetUserId === requestingAdminId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Admin cannot delete or deactivate their own active account.'
+      });
+    }
+
+    const targetUser = await userModel.findById(targetUserId);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found or already deactivated.'
+      });
+    }
+
+    await userModel.delete(targetUserId);
+
+    return res.status(200).json({
+      success: true,
+      message: `Account #${targetUserId} (${targetUser.name}) has been deactivated and removed successfully.`
+    });
+  } catch (error) {
+    console.error('[Admin Controller] deleteUser error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete user account.'
+    });
+  }
+}
+
 module.exports = {
   getUsers,
-  getStats
+  getStats,
+  deleteUser
 };
