@@ -1,13 +1,18 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const dotenv = require('dotenv');
+
+// Ensure environment variables are reliably loaded from backend/.env regardless of CWD
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
 const { initDb } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const campaignRoutes = require('./routes/campaignRoutes');
+const donationRoutes = require('./routes/donationRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorMiddleware');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,7 +31,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     app: 'SevaConnect Backend API',
-    version: '1.1.0',
+    version: '1.2.0',
     timestamp: new Date().toISOString()
   });
 });
@@ -35,6 +40,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/campaigns', campaignRoutes);
+app.use('/api/donations', donationRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

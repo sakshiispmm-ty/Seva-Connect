@@ -28,7 +28,6 @@
 - Responsive design across desktop, laptop, tablet, and mobile viewports.
 
 
----
 
 ## 3. Technology Stack
 

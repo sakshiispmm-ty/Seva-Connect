@@ -49,16 +49,16 @@ async function updateProfile(req, res) {
     }
 
     // Perform update in MySQL
-    const updated = await userModel.updateProfile(userId, { name, phone });
-    if (!updated) {
-      return res.status(400).json({
-        success: false,
-        message: 'Profile could not be updated or no changes were made.'
-      });
-    }
+    await userModel.updateProfile(userId, { name, phone });
 
     // Retrieve fresh safe user data
     const updatedUser = await userModel.findById(userId);
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User profile not found.'
+      });
+    }
 
     return res.status(200).json({
       success: true,

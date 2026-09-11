@@ -5,45 +5,46 @@ import Sidebar from '../components/Sidebar';
 import Button from '../components/Button';
 import {
   Menu,
-  HeartHandshake,
   Gift,
   Megaphone,
-  History,
   User,
   Heart,
   ShieldCheck,
-  Calendar,
-  Sparkles,
+  CheckCircle,
   Info,
   TrendingUp,
-  Award,
-  BookOpen,
-  Activity
+  Award
 } from 'lucide-react';
 
 export default function DonorDashboard() {
   const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const placeholderCards = [
+  const activeModules = [
     {
       title: 'My Donations',
       icon: Gift,
-      description: 'View your monetary gifts and in-kind contributions, download donation receipts, and audit transparent fund utilization across verified NGOs.',
-      tag: 'Donation Management'
+      description: 'View your registered monetary gifts and in-kind contributions, check verification status, and download 80G tax receipts.',
+      tag: 'Live V1.2',
+      link: '/donor/history',
+      actionText: 'View Donations',
     },
     {
       title: 'Active Campaigns',
       icon: Megaphone,
-      description: 'Explore live, community-vetted relief campaigns, girl-child education sponsorships, and healthcare camps requiring immediate assistance.',
-      tag: 'Campaign Management'
+      description: 'Explore live, community-vetted relief campaigns, healthcare camps, and child education projects requiring urgent support.',
+      tag: 'Live V1.2',
+      link: '/campaigns',
+      actionText: 'Browse Campaigns',
     },
     {
-      title: 'Donation History',
-      icon: History,
-      description: 'Access your complete contribution audit trail, 80G tax exemption certificates, and community impact milestones.',
-      tag: 'Audit & Records'
-    }
+      title: 'Pledge Donation',
+      icon: Heart,
+      description: 'Register a new monetary donation or material aid (rations, medicines, books) towards any verified initiative.',
+      tag: 'Live V1.2',
+      link: '/donate',
+      actionText: 'Make a Contribution',
+    },
   ];
 
   const sampleFeaturedCauses = [
@@ -184,25 +185,25 @@ export default function DonorDashboard() {
             </div>
           </div>
 
-          {/* NGO Donation Management Cards (Placeholders in V1.1) */}
+          {/* NGO Donation Management Cards (Active in V1.2) */}
           <div className="space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
-                <h3 className="text-lg font-bold text-[#17243A]">Donation & Campaign Modules</h3>
-                <p className="text-xs text-[#667085]">Preview of core NGO donation modules planned for full operational deployment</p>
+                <h3 className="text-lg font-bold text-[#17243A]">Donation & Campaign Actions</h3>
+                <p className="text-xs text-[#667085]">Explore active initiatives, make pledges, and track verification status</p>
               </div>
               <span className="text-xs font-semibold text-[#087F73] bg-white px-3 py-1 rounded-full border border-gray-200">
-                Verified Giving Portal
+                Live V1.2 Operations
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {placeholderCards.map((card, idx) => {
+              {activeModules.map((card, idx) => {
                 const Icon = card.icon;
                 return (
                   <div
                     key={idx}
-                    className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#087F73]/40 transition-all group"
+                    className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#087F73]/40 hover:shadow-md transition-all group"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-4">
@@ -218,13 +219,14 @@ export default function DonorDashboard() {
                     </div>
 
                     <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
-                      <span className="text-[#667085] font-medium">Planned Capability</span>
-                      <button
-                        disabled
-                        className="px-3 py-1 text-xs font-semibold text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed"
-                      >
-                        Preview Only
-                      </button>
+                      <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                        <CheckCircle className="w-3.5 h-3.5" /> Enabled
+                      </span>
+                      <Link to={card.link}>
+                        <Button variant="primary" size="sm">
+                          {card.actionText} →
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 );

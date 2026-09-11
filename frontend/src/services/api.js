@@ -56,4 +56,25 @@ export const adminService = {
   getStats: () => api.get('/admin/stats')
 };
 
+// Campaign Service (V1.2)
+export const campaignService = {
+  getAll: (params) => api.get('/campaigns', { params }),
+  getById: (id) => api.get(`/campaigns/${id}`),
+  create: (data) => api.post('/campaigns', data),
+  update: (id, data) => api.put(`/campaigns/${id}`, data)
+};
+
+// Donation Service (V1.2)
+export const donationService = {
+  register: (data) => api.post('/donations', data),
+  getMyDonations: () => api.get('/donations/my'),
+  getMyHistory: () => api.get('/donations/my'),
+  getByToken: (token) => api.get(`/donations/token/${token}`),
+  getAll: (params) => api.get('/donations', { params }),
+  verify: (id) => api.put(`/donations/${id}/verify`),
+  reject: (id) => api.put(`/donations/${id}/reject`),
+  complete: (id) => api.put(`/donations/${id}/complete`),
+  getReceipt: (id) => api.get(`/donations/${id}/receipt`)
+};
+
 export default api;

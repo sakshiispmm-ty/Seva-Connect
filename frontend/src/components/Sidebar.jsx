@@ -9,7 +9,6 @@ import {
   History,
   Megaphone,
   Users,
-  Shield,
   Package,
   FileText,
   LogOut,
@@ -27,18 +26,18 @@ export default function Sidebar({ isOpen, onClose, role }) {
   };
 
   const donorLinks = [
-    { label: 'Overview', path: '/donor', icon: LayoutDashboard, active: true },
-    { label: 'My Profile', path: '/profile', icon: User, active: true },
-    { label: 'My Donations', path: '#', icon: Gift, isPlaceholder: true },
-    { label: 'Active Campaigns', path: '#', icon: Megaphone, isPlaceholder: true },
-    { label: 'Donation History', path: '#', icon: History, isPlaceholder: true },
+    { label: 'Overview', path: '/donor', icon: LayoutDashboard },
+    { label: 'Active Campaigns', path: '/campaigns', icon: Megaphone },
+    { label: 'Pledge Donation', path: '/donate', icon: HeartHandshake },
+    { label: 'My Donations', path: '/donor/history', icon: Gift },
+    { label: 'My Profile', path: '/profile', icon: User },
   ];
 
   const adminLinks = [
-    { label: 'Admin Overview', path: '/admin', icon: LayoutDashboard, active: true },
-    { label: 'My Profile', path: '/profile', icon: User, active: true },
-    { label: 'Campaigns', path: '#', icon: Megaphone, isPlaceholder: true },
-    { label: 'Donations', path: '#', icon: Gift, isPlaceholder: true },
+    { label: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
+    { label: 'Campaigns', path: '/admin/campaigns', icon: Megaphone },
+    { label: 'Donation Desk', path: '/admin/donations', icon: Gift },
+    { label: 'My Profile', path: '/profile', icon: User },
     { label: 'Volunteers', path: '#', icon: Users, isPlaceholder: true },
     { label: 'Beneficiaries', path: '#', icon: HeartHandshake, isPlaceholder: true },
     { label: 'Inventory', path: '#', icon: Package, isPlaceholder: true },

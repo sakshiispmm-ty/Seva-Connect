@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
@@ -19,6 +19,8 @@ let pool = null;
 let isUsingMySQL = false;
 const dataDir = path.join(__dirname, '..', 'data');
 const dataFilePath = path.join(dataDir, 'users.json');
+const campaignsFilePath = path.join(dataDir, 'campaigns.json');
+const donationsFilePath = path.join(dataDir, 'donations.json');
 
 // Ensure data directory exists for fallback persistence
 if (!fs.existsSync(dataDir)) {
@@ -26,6 +28,12 @@ if (!fs.existsSync(dataDir)) {
 }
 if (!fs.existsSync(dataFilePath)) {
   fs.writeFileSync(dataFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(campaignsFilePath)) {
+  fs.writeFileSync(campaignsFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(donationsFilePath)) {
+  fs.writeFileSync(donationsFilePath, JSON.stringify([], null, 2), 'utf8');
 }
 
 function readFallbackData() {
@@ -41,7 +49,41 @@ function writeFallbackData(data) {
   try {
     fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
   } catch (err) {
-    console.error('[Fallback DB] Failed to save data:', err);
+    console.error('[Fallback DB] Failed to save users data:', err);
+  }
+}
+
+function readFallbackCampaigns() {
+  try {
+    const raw = fs.readFileSync(campaignsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackCampaigns(data) {
+  try {
+    fs.writeFileSync(campaignsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save campaigns data:', err);
+  }
+}
+
+function readFallbackDonations() {
+  try {
+    const raw = fs.readFileSync(donationsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackDonations(data) {
+  try {
+    fs.writeFileSync(donationsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save donations data:', err);
   }
 }
 
@@ -82,9 +124,60 @@ async function initDb() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `;
 
+    // Create campaigns table if not exists (V1.2)
+    const createCampaignsTableQuery = `
+      CREATE TABLE IF NOT EXISTS campaigns (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(150) NOT NULL,
+        description TEXT NOT NULL,
+        goal_amount DECIMAL(12,2) NOT NULL,
+        deadline DATE,
+        category VARCHAR(100),
+        status ENUM('Active', 'Completed', 'Closed') NOT NULL DEFAULT 'Active',
+        created_by INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (created_by) REFERENCES users(id),
+        INDEX idx_campaign_status (status),
+        INDEX idx_campaign_category (category)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    // Create donations table if not exists (V1.2)
+    const createDonationsTableQuery = `
+      CREATE TABLE IF NOT EXISTS donations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        token VARCHAR(20) NOT NULL UNIQUE,
+        donor_id INT NULL,
+        donor_name VARCHAR(100) NOT NULL,
+        donor_email VARCHAR(150) NOT NULL,
+        donor_phone VARCHAR(20),
+        campaign_id INT NULL,
+        donation_type ENUM('Money', 'Item') NOT NULL,
+        amount DECIMAL(12,2) NULL,
+        item_description TEXT NULL,
+        item_quantity VARCHAR(50) NULL,
+        notes TEXT,
+        status ENUM('Pending Verification', 'Verified', 'Rejected', 'Completed') NOT NULL DEFAULT 'Pending Verification',
+        verified_by INT NULL,
+        verified_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (donor_id) REFERENCES users(id),
+        FOREIGN KEY (campaign_id) REFERENCES campaigns(id),
+        FOREIGN KEY (verified_by) REFERENCES users(id),
+        INDEX idx_token (token),
+        INDEX idx_status (status),
+        INDEX idx_donation_campaign (campaign_id),
+        INDEX idx_donor (donor_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
     await pool.query(createUsersTableQuery);
+    await pool.query(createCampaignsTableQuery);
+    await pool.query(createDonationsTableQuery);
     isUsingMySQL = true;
-    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". Tables ready.`);
+    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". Tables (users, campaigns, donations) ready.`);
     return true;
   } catch (error) {
     isUsingMySQL = false;
@@ -98,7 +191,12 @@ async function initDb() {
 // Unified query wrapper matching mysql2 format: returns [rows, fields]
 async function query(sql, params = []) {
   if (isUsingMySQL && pool) {
-    return await pool.query(sql, params);
+    try {
+      return await pool.query(sql, params);
+    } catch (err) {
+      console.warn('[Database Warning] Direct MySQL query failed:', err.message);
+      console.warn('[Database Warning] Falling back to local persistent store for continuity.');
+    }
   }
 
   // Fallback SQL query emulator for persistent JSON store
@@ -191,6 +289,229 @@ async function query(sql, params = []) {
       return [sorted.slice(0, 10)];
     }
     return [sorted];
+  }
+
+  // ==========================================
+  // FALLBACK CAMPAIGNS & DONATIONS (V1.2)
+  // ==========================================
+  const campaigns = readFallbackCampaigns();
+  const donations = readFallbackDonations();
+
+  function enrichCampaign(c) {
+    const compDonations = donations.filter(d => d.campaign_id === c.id && d.status === 'Completed');
+    const amount_collected = compDonations
+      .filter(d => d.donation_type === 'Money')
+      .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
+    const total_donations_count = compDonations.length;
+    return {
+      ...c,
+      amount_collected,
+      total_donations_count
+    };
+  }
+
+  // CAMPAIGNS: Get by ID
+  if (normalizedSql.includes('FROM campaigns') && (normalizedSql.includes('c.id = ?') || normalizedSql.includes('WHERE id = ?'))) {
+    const id = parseInt(params[0], 10);
+    const c = campaigns.find(item => item.id === id);
+    return [c ? [enrichCampaign(c)] : []];
+  }
+
+  // CAMPAIGNS: List with optional filters
+  if (normalizedSql.includes('FROM campaigns') && !normalizedSql.startsWith('SELECT COUNT(*)')) {
+    let filtered = campaigns.map(enrichCampaign);
+    if (normalizedSql.includes('status = ?') || normalizedSql.includes('c.status = ?')) {
+      const status = params[0];
+      filtered = filtered.filter(c => c.status === status);
+    }
+    if (normalizedSql.includes('category = ?') || normalizedSql.includes('c.category = ?')) {
+      const cat = params[params.length - 1];
+      filtered = filtered.filter(c => c.category === cat);
+    }
+    return [filtered.reverse()];
+  }
+
+  // CAMPAIGNS: Insert
+  if (normalizedSql.startsWith('INSERT INTO campaigns')) {
+    const nextId = campaigns.length > 0 ? Math.max(...campaigns.map(c => c.id || 0)) + 1 : 1;
+    const now = new Date().toISOString();
+    const newCamp = {
+      id: nextId,
+      title: params[0],
+      description: params[1],
+      goal_amount: parseFloat(params[2]) || 0,
+      deadline: params[3] || null,
+      category: params[4] || 'General',
+      status: params[5] || 'Active',
+      created_by: params[6] || 1,
+      created_at: now,
+      updated_at: now
+    };
+    campaigns.push(newCamp);
+    writeFallbackCampaigns(campaigns);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // CAMPAIGNS: Update
+  if (normalizedSql.startsWith('UPDATE campaigns SET')) {
+    const id = parseInt(params[params.length - 1], 10);
+    const idx = campaigns.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      if (normalizedSql.includes('title = ?')) campaigns[idx].title = params[0];
+      if (normalizedSql.includes('description = ?')) campaigns[idx].description = params[1];
+      if (normalizedSql.includes('goal_amount = ?')) campaigns[idx].goal_amount = parseFloat(params[2]) || campaigns[idx].goal_amount;
+      if (normalizedSql.includes('deadline = ?')) campaigns[idx].deadline = params[3];
+      if (normalizedSql.includes('category = ?')) campaigns[idx].category = params[4];
+      if (normalizedSql.includes('status = ?')) {
+        const sIndex = params.findIndex(p => ['Active', 'Completed', 'Closed'].includes(p));
+        if (sIndex !== -1) campaigns[idx].status = params[sIndex];
+      }
+      campaigns[idx].updated_at = new Date().toISOString();
+      writeFallbackCampaigns(campaigns);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // CAMPAIGNS: Counts
+  if (normalizedSql.startsWith('SELECT COUNT(*) AS count FROM campaigns')) {
+    if (normalizedSql.includes("WHERE status = 'Active'")) {
+      return [[{ count: campaigns.filter(c => c.status === 'Active').length }]];
+    }
+    return [[{ count: campaigns.length }]];
+  }
+
+  // DONATIONS: Max ID
+  if (normalizedSql.includes('SELECT MAX(id) AS maxId FROM donations')) {
+    const maxId = donations.length > 0 ? Math.max(...donations.map(d => d.id || 0)) : 0;
+    return [[{ maxId }]];
+  }
+
+  // DONATIONS: Insert
+  if (normalizedSql.startsWith('INSERT INTO donations')) {
+    const nextId = donations.length > 0 ? Math.max(...donations.map(d => d.id || 0)) + 1 : 1;
+    const now = new Date().toISOString();
+    const token = params[0];
+    const newDonation = {
+      id: nextId,
+      token,
+      donor_id: params[1] || null,
+      donor_name: params[2],
+      donor_email: (params[3] || '').toLowerCase(),
+      donor_phone: params[4] || '',
+      campaign_id: params[5] || null,
+      donation_type: params[6] || 'Money',
+      amount: params[7] !== null ? parseFloat(params[7]) : null,
+      item_description: params[8] || null,
+      item_quantity: params[9] || null,
+      notes: params[10] || '',
+      status: 'Pending Verification',
+      verified_by: null,
+      verified_at: null,
+      created_at: now,
+      updated_at: now
+    };
+    donations.push(newDonation);
+    writeFallbackDonations(donations);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // DONATIONS: Get by Token
+  if (normalizedSql.includes('FROM donations') && normalizedSql.includes('d.token = ?')) {
+    const token = (params[0] || '').trim().toUpperCase();
+    const match = donations.find(d => (d.token || '').toUpperCase() === token);
+    if (!match) return [[]];
+    const c = campaigns.find(x => x.id === match.campaign_id);
+    return [[{ ...match, campaign_title: c?.title, campaign_category: c?.category }]];
+  }
+
+  // DONATIONS: Get by ID
+  if (normalizedSql.includes('FROM donations') && normalizedSql.includes('d.id = ?')) {
+    const id = parseInt(params[0], 10);
+    const match = donations.find(d => d.id === id);
+    if (!match) return [[]];
+    const c = campaigns.find(x => x.id === match.campaign_id);
+    const verifier = users.find(u => u.id === match.verified_by);
+    return [[{ ...match, campaign_title: c?.title, campaign_category: c?.category, verifier_name: verifier?.name }]];
+  }
+
+  // DONATIONS: Get by Donor
+  if (normalizedSql.includes('FROM donations') && normalizedSql.includes('d.donor_id = ?')) {
+    const donorId = parseInt(params[0], 10);
+    const list = donations
+      .filter(d => d.donor_id === donorId)
+      .map(d => {
+        const c = campaigns.find(x => x.id === d.campaign_id);
+        return { ...d, campaign_title: c?.title, campaign_category: c?.category };
+      })
+      .reverse();
+    return [list];
+  }
+
+  // DONATIONS: List all (Admin)
+  if (normalizedSql.includes('FROM donations') && !normalizedSql.includes('COUNT(') && !normalizedSql.includes('SUM(')) {
+    let list = donations.map(d => {
+      const c = campaigns.find(x => x.id === d.campaign_id);
+      const verifier = users.find(u => u.id === d.verified_by);
+      return { ...d, campaign_title: c?.title, campaign_category: c?.category, verifier_name: verifier?.name };
+    });
+
+    let paramIndex = 0;
+    if (normalizedSql.includes('d.status = ?')) {
+      const s = params[paramIndex++];
+      if (s && s !== 'All') list = list.filter(d => d.status === s);
+    }
+    if (normalizedSql.includes('d.campaign_id = ?')) {
+      const cId = parseInt(params[paramIndex++], 10);
+      if (!isNaN(cId)) list = list.filter(d => d.campaign_id === cId);
+    }
+    if (normalizedSql.includes('d.donation_type = ?')) {
+      const dt = params[paramIndex++];
+      if (dt && dt !== 'All') list = list.filter(d => d.donation_type === dt);
+    }
+    if (normalizedSql.includes('d.token LIKE ?')) {
+      const q = (params[paramIndex++] || '').replace(/%/g, '').toUpperCase();
+      if (q) list = list.filter(d => (d.token || '').toUpperCase().includes(q));
+    }
+    return [list.reverse()];
+  }
+
+  // DONATIONS: Update status
+  if (normalizedSql.startsWith('UPDATE donations SET')) {
+    const newStatus = params[0];
+    const adminId = params[1];
+    const verifiedAt = params[2] ? new Date(params[2]).toISOString() : new Date().toISOString();
+    const id = parseInt(params[3], 10);
+    const idx = donations.findIndex(d => d.id === id);
+    if (idx !== -1) {
+      donations[idx].status = newStatus;
+      donations[idx].verified_by = adminId;
+      donations[idx].verified_at = verifiedAt;
+      donations[idx].updated_at = new Date().toISOString();
+      writeFallbackDonations(donations);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // DONATIONS: Counts & stats
+  if (normalizedSql.startsWith('SELECT COUNT(*) AS count FROM donations')) {
+    if (normalizedSql.includes("WHERE status = 'Pending Verification'")) {
+      return [[{ count: donations.filter(d => d.status === 'Pending Verification').length }]];
+    }
+    if (normalizedSql.includes("WHERE status = 'Verified'")) {
+      return [[{ count: donations.filter(d => d.status === 'Verified').length }]];
+    }
+    if (normalizedSql.includes("WHERE status = 'Completed'")) {
+      return [[{ count: donations.filter(d => d.status === 'Completed').length }]];
+    }
+    return [[{ count: donations.length }]];
+  }
+  if (normalizedSql.includes('SUM(amount)') && normalizedSql.includes("status = 'Completed'")) {
+    const total = donations
+      .filter(d => d.status === 'Completed' && d.donation_type === 'Money')
+      .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
+    return [[{ totalFunds: total }]];
   }
 
   console.warn('[Database] Unhandled query in fallback mode:', sql);

@@ -1,29 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { adminService } from '../services/api';
+import { adminService, donationService } from '../services/api';
 import Sidebar from '../components/Sidebar';
-import Button from '../components/Button';
 import Alert from '../components/Alert';
+import DonationStatusBadge from '../components/DonationStatusBadge';
 import {
   Menu,
   Users,
   HeartHandshake,
   Shield,
-  Activity,
   Megaphone,
   Gift,
   Package,
   FileText,
   RefreshCw,
-  Clock,
-  Sparkles,
-  Server,
-  Heart,
   CheckCircle,
-  AlertTriangle,
-  Building,
-  TrendingUp
+  TrendingUp,
+  Clock,
+  IndianRupee,
+  ArrowRight
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -37,16 +33,19 @@ export default function AdminDashboard() {
     databaseStatus: 'Healthy'
   });
   const [recentUsers, setRecentUsers] = useState([]);
+  const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
 
   const fetchStats = async () => {
     setLoading(true);
     setError('');
     try {
-      const [statsRes, usersRes] = await Promise.all([
+      const [statsRes, usersRes, donationsRes] = await Promise.all([
         adminService.getStats(),
-        adminService.getUsers()
+        adminService.getUsers(),
+        donationService.getAll()
       ]);
 
       if (statsRes.data?.success) {
@@ -54,6 +53,9 @@ export default function AdminDashboard() {
       }
       if (usersRes.data?.success) {
         setRecentUsers(usersRes.data.users || []);
+      }
+      if (donationsRes.data?.success) {
+        setDonations(donationsRes.data.data || []);
       }
     } catch (err) {
       setError(
@@ -66,16 +68,81 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchStats();
+    let isMounted = true;
+    async function loadStats() {
+      try {
+        const [statsRes, usersRes, donationsRes] = await Promise.all([
+          adminService.getStats(),
+          adminService.getUsers(),
+          donationService.getAll()
+        ]);
+        if (isMounted) {
+          if (statsRes.data?.success) {
+            setStats(statsRes.data.stats);
+          }
+          if (usersRes.data?.success) {
+            setRecentUsers(usersRes.data.users || []);
+          }
+          if (donationsRes.data?.success) {
+            setDonations(donationsRes.data.data || []);
+          }
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(
+            err.response?.data?.message ||
+            'Could not fetch real-time administration statistics from backend.'
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadStats();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  const handleQuickVerify = async (id) => {
+    if (!window.confirm('Verify this donation intent?')) return;
+    setActionLoading(true);
+    try {
+      await donationService.verify(id);
+      fetchStats();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to verify donation.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleQuickComplete = async (id) => {
+    if (!window.confirm('Mark this contribution as Completed? This will update the campaign progress bar.')) return;
+    setActionLoading(true);
+    try {
+      await donationService.complete(id);
+      fetchStats();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to complete donation.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const activeModules = [
+    { title: 'Campaigns', icon: Megaphone, description: 'Manage fundraising drives & targets', path: '/admin/campaigns' },
+    { title: 'Donation Desk', icon: Gift, description: 'Verify intents & issue tax receipts', path: '/admin/donations' },
+  ];
+
   const futureModules = [
-    { title: 'Campaigns', icon: Megaphone, description: 'Fundraising & relief drives' },
-    { title: 'Donations', icon: Gift, description: 'Fund allocation & tax receipts' },
-    { title: 'Volunteers', icon: Users, description: 'Rosters & ground field relief' },
-    { title: 'Beneficiaries', icon: HeartHandshake, description: 'Family aid & verification' },
-    { title: 'Inventory', icon: Package, description: 'Relief rations & supplies' },
-    { title: 'Reports', icon: FileText, description: 'NGO audit & impact summaries' }
+    { title: 'Volunteers', icon: Users, description: 'Rosters & field teams' },
+    { title: 'Beneficiaries', icon: HeartHandshake, description: 'Aid & verification' },
+    { title: 'Inventory', icon: Package, description: 'Rations & supplies' },
+    { title: 'Reports', icon: FileText, description: 'Impact summaries' }
   ];
 
   return (
@@ -170,63 +237,211 @@ export default function AdminDashboard() {
             />
           )}
 
-          {/* DYNAMIC STATISTICS CARDS (CONNECTED TO MYSQL DATABASE) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Total Registered Users */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#667085] uppercase tracking-wider">Registered Members</p>
-                <p className="text-3xl font-black text-[#17243A] mt-2">
-                  {loading ? '...' : stats.totalUsers}
-                </p>
-                <p className="text-[11px] text-[#087F73] font-semibold mt-1">Donors & NGO Personnel</p>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-[#EAF6F3] text-[#087F73]">
-                <Users className="w-7 h-7" />
-              </div>
-            </div>
+          {/* DYNAMIC STATISTICS CARDS (CONNECTED TO PERSISTENT DATABASE) */}
+          {(() => {
+            const pendingDonations = donations.filter(d => d.status === 'Pending Verification');
+            const completedDonations = donations.filter(d => d.status === 'Completed');
+            const totalFunds = completedDonations
+              .filter(d => d.donation_type === 'Money')
+              .reduce((acc, d) => acc + (Number(d.amount) || 0), 0);
 
-            {/* Total Donors */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#667085] uppercase tracking-wider">Active Donors</p>
-                <p className="text-3xl font-black text-[#087F73] mt-2">
-                  {loading ? '...' : stats.totalDonors}
-                </p>
-                <p className="text-[11px] text-[#2EAD62] font-semibold mt-1">Community Contributors</p>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-[#EAF6F3] text-[#2EAD62]">
-                <HeartHandshake className="w-7 h-7" />
-              </div>
-            </div>
-
-            {/* Total Admins */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#667085] uppercase tracking-wider">NGO Administrators</p>
-                <p className="text-3xl font-black text-[#17243A] mt-2">
-                  {loading ? '...' : stats.totalAdmins}
-                </p>
-                <p className="text-[11px] text-[#F7BA3E] font-semibold mt-1">Operations Supervisors</p>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-[#FFF4D6] text-[#F7BA3E]">
-                <Shield className="w-7 h-7" />
-              </div>
-            </div>
-
-            {/* System Status */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#667085] uppercase tracking-wider">System Health</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="w-3 h-3 rounded-full bg-[#2EAD62] animate-pulse"></span>
-                  <p className="text-xl font-bold text-[#17243A]">{stats.systemStatus}</p>
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Total Registered Users */}
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-[#667085] uppercase tracking-wider">Registered Members</p>
+                    <p className="text-3xl font-black text-[#17243A] mt-2">
+                      {loading ? '...' : stats.totalUsers}
+                    </p>
+                    <p className="text-[11px] text-[#087F73] font-semibold mt-1">Donors & Staff Accounts</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-[#EAF6F3] text-[#087F73]">
+                    <Users className="w-7 h-7" />
+                  </div>
                 </div>
-                <p className="text-[11px] text-[#2EAD62] font-semibold mt-1">Donation & Portal Services Online</p>
+
+                {/* Total Donations */}
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-[#667085] uppercase tracking-wider">Total Donations</p>
+                    <p className="text-3xl font-black text-[#087F73] mt-2">
+                      {loading ? '...' : donations.length}
+                    </p>
+                    <p className="text-[11px] text-[#2EAD62] font-semibold mt-1">
+                      {completedDonations.length} Verified & Disbursed
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-[#EAF6F3] text-[#087F73]">
+                    <Gift className="w-7 h-7" />
+                  </div>
+                </div>
+
+                {/* Pending Verification */}
+                <div className={`p-6 rounded-2xl border shadow-sm flex items-center justify-between transition-colors ${
+                  pendingDonations.length > 0 ? 'bg-amber-50/50 border-amber-200' : 'bg-white border-gray-200'
+                }`}>
+                  <div>
+                    <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Pending Verification</p>
+                    <p className="text-3xl font-black text-amber-600 mt-2">
+                      {loading ? '...' : pendingDonations.length}
+                    </p>
+                    <p className="text-[11px] text-amber-700 font-semibold mt-1">
+                      {pendingDonations.length > 0 ? 'Requires NGO Action' : 'All Intents Verified'}
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-amber-100 text-amber-700">
+                    <Clock className="w-7 h-7" />
+                  </div>
+                </div>
+
+                {/* Verified Funds Collected */}
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-[#667085] uppercase tracking-wider">Verified Funds Raised</p>
+                    <p className="text-2xl sm:text-3xl font-black text-emerald-600 mt-2">
+                      ₹{loading ? '...' : totalFunds.toLocaleString('en-IN')}
+                    </p>
+                    <p className="text-[11px] text-[#2EAD62] font-semibold mt-1">Deployed in Initiatives</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-600">
+                    <IndianRupee className="w-7 h-7" />
+                  </div>
+                </div>
               </div>
-              <div className="p-3.5 rounded-2xl bg-emerald-50 text-[#2EAD62]">
-                <Server className="w-7 h-7" />
+            );
+          })()}
+
+          {/* LIVE DONATIONS & VERIFICATION QUEUE (DIRECT ADMIN ACCESS) */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-[#17243A]">Live Donations & Intent Verification Queue</h3>
+                  {donations.filter(d => d.status === 'Pending Verification').length > 0 && (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
+                      {donations.filter(d => d.status === 'Pending Verification').length} Pending
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#667085]">Real-time feed of all incoming pledges, bank transfers & item donations</p>
               </div>
+              <Link
+                to="/admin/donations"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#087F73] hover:text-[#05665D] bg-[#EAF6F3] px-3.5 py-1.5 rounded-xl hover:bg-[#d5ece6] transition-colors"
+              >
+                Open Full Donation Desk
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
+                <thead className="bg-[#EAF6F3]/60 text-xs font-bold text-[#17243A] uppercase tracking-wider">
+                  <tr>
+                    <th className="py-3.5 px-6">Tracking Token</th>
+                    <th className="py-3.5 px-6">Donor Details</th>
+                    <th className="py-3.5 px-6">Initiative / Campaign</th>
+                    <th className="py-3.5 px-6">Contribution</th>
+                    <th className="py-3.5 px-6">Status</th>
+                    <th className="py-3.5 px-6 text-right">Verification Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-[#17243A]">
+                  {donations.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="py-8 text-center text-sm text-[#667085]">
+                        No donations recorded yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    donations.slice(0, 6).map((d) => {
+                      const isMoney = d.donation_type === 'Money';
+                      return (
+                        <tr key={d.id} className="hover:bg-gray-50/80 transition-colors">
+                          <td className="py-3.5 px-6 whitespace-nowrap">
+                            <span className="font-mono font-bold text-[#087F73] block text-xs">
+                              {d.token}
+                            </span>
+                            <span className="text-[10px] text-gray-400">
+                              {new Date(d.created_at).toLocaleDateString('en-IN')}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-6">
+                            <p className="font-bold text-sm text-[#17243A]">{d.donor_name}</p>
+                            <p className="text-xs text-[#667085]">{d.donor_email}</p>
+                            {d.donor_phone && (
+                              <p className="text-[10px] text-gray-400">Ph: {d.donor_phone}</p>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-6 max-w-xs">
+                            <span className="font-semibold text-xs text-gray-800 line-clamp-1">
+                              {d.campaign_title || 'General Relief Fund'}
+                            </span>
+                            {d.notes && (
+                              <span className="block text-[10px] italic text-gray-400 truncate">
+                                "{d.notes}"
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-6 whitespace-nowrap">
+                            {isMoney ? (
+                              <span className="font-bold font-mono text-sm text-[#17243A]">
+                                ₹{Number(d.amount).toLocaleString('en-IN')}
+                              </span>
+                            ) : (
+                              <div>
+                                <span className="font-bold text-xs text-gray-900">
+                                  {d.item_quantity || '1 unit'}
+                                </span>
+                                <span className="block text-[10px] text-gray-500 max-w-xs truncate">
+                                  {d.item_description || 'In-Kind Item'}
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-6 whitespace-nowrap">
+                            <DonationStatusBadge status={d.status} size="sm" />
+                          </td>
+                          <td className="py-3.5 px-6 text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-2">
+                              {d.status === 'Pending Verification' && (
+                                <button
+                                  onClick={() => handleQuickVerify(d.id)}
+                                  disabled={actionLoading}
+                                  className="px-3 py-1 rounded-lg text-xs font-bold bg-[#EAF6F3] text-[#087F73] hover:bg-[#087F73] hover:text-white transition-all shadow-xs"
+                                >
+                                  Verify Intent
+                                </button>
+                              )}
+                              {d.status === 'Verified' && (
+                                <button
+                                  onClick={() => handleQuickComplete(d.id)}
+                                  disabled={actionLoading}
+                                  className="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all shadow-xs"
+                                >
+                                  Complete
+                                </button>
+                              )}
+                              {d.status === 'Completed' && (
+                                <Link
+                                  to="/admin/donations"
+                                  className="text-[11px] font-semibold text-[#087F73] hover:underline"
+                                >
+                                  Audited & Receipted
+                                </Link>
+                              )}
+                              {d.status === 'Rejected' && (
+                                <span className="text-[11px] text-rose-600 font-medium">Declined</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -290,37 +505,75 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* FUTURE ADMINISTRATIVE MODULES (INFORMATIONAL PREVIEWS ONLY) */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div>
-                <h3 className="text-lg font-bold text-[#17243A]">Future NGO Resource Modules</h3>
-                <p className="text-xs text-[#667085]">Informational previews of planned operational modules for NGO donation & resource management</p>
+          {/* ACTIVE V1.2 OPERATIONS & ROADMAP */}
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h3 className="text-lg font-bold text-[#17243A]">Live Operational Desks</h3>
+                  <p className="text-xs text-[#667085]">Active Version 1.2 modules for campaign management and donation verification</p>
+                </div>
+                <span className="text-xs font-semibold text-[#087F73] bg-[#EAF6F3] px-3 py-1 rounded-full">
+                  Live V1.2 Desks
+                </span>
               </div>
-              <span className="text-xs font-semibold text-[#087F73] bg-[#EAF6F3] px-2.5 py-1 rounded-full">
-                Roadmap Preview
-              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {activeModules.map((item, idx) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={idx}
+                      to={item.path}
+                      className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs hover:border-[#087F73] hover:shadow-md transition-all flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="p-3.5 rounded-xl bg-[#EAF6F3] text-[#087F73] group-hover:bg-[#087F73] group-hover:text-white transition-colors">
+                          <Icon className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-base font-bold text-[#17243A] group-hover:text-[#087F73] transition-colors">
+                              {item.title}
+                            </h4>
+                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              Active
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#667085] mt-0.5">{item.description}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs font-bold text-[#087F73] group-hover:translate-x-1 transition-transform">
+                        Open Desk →
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {futureModules.map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={idx}
-                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex flex-col items-center text-center opacity-85 hover:opacity-100 transition-all hover:border-[#087F73]/30"
-                  >
-                    <div className="p-3 rounded-xl bg-[#EAF6F3] text-[#087F73] mb-2">
-                      <Icon className="w-5 h-5" />
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-bold text-[#17243A]">Future Roadmap Modules</h4>
+                <span className="text-[11px] text-gray-400">Planned for V2</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {futureModules.map((item, idx) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex flex-col items-center text-center opacity-75"
+                    >
+                      <div className="p-2 rounded-lg bg-gray-100 text-gray-600 mb-1.5">
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <p className="text-xs font-bold text-[#17243A]">{item.title}</p>
+                      <p className="text-[10px] text-[#667085] mt-0.5">{item.description}</p>
                     </div>
-                    <p className="text-sm font-bold text-[#17243A]">{item.title}</p>
-                    <p className="text-[11px] text-[#667085] mt-1 leading-snug">{item.description}</p>
-                    <span className="text-[10px] text-gray-400 mt-2 bg-gray-50 px-2 py-0.5 rounded">
-                      Planned
-                    </span>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </main>

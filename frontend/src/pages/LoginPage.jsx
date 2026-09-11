@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
-import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuth();

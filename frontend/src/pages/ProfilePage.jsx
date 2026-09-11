@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
-import { User, Mail, Phone, Shield, ArrowLeft, Save, CheckCircle2, Lock } from 'lucide-react';
+import { User, Mail, Phone, Shield, ArrowLeft, Save, Lock } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    role: ''
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    role: user?.role || 'Donor'
   });
 
   const [errors, setErrors] = useState({});
@@ -22,16 +22,17 @@ export default function ProfilePage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        role: user.role || 'Donor'
-      });
-    }
-  }, [user]);
+  const [prevUser, setPrevUser] = useState(user);
+
+  if (user && user !== prevUser) {
+    setPrevUser(user);
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      role: user.role || 'Donor'
+    });
+  }
 
   const validate = () => {
     const errs = {};
@@ -236,11 +237,15 @@ export default function ProfilePage() {
 
               {/* Action Buttons */}
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-gray-100">
-                <Link to={backLink} className="w-full sm:w-auto">
-                  <Button variant="ghost" size="md" className="w-full sm:w-auto">
-                    Cancel
-                  </Button>
-                </Link>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="md"
+                  onClick={() => navigate(backLink)}
+                  className="w-full sm:w-auto"
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="submit"
                   variant="primary"

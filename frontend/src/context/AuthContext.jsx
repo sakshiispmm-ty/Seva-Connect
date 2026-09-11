@@ -16,6 +16,23 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('sevaconnect_token') || null);
   const [loading, setLoading] = useState(true);
 
+  const clearSession = () => {
+    localStorage.removeItem('sevaconnect_token');
+    localStorage.removeItem('sevaconnect_user');
+    setToken(null);
+    setUser(null);
+  };
+
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // Stateless fallback
+    } finally {
+      clearSession();
+    }
+  };
+
   // Initialize and verify authentication state on load
   useEffect(() => {
     async function initAuth() {
@@ -32,11 +49,11 @@ export function AuthProvider({ children }) {
           localStorage.setItem('sevaconnect_user', JSON.stringify(response.data.user));
           setToken(storedToken);
         } else {
-          logout();
+          clearSession();
         }
       } catch (err) {
-        console.warn('[AuthContext] Session invalid or server unavailable, clearing stored session.');
-        logout();
+        console.warn('[AuthContext] Session invalid or server unavailable, clearing stored session:', err?.message || err);
+        clearSession();
       } finally {
         setLoading(false);
       }
@@ -72,19 +89,6 @@ export function AuthProvider({ children }) {
       return { success: true, user: updatedUser };
     }
     return { success: false, message: response.data?.message || 'Failed to update profile.' };
-  };
-
-  const logout = async () => {
-    try {
-      await authService.logout();
-    } catch {
-      // Stateless fallback
-    } finally {
-      localStorage.removeItem('sevaconnect_token');
-      localStorage.removeItem('sevaconnect_user');
-      setToken(null);
-      setUser(null);
-    }
   };
 
   const value = {

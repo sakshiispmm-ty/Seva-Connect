@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, User, LogOut, LayoutDashboard, Shield, HeartHandshake } from 'lucide-react';
+import { Menu, X, User, LogOut, LayoutDashboard } from 'lucide-react';
 import Button from './Button';
 
 export default function Navbar() {
@@ -39,6 +39,14 @@ export default function Navbar() {
               }`}
             >
               Home
+            </Link>
+            <Link
+              to="/campaigns"
+              className={`text-sm font-semibold transition-colors hover:text-[#087F73] ${
+                location.pathname.startsWith('/campaigns') ? 'text-[#087F73]' : 'text-[#17243A]'
+              }`}
+            >
+              Campaigns
             </Link>
             <a
               href="/#about"
@@ -132,6 +140,13 @@ export default function Navbar() {
             className="block px-3 py-2 rounded-md text-base font-semibold text-[#17243A] hover:bg-[#EAF6F3] hover:text-[#087F73]"
           >
             Home
+          </Link>
+          <Link
+            to="/campaigns"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-md text-base font-semibold text-[#17243A] hover:bg-[#EAF6F3] hover:text-[#087F73]"
+          >
+            Campaigns
           </Link>
           <a
             href="/#about"

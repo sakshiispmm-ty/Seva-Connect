@@ -16,13 +16,9 @@ import {
   Clock,
   HeartHandshake,
   TrendingUp,
-  MapPin,
-  Smile,
   BookOpen,
   Activity,
-  AlertCircle,
-  Award,
-  DollarSign
+  Award
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -39,7 +35,7 @@ export default function LandingPage() {
 
   const activeAmount = customAmount ? parseInt(customAmount, 10) || 0 : selectedAmount;
   const currentImpact =
-    impactEstimates[selectedAmount] || {
+    impactEstimates[activeAmount] || {
       meals: 'Direct Humanitarian Aid',
       impact: 'Your pledge is pooled into verified NGO relief funds delivering immediate community assistance.'
     };
@@ -288,7 +284,8 @@ export default function LandingPage() {
                   >
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${cause.badgeColor}`}>
+                        <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${cause.badgeColor}`}>
+                          <Icon className="w-3.5 h-3.5" />
                           {cause.category}
                         </span>
                         <span className="text-xs text-[#667085] flex items-center gap-1">

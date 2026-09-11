@@ -3,12 +3,24 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
+// Auth & Public Pages
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+
+// V1.2 Campaign & Donation Pages
+import CampaignsPage from './pages/CampaignsPage';
+import CampaignDetailsPage from './pages/CampaignDetailsPage';
+import DonatePage from './pages/DonatePage';
+import DonationSuccessPage from './pages/DonationSuccessPage';
+import DonationHistoryPage from './pages/DonationHistoryPage';
+
+// Dashboards & Admin Pages
 import DonorDashboard from './pages/DonorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
-import ProfilePage from './pages/ProfilePage';
+import CampaignManagement from './pages/admin/CampaignManagement';
+import DonationVerification from './pages/admin/DonationVerification';
 
 export default function App() {
   return (
@@ -19,8 +31,12 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/campaigns/:id" element={<CampaignDetailsPage />} />
+          <Route path="/donate" element={<DonatePage />} />
+          <Route path="/donation-success" element={<DonationSuccessPage />} />
 
-          {/* Protected Donor Route */}
+          {/* Protected Donor Routes */}
           <Route
             path="/donor"
             element={
@@ -29,13 +45,37 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/donor/history"
+            element={
+              <ProtectedRoute allowedRoles={['Donor']}>
+                <DonationHistoryPage />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* Protected Admin Route */}
+          {/* Protected Admin Routes */}
           <Route
             path="/admin"
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/campaigns"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <CampaignManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/donations"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <DonationVerification />
               </ProtectedRoute>
             }
           />
