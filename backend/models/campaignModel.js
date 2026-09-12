@@ -56,15 +56,16 @@ const campaignModel = {
   /**
    * Create a new campaign (Admin only)
    */
-  async create({ title, description, goal_amount, deadline, category, status = 'Active', created_by }) {
+  async create({ title, description, goal_amount, start_date, deadline, category, status = 'Active', created_by }) {
     const sql = `
-      INSERT INTO campaigns (title, description, goal_amount, deadline, category, status, created_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO campaigns (title, description, goal_amount, start_date, deadline, category, status, created_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const [result] = await query(sql, [
       title.trim(),
       description.trim(),
       parseFloat(goal_amount) || 0,
+      start_date || null,
       deadline || null,
       category ? category.trim() : 'General',
       status || 'Active',
@@ -76,7 +77,7 @@ const campaignModel = {
   /**
    * Update campaign details / status (Admin only)
    */
-  async update(id, { title, description, goal_amount, deadline, category, status }) {
+  async update(id, { title, description, goal_amount, start_date, deadline, category, status }) {
     const campaignId = parseInt(id, 10);
     const updates = [];
     const params = [];
@@ -92,6 +93,10 @@ const campaignModel = {
     if (goal_amount !== undefined) {
       updates.push('goal_amount = ?');
       params.push(parseFloat(goal_amount) || 0);
+    }
+    if (start_date !== undefined) {
+      updates.push('start_date = ?');
+      params.push(start_date || null);
     }
     if (deadline !== undefined) {
       updates.push('deadline = ?');

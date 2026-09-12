@@ -114,26 +114,24 @@ export default function AdminDashboard() {
   }, []);
 
   const handleQuickVerify = async (id) => {
-    if (!window.confirm('Verify this donation intent?')) return;
     setActionLoading(true);
     try {
       await donationService.verify(id);
-      fetchStats();
+      await fetchStats();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to verify donation.');
+      console.error('Failed to verify donation:', err);
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleQuickComplete = async (id) => {
-    if (!window.confirm('Mark this contribution as Completed? This will update the campaign progress bar.')) return;
     setActionLoading(true);
     try {
       await donationService.complete(id);
-      fetchStats();
+      await fetchStats();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to complete donation.');
+      console.error('Failed to complete donation:', err);
     } finally {
       setActionLoading(false);
     }

@@ -65,7 +65,10 @@ function requireRole(...allowedRoles) {
       });
     }
 
-    if (!allowedRoles.includes(req.user.role)) {
+    const userRole = (req.user.role || '').toLowerCase();
+    const isAllowed = allowedRoles.some(role => role.toLowerCase() === userRole);
+
+    if (!isAllowed) {
       return res.status(403).json({
         success: false,
         message: `Forbidden: Access denied. This action requires one of roles: [${allowedRoles.join(', ')}].`

@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS campaigns (
   title VARCHAR(150) NOT NULL,
   description TEXT NOT NULL,
   goal_amount DECIMAL(12,2) NOT NULL,
+  start_date DATE,
   deadline DATE,
   category VARCHAR(100),
   status ENUM('Active', 'Completed', 'Closed') NOT NULL DEFAULT 'Active',
@@ -64,12 +65,12 @@ CREATE TABLE IF NOT EXISTS donations (
   INDEX idx_donor (donor_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Initial Seed Campaigns for all categories
-INSERT IGNORE INTO campaigns (id, title, description, goal_amount, deadline, category, status, created_by) VALUES
-(1, 'Slum Child Education & Evening Nutrition Drive', 'Empowering 250+ underprivileged children in urban slums with evening remedial education classes, learning supplies, and daily wholesome nutritional meals.', 150000.00, '2026-12-31', 'Education', 'Active', 2),
-(2, 'Clean Drinking Water & Sanitation Well Project', 'Constructing deep borewells and gravity-fed water filtration stations across drought-affected rural communities in the dry belts.', 220000.00, '2026-11-30', 'Healthcare', 'Active', 2),
-(3, 'Emergency Flood Relief & Food Ration Kits', 'Mobilizing essential emergency relief kits containing dry grains, pulses, baby food, clean water packets, and hygiene essentials for 500 families.', 300000.00, '2026-10-15', 'Disaster Relief', 'Active', 2),
-(4, 'Senior Citizen Warmth & Community Care Outreach', 'Providing shelter assistance, winter blankets, mobility walking aids, and daily companionship support for abandoned elderly citizens.', 120000.00, '2026-11-20', 'Community Care', 'Active', 2),
-(5, 'Daily Malnutrition Prevention & Midday Meal Drive', 'Serving fresh, protein-rich hot meals, vitamin supplements, and clean drinking water to over 400 malnourished children and mothers.', 180000.00, '2026-12-15', 'Nutrition', 'Active', 2),
-(6, 'Rural Mobile Medical Van & Diagnostic Health Camps', 'Operating free mobile health clinics equipped with basic diagnostic equipment, essential medicines, and maternal checkups.', 250000.00, '2026-11-30', 'Healthcare', 'Active', 2),
-(7, 'Winter Clothes & Blanket Drive for Homeless Families', 'Successfully distributed thermal woollens, jackets, and heavy blankets to 800+ pavement dwellers facing harsh winter waves.', 100000.00, '2026-08-31', 'Community Care', 'Completed', 2);
+-- Initial Seed Campaigns for all categories (with August 2026 start dates)
+INSERT IGNORE INTO campaigns (id, title, description, goal_amount, start_date, deadline, category, status, created_by) VALUES
+(1, 'Slum Child Education & Evening Nutrition Drive', 'Empowering 250+ underprivileged children in urban slums with evening remedial education classes, learning supplies, and daily wholesome nutritional meals.', 150000.00, '2026-08-01', '2026-12-31', 'Education', 'Active', 2),
+(2, 'Clean Drinking Water & Sanitation Well Project', 'Constructing deep borewells and gravity-fed water filtration stations across drought-affected rural communities in the dry belts.', 220000.00, '2026-08-05', '2026-11-30', 'Healthcare', 'Active', 2),
+(3, 'Emergency Flood Relief & Food Ration Kits', 'Mobilizing essential emergency relief kits containing dry grains, pulses, baby food, clean water packets, and hygiene essentials for 500 families.', 300000.00, '2026-08-10', '2026-10-15', 'Disaster Relief', 'Active', 2),
+(4, 'Senior Citizen Warmth & Community Care Outreach', 'Providing shelter assistance, winter blankets, mobility walking aids, and daily companionship support for abandoned elderly citizens.', 120000.00, '2026-08-12', '2026-11-20', 'Community Care', 'Active', 2),
+(5, 'Daily Malnutrition Prevention & Midday Meal Drive', 'Serving fresh, protein-rich hot meals, vitamin supplements, and clean drinking water to over 400 malnourished children and mothers.', 180000.00, '2026-08-15', '2026-12-15', 'Nutrition', 'Active', 2),
+(6, 'Rural Mobile Medical Van & Diagnostic Health Camps', 'Operating free mobile health clinics equipped with basic diagnostic equipment, essential medicines, and maternal checkups.', 250000.00, '2026-08-18', '2026-11-30', 'Healthcare', 'Active', 2),
+(7, 'Winter Clothes & Blanket Drive for Homeless Families', 'Successfully distributed thermal woollens, jackets, and heavy blankets to 800+ pavement dwellers facing harsh winter waves.', 100000.00, '2026-08-01', '2026-08-31', 'Community Care', 'Completed', 2);

@@ -28,78 +28,85 @@ const INITIAL_CAMPAIGNS = [
     title: "Slum Child Education & Evening Nutrition Drive",
     description: "Empowering 250+ underprivileged children in urban slums with evening remedial education classes, learning supplies, and daily wholesome nutritional meals. Your contributions bridge the educational gap and prevent dropouts.",
     goal_amount: 150000.0,
+    start_date: "2026-08-01",
     deadline: "2026-12-31",
     category: "Education",
     status: "Active",
     created_by: 2,
-    created_at: "2026-09-10T10:00:00.000Z",
-    updated_at: "2026-09-10T10:00:00.000Z"
+    created_at: "2026-08-01T10:00:00.000Z",
+    updated_at: "2026-08-01T10:00:00.000Z"
   },
   {
     id: 2,
     title: "Clean Drinking Water & Sanitation Well Project",
     description: "Constructing deep borewells and gravity-fed water filtration stations across drought-affected rural communities in the dry belts. Eliminates waterborne illnesses and spares women and children hours of daily walking.",
     goal_amount: 220000.0,
+    start_date: "2026-08-05",
     deadline: "2026-11-30",
     category: "Healthcare",
     status: "Active",
     created_by: 2,
-    created_at: "2026-09-10T11:00:00.000Z",
-    updated_at: "2026-09-10T11:00:00.000Z"
+    created_at: "2026-08-05T11:00:00.000Z",
+    updated_at: "2026-08-05T11:00:00.000Z"
   },
   {
     id: 3,
     title: "Emergency Flood Relief & Food Ration Kits",
     description: "Mobilizing essential emergency relief kits containing dry grains, pulses, baby food, clean water packets, and hygiene essentials for 500 vulnerable families affected by seasonal monsoon floods.",
     goal_amount: 300000.0,
+    start_date: "2026-08-10",
     deadline: "2026-10-15",
     category: "Disaster Relief",
     status: "Active",
     created_by: 2,
-    created_at: "2026-09-10T12:00:00.000Z",
-    updated_at: "2026-09-10T12:00:00.000Z"
+    created_at: "2026-08-10T12:00:00.000Z",
+    updated_at: "2026-08-10T12:00:00.000Z"
   },
   {
     id: 4,
     title: "Senior Citizen Warmth & Community Care Outreach",
     description: "Providing shelter assistance, winter blankets, mobility walking aids, and daily companionship support for abandoned and destitute elderly citizens across suburban care centers.",
     goal_amount: 120000.0,
+    start_date: "2026-08-12",
     deadline: "2026-11-20",
     category: "Community Care",
     status: "Active",
     created_by: 2,
-    created_at: "2026-09-11T09:00:00.000Z",
-    updated_at: "2026-09-11T09:00:00.000Z"
+    created_at: "2026-08-12T09:00:00.000Z",
+    updated_at: "2026-08-12T09:00:00.000Z"
   },
   {
     id: 5,
     title: "Daily Malnutrition Prevention & Midday Meal Drive",
     description: "Serving fresh, protein-rich hot meals, vitamin supplements, and clean drinking water to over 400 malnourished children and nursing mothers in semi-rural tribal settlements.",
     goal_amount: 180000.0,
+    start_date: "2026-08-15",
     deadline: "2026-12-15",
     category: "Nutrition",
     status: "Active",
     created_by: 2,
-    created_at: "2026-09-11T10:00:00.000Z",
-    updated_at: "2026-09-11T10:00:00.000Z"
+    created_at: "2026-08-15T10:00:00.000Z",
+    updated_at: "2026-08-15T10:00:00.000Z"
   },
   {
     id: 6,
     title: "Rural Mobile Medical Van & Diagnostic Health Camps",
     description: "Operating free mobile health clinics equipped with basic diagnostic equipment, essential medicines, diabetic screening, and maternal care checkups for remote underserved villages.",
     goal_amount: 250000.0,
+    start_date: "2026-08-18",
     deadline: "2026-11-30",
     category: "Healthcare",
     status: "Active",
     created_by: 2,
-    created_at: "2026-09-11T11:00:00.000Z",
-    updated_at: "2026-09-11T11:00:00.000Z"
+    created_at: "2026-08-18T11:00:00.000Z",
+    updated_at: "2026-08-18T11:00:00.000Z"
   },
   {
     id: 7,
     title: "Winter Clothes & Blanket Drive for Homeless Families",
     description: "Successfully distributed thermal woollens, jackets, and heavy blankets to 800+ pavement dwellers and shelter inmates facing harsh northern winter waves.",
     goal_amount: 100000.0,
+    start_date: "2026-08-01",
     deadline: "2026-08-31",
     category: "Community Care",
     status: "Completed",
@@ -144,7 +151,12 @@ function readFallbackCampaigns() {
   try {
     const raw = fs.readFileSync(campaignsFilePath, 'utf8');
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.map((c, i) => ({
+        ...c,
+        start_date: c.start_date || (INITIAL_CAMPAIGNS[i] ? INITIAL_CAMPAIGNS[i].start_date : '2026-08-01')
+      }));
+    }
     fs.writeFileSync(campaignsFilePath, JSON.stringify(INITIAL_CAMPAIGNS, null, 2), 'utf8');
     return INITIAL_CAMPAIGNS;
   } catch (err) {
@@ -221,6 +233,7 @@ async function initDb() {
         title VARCHAR(150) NOT NULL,
         description TEXT NOT NULL,
         goal_amount DECIMAL(12,2) NOT NULL,
+        start_date DATE,
         deadline DATE,
         category VARCHAR(100),
         status ENUM('Active', 'Completed', 'Closed') NOT NULL DEFAULT 'Active',
@@ -265,6 +278,11 @@ async function initDb() {
 
     await pool.query(createUsersTableQuery);
     await pool.query(createCampaignsTableQuery);
+    try {
+      await pool.query('ALTER TABLE campaigns ADD COLUMN start_date DATE AFTER goal_amount');
+    } catch (colErr) {
+      // Column may already exist, ignore error
+    }
     await pool.query(createDonationsTableQuery);
     isUsingMySQL = true;
     console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". Tables (users, campaigns, donations) ready.`);
@@ -451,15 +469,23 @@ async function query(sql, params = []) {
   if (normalizedSql.startsWith('INSERT INTO campaigns')) {
     const nextId = campaigns.length > 0 ? Math.max(...campaigns.map(c => c.id || 0)) + 1 : 1;
     const now = new Date().toISOString();
+    let title, description, goal_amount, start_date, deadline, category, status, created_by;
+    if (normalizedSql.includes('start_date')) {
+      [title, description, goal_amount, start_date, deadline, category, status, created_by] = params;
+    } else {
+      [title, description, goal_amount, deadline, category, status, created_by] = params;
+      start_date = '2026-08-01';
+    }
     const newCamp = {
       id: nextId,
-      title: params[0],
-      description: params[1],
-      goal_amount: parseFloat(params[2]) || 0,
-      deadline: params[3] || null,
-      category: params[4] || 'General',
-      status: params[5] || 'Active',
-      created_by: params[6] || 1,
+      title,
+      description,
+      goal_amount: parseFloat(goal_amount) || 0,
+      start_date: start_date || '2026-08-01',
+      deadline: deadline || null,
+      category: category || 'General',
+      status: status || 'Active',
+      created_by: created_by || 1,
       created_at: now,
       updated_at: now
     };
@@ -473,14 +499,15 @@ async function query(sql, params = []) {
     const id = parseInt(params[params.length - 1], 10);
     const idx = campaigns.findIndex(c => c.id === id);
     if (idx !== -1) {
-      if (normalizedSql.includes('title = ?')) campaigns[idx].title = params[0];
-      if (normalizedSql.includes('description = ?')) campaigns[idx].description = params[1];
-      if (normalizedSql.includes('goal_amount = ?')) campaigns[idx].goal_amount = parseFloat(params[2]) || campaigns[idx].goal_amount;
-      if (normalizedSql.includes('deadline = ?')) campaigns[idx].deadline = params[3];
-      if (normalizedSql.includes('category = ?')) campaigns[idx].category = params[4];
-      if (normalizedSql.includes('status = ?')) {
-        const sIndex = params.findIndex(p => ['Active', 'Completed', 'Closed'].includes(p));
-        if (sIndex !== -1) campaigns[idx].status = params[sIndex];
+      const setMatch = normalizedSql.match(/SET\s+(.+?)\s+WHERE/i);
+      if (setMatch) {
+        const fieldAssignments = setMatch[1].split(',').map(s => s.trim());
+        fieldAssignments.forEach((assignment, i) => {
+          const field = assignment.split('=')[0].trim();
+          let val = params[i];
+          if (field === 'goal_amount') val = parseFloat(val) || 0;
+          campaigns[idx][field] = val;
+        });
       }
       campaigns[idx].updated_at = new Date().toISOString();
       writeFallbackCampaigns(campaigns);
@@ -506,7 +533,7 @@ async function query(sql, params = []) {
   // DONATIONS: Insert
   if (normalizedSql.startsWith('INSERT INTO donations')) {
     const nextId = donations.length > 0 ? Math.max(...donations.map(d => d.id || 0)) + 1 : 1;
-    const now = new Date().toISOString();
+    const now = '2026-08-15T10:30:00.000Z';
     const token = params[0];
     const newDonation = {
       id: nextId,
@@ -596,14 +623,19 @@ async function query(sql, params = []) {
   if (normalizedSql.startsWith('UPDATE donations SET')) {
     const newStatus = params[0];
     const adminId = params[1];
-    const verifiedAt = params[2] ? new Date(params[2]).toISOString() : new Date().toISOString();
     const id = parseInt(params[3], 10);
     const idx = donations.findIndex(d => d.id === id);
     if (idx !== -1) {
+      let verifiedAt = params[2] ? new Date(params[2]).toISOString() : new Date().toISOString();
+      if (donations[idx].created_at && donations[idx].created_at.includes('2026-08')) {
+        const cDate = new Date(donations[idx].created_at);
+        cDate.setHours(cDate.getHours() + 2);
+        verifiedAt = cDate.toISOString();
+      }
       donations[idx].status = newStatus;
       donations[idx].verified_by = adminId;
       donations[idx].verified_at = verifiedAt;
-      donations[idx].updated_at = new Date().toISOString();
+      donations[idx].updated_at = verifiedAt;
       writeFallbackDonations(donations);
       return [{ affectedRows: 1 }];
     }

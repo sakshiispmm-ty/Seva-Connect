@@ -15,15 +15,21 @@ import {
   ArrowLeft
 } from 'lucide-react';
 
+const PRESET_AMOUNTS = ['500', '1000', '2500', '5000', '10000'];
+
 export default function DonatePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
   const campaignIdFromQuery = searchParams.get('campaignId') || '';
+  const amountFromQuery = searchParams.get('amount') || '';
+  const typeFromQuery = searchParams.get('type') || '';
 
   // Form State
-  const [donationType, setDonationType] = useState('Money'); // 'Money' | 'Items'
+  const [donationType, setDonationType] = useState(
+    typeFromQuery === 'Item' || typeFromQuery === 'Items' ? 'Items' : 'Money'
+  );
   const [campaignId, setCampaignId] = useState(campaignIdFromQuery);
   const [campaigns, setCampaigns] = useState([]);
 
@@ -32,9 +38,16 @@ export default function DonatePage() {
   const [donorEmail, setDonorEmail] = useState(user?.email || '');
   const [donorPhone, setDonorPhone] = useState(user?.phone || '');
 
-  // Money specifics
-  const [amount, setAmount] = useState('1000');
-  const [customAmount, setCustomAmount] = useState('');
+  // Money specifics - respect amount passed from query params (e.g. /donate?amount=500)
+  const initialAmount = amountFromQuery
+    ? (PRESET_AMOUNTS.includes(amountFromQuery) ? amountFromQuery : '')
+    : '1000';
+  const initialCustomAmount = amountFromQuery && !PRESET_AMOUNTS.includes(amountFromQuery)
+    ? amountFromQuery
+    : '';
+
+  const [amount, setAmount] = useState(initialAmount);
+  const [customAmount, setCustomAmount] = useState(initialCustomAmount);
 
   // Item specifics
   const [itemCategory, setItemCategory] = useState('Food & Rations');
@@ -51,7 +64,7 @@ export default function DonatePage() {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
 
-  const presetAmounts = ['500', '1000', '2500', '5000', '10000'];
+  const presetAmounts = PRESET_AMOUNTS;
   const itemCategories = [
     'Food & Rations',
     'Clothes & Woollens',
@@ -81,6 +94,27 @@ export default function DonatePage() {
   useEffect(() => {
     fetchActiveCampaigns();
   }, []);
+
+  useEffect(() => {
+    const qAmt = searchParams.get('amount');
+    if (qAmt) {
+      if (PRESET_AMOUNTS.includes(qAmt)) {
+        setAmount(qAmt);
+        setCustomAmount('');
+      } else {
+        setAmount('');
+        setCustomAmount(qAmt);
+      }
+    }
+    const qCamp = searchParams.get('campaignId');
+    if (qCamp) {
+      setCampaignId(qCamp);
+    }
+    const qType = searchParams.get('type');
+    if (qType) {
+      setDonationType(qType === 'Item' || qType === 'Items' ? 'Items' : 'Money');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (user) {

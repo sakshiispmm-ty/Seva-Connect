@@ -76,7 +76,7 @@ export default function CampaignManagement() {
     setDescription('');
     setCategory('Disaster Relief');
     setTargetAmount('');
-    setStartDate(new Date().toISOString().split('T')[0]);
+    setStartDate('2026-08-01');
     setEndDate('');
     setStatus('Active');
     setFormError('');
@@ -89,9 +89,11 @@ export default function CampaignManagement() {
     setTitle(c.title || '');
     setDescription(c.description || '');
     setCategory(c.category || 'Disaster Relief');
-    setTargetAmount(String(c.target_amount || ''));
-    setStartDate(c.start_date ? c.start_date.split('T')[0] : '');
-    setEndDate(c.end_date ? c.end_date.split('T')[0] : '');
+    setTargetAmount(String(c.target_amount !== undefined ? c.target_amount : (c.goal_amount || '')));
+    const rawStart = c.start_date || c.created_at || '2026-08-01';
+    const rawEnd = c.end_date || c.deadline || '';
+    setStartDate(rawStart ? rawStart.split('T')[0] : '2026-08-01');
+    setEndDate(rawEnd ? rawEnd.split('T')[0] : '');
     setStatus(c.status || 'Active');
     setFormError('');
     setIsModalOpen(true);
@@ -113,8 +115,10 @@ export default function CampaignManagement() {
         description: description.trim(),
         category,
         target_amount: targetAmount ? Number(targetAmount) : 0,
+        goal_amount: targetAmount ? Number(targetAmount) : 0,
         start_date: startDate || null,
         end_date: endDate || null,
+        deadline: endDate || null,
         status,
       };
 
@@ -125,7 +129,7 @@ export default function CampaignManagement() {
       }
 
       setIsModalOpen(false);
-      fetchCampaigns();
+      await fetchCampaigns();
     } catch (err) {
       console.error('Form submission failed:', err);
       setFormError(err.response?.data?.message || 'Failed to save campaign.');
@@ -244,6 +248,7 @@ export default function CampaignManagement() {
                     <tr>
                       <th className="py-3 px-4">Campaign</th>
                       <th className="py-3 px-4">Category</th>
+                      <th className="py-3 px-4">Timeline</th>
                       <th className="py-3 px-4">Goal / Progress</th>
                       <th className="py-3 px-4">Status</th>
                       <th className="py-3 px-4 text-right">Actions</th>
@@ -254,6 +259,8 @@ export default function CampaignManagement() {
                       const target = Number(c.target_amount) || 0;
                       const collected = Number(c.amount_collected) || 0;
                       const pct = target > 0 ? Math.min(Math.round((collected / target) * 100), 100) : 0;
+                      const startDateStr = c.start_date || c.created_at || '2026-08-01';
+                      const endDateStr = c.end_date || c.deadline;
 
                       return (
                         <tr key={c.id} className="hover:bg-gray-50/60 transition-colors">
@@ -265,6 +272,22 @@ export default function CampaignManagement() {
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-gray-100 text-gray-700 border border-gray-200">
                               {c.category}
                             </span>
+                          </td>
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <div className="text-[11px] space-y-0.5">
+                              <p className="text-gray-700 font-medium">
+                                <span className="text-[#667085] font-normal">Start:</span>{' '}
+                                <span className="font-semibold text-[#087F73]">
+                                  {new Date(startDateStr).toLocaleDateString('en-IN')}
+                                </span>
+                              </p>
+                              <p className="text-gray-700 font-medium">
+                                <span className="text-[#667085] font-normal">End:</span>{' '}
+                                <span>
+                                  {endDateStr ? new Date(endDateStr).toLocaleDateString('en-IN') : 'Ongoing'}
+                                </span>
+                              </p>
+                            </div>
                           </td>
                           <td className="py-3.5 px-4">
                             <div className="w-36">

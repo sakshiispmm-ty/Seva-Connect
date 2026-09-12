@@ -28,11 +28,20 @@ export default function DonationVerification() {
   // Receipt Modal State
   const [selectedReceipt, setSelectedReceipt] = useState(null);
 
+  // Verify Modal State
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+  const [selectedDonationToVerify, setSelectedDonationToVerify] = useState(null);
+
+  // Complete Modal State
+  const [completeModalOpen, setCompleteModalOpen] = useState(false);
+  const [selectedDonationToComplete, setSelectedDonationToComplete] = useState(null);
+
   // Reject Modal State
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectDonationId, setRejectDonationId] = useState(null);
   const [rejectionNotes, setRejectionNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState(null);
 
   const fetchDonations = async () => {
     setLoading(true);
@@ -54,27 +63,49 @@ export default function DonationVerification() {
     fetchDonations();
   }, []);
 
-  const handleVerify = async (id) => {
-    if (!window.confirm('Are you sure you want to officially verify this donation intent?')) return;
+  const openVerifyModal = (donation) => {
+    setSelectedDonationToVerify(donation);
+    setVerifyModalOpen(true);
+  };
+
+  const handleConfirmVerify = async () => {
+    if (!selectedDonationToVerify) return;
     setActionLoading(true);
+    setFeedbackMessage(null);
     try {
-      await donationService.verify(id);
-      fetchDonations();
+      await donationService.verify(selectedDonationToVerify.id);
+      setVerifyModalOpen(false);
+      setSelectedDonationToVerify(null);
+      await fetchDonations();
+      setFeedbackMessage({ type: 'success', text: 'Donation verified successfully! (Status: Verified)' });
+      setTimeout(() => setFeedbackMessage(null), 4000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to verify donation.');
+      console.error('Failed to verify donation:', err);
+      setFeedbackMessage({ type: 'error', text: err.response?.data?.message || 'Failed to verify donation.' });
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleComplete = async (id) => {
-    if (!window.confirm('Mark this contribution as Completed? This will permanently update the campaign progress bar.')) return;
+  const openCompleteModal = (donation) => {
+    setSelectedDonationToComplete(donation);
+    setCompleteModalOpen(true);
+  };
+
+  const handleConfirmComplete = async () => {
+    if (!selectedDonationToComplete) return;
     setActionLoading(true);
+    setFeedbackMessage(null);
     try {
-      await donationService.complete(id);
-      fetchDonations();
+      await donationService.complete(selectedDonationToComplete.id);
+      setCompleteModalOpen(false);
+      setSelectedDonationToComplete(null);
+      await fetchDonations();
+      setFeedbackMessage({ type: 'success', text: 'Donation marked as Completed! Campaign totals updated.' });
+      setTimeout(() => setFeedbackMessage(null), 4000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to mark donation as completed.');
+      console.error('Failed to complete donation:', err);
+      setFeedbackMessage({ type: 'error', text: err.response?.data?.message || 'Failed to mark donation as completed.' });
     } finally {
       setActionLoading(false);
     }
@@ -89,12 +120,16 @@ export default function DonationVerification() {
   const handleConfirmReject = async () => {
     if (!rejectDonationId) return;
     setActionLoading(true);
+    setFeedbackMessage(null);
     try {
       await donationService.reject(rejectDonationId, { notes: rejectionNotes });
       setRejectModalOpen(false);
-      fetchDonations();
+      await fetchDonations();
+      setFeedbackMessage({ type: 'success', text: 'Donation marked as rejected.' });
+      setTimeout(() => setFeedbackMessage(null), 4000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to reject donation.');
+      console.error('Failed to reject donation:', err);
+      setFeedbackMessage({ type: 'error', text: err.response?.data?.message || 'Failed to reject donation.' });
     } finally {
       setActionLoading(false);
     }
@@ -230,6 +265,25 @@ export default function DonationVerification() {
             </div>
           </div>
 
+          {/* Feedback message banner */}
+          {feedbackMessage && (
+            <div
+              className={`p-4 rounded-2xl text-xs font-semibold flex items-center justify-between border shadow-xs transition-all ${
+                feedbackMessage.type === 'success'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                  : 'bg-rose-50 text-rose-800 border-rose-200'
+              }`}
+            >
+              <span>{feedbackMessage.text}</span>
+              <button
+                onClick={() => setFeedbackMessage(null)}
+                className="text-gray-400 hover:text-gray-600 text-sm font-bold ml-4"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {/* Donations Queue Table */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -329,16 +383,18 @@ export default function DonationVerification() {
                               {d.status === 'Pending Verification' && (
                                 <>
                                   <button
-                                    onClick={() => handleVerify(d.id)}
+                                    onClick={() => openVerifyModal(d)}
                                     disabled={actionLoading}
-                                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#EAF6F3] text-[#087F73] hover:bg-[#087F73] hover:text-white transition-all shadow-2xs"
+                                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#EAF6F3] text-[#087F73] hover:bg-[#087F73] hover:text-white transition-all shadow-2xs cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                                    title="Verify donation intent"
                                   >
-                                    Verify
+                                    <ShieldCheck className="w-3.5 h-3.5" />
+                                    <span>Verify</span>
                                   </button>
                                   <button
                                     onClick={() => openRejectModal(d.id)}
                                     disabled={actionLoading}
-                                    className="px-2 py-1 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition-all"
+                                    className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition-all cursor-pointer disabled:opacity-50"
                                   >
                                     Reject
                                   </button>
@@ -349,16 +405,16 @@ export default function DonationVerification() {
                               {d.status === 'Verified' && (
                                 <>
                                   <button
-                                    onClick={() => handleComplete(d.id)}
+                                    onClick={() => openCompleteModal(d)}
                                     disabled={actionLoading}
-                                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all shadow-2xs"
+                                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                                     title="Mark funds as deployed / item received"
                                   >
                                     Mark Completed
                                   </button>
                                   <button
                                     onClick={() => handleViewReceipt(d.token)}
-                                    className="p-1.5 text-gray-500 hover:text-[#087F73] hover:bg-gray-100 rounded-lg transition-colors"
+                                    className="p-1.5 text-gray-500 hover:text-[#087F73] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                                     title="View Receipt"
                                   >
                                     <FileText className="w-4 h-4" />
@@ -395,6 +451,156 @@ export default function DonationVerification() {
           </div>
         </main>
       </div>
+
+      {/* Verify Modal Popup */}
+      {verifyModalOpen && selectedDonationToVerify && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EAF6F3] text-[#087F73] flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-[#17243A]">
+                  Confirm Verification
+                </h3>
+                <p className="text-xs text-[#667085]">
+                  Verify this donation registration
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3.5 bg-gray-50 rounded-xl border border-gray-100 space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Tracking Token:</span>
+                <span className="font-mono font-bold text-[#087F73]">{selectedDonationToVerify.token}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Donor:</span>
+                <span className="font-semibold text-gray-800">{selectedDonationToVerify.donor_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Contribution:</span>
+                <span className="font-bold text-gray-900">
+                  {selectedDonationToVerify.donation_type === 'Money'
+                    ? `₹${Number(selectedDonationToVerify.amount).toLocaleString('en-IN')}`
+                    : (selectedDonationToVerify.item_quantity || 'Items / In-Kind')}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Initiative:</span>
+                <span className="text-gray-700 truncate max-w-[200px]">
+                  {selectedDonationToVerify.campaign_title || 'General Community Relief Fund'}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#667085] mt-4 leading-relaxed">
+              Are you sure you want to verify this donation? Verifying marks the pledge as confirmed and authorizes receipt generation.
+            </p>
+
+            <div className="mt-6 flex items-center justify-end gap-2.5">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setVerifyModalOpen(false);
+                  setSelectedDonationToVerify(null);
+                }}
+                disabled={actionLoading}
+              >
+                Cancel
+              </Button>
+              <button
+                onClick={handleConfirmVerify}
+                disabled={actionLoading}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#087F73] hover:bg-[#06635a] transition-all shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {actionLoading ? (
+                  <span>Verifying...</span>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Confirm Verification</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complete Modal Popup */}
+      {completeModalOpen && selectedDonationToComplete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-[#17243A]">
+                  Confirm Completion
+                </h3>
+                <p className="text-xs text-[#667085]">
+                  Mark donation as completed and disbursed
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3.5 bg-gray-50 rounded-xl border border-gray-100 space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Tracking Token:</span>
+                <span className="font-mono font-bold text-[#087F73]">{selectedDonationToComplete.token}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Donor:</span>
+                <span className="font-semibold text-gray-800">{selectedDonationToComplete.donor_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Contribution:</span>
+                <span className="font-bold text-gray-900">
+                  {selectedDonationToComplete.donation_type === 'Money'
+                    ? `₹${Number(selectedDonationToComplete.amount).toLocaleString('en-IN')}`
+                    : (selectedDonationToComplete.item_quantity || 'Items / In-Kind')}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#667085] mt-4 leading-relaxed">
+              Confirm that these funds have been received and deployed for the campaign. This will update the campaign's raised amount.
+            </p>
+
+            <div className="mt-6 flex items-center justify-end gap-2.5">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setCompleteModalOpen(false);
+                  setSelectedDonationToComplete(null);
+                }}
+                disabled={actionLoading}
+              >
+                Cancel
+              </Button>
+              <button
+                onClick={handleConfirmComplete}
+                disabled={actionLoading}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {actionLoading ? (
+                  <span>Processing...</span>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Confirm Completion</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reject Modal */}
       {rejectModalOpen && (

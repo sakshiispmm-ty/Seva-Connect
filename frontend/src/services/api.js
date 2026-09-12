@@ -10,7 +10,7 @@ const api = axios.create({
 // Request interceptor: Attach authenticated JWT token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('sevaconnect_token');
+    const token = localStorage.getItem('sevaconnect_token') || localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -75,7 +75,7 @@ export const donationService = {
   getByToken: (token) => api.get(`/donations/token/${token}`),
   getAll: (params) => api.get('/donations', { params }),
   verify: (id) => api.put(`/donations/${id}/verify`),
-  reject: (id) => api.put(`/donations/${id}/reject`),
+  reject: (id, data) => api.put(`/donations/${id}/reject`, data),
   complete: (id) => api.put(`/donations/${id}/complete`),
   getReceipt: (id) => api.get(`/donations/${id}/receipt`)
 };

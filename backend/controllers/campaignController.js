@@ -85,6 +85,7 @@ async function createCampaign(req, res) {
   try {
     const { title, description, category, status } = req.body;
     const goal_amount = req.body.goal_amount !== undefined ? req.body.goal_amount : req.body.target_amount;
+    const start_date = req.body.start_date;
     const deadline = req.body.deadline !== undefined ? req.body.deadline : req.body.end_date;
 
     // Validation
@@ -117,6 +118,7 @@ async function createCampaign(req, res) {
       title,
       description,
       goal_amount: goal,
+      start_date: start_date || null,
       deadline: deadline || null,
       category: category || 'General',
       status: campaignStatus,
@@ -128,7 +130,9 @@ async function createCampaign(req, res) {
       ...createdCampaign,
       target_amount: createdCampaign.target_amount !== undefined ? createdCampaign.target_amount : createdCampaign.goal_amount,
       goal_amount: createdCampaign.goal_amount !== undefined ? createdCampaign.goal_amount : createdCampaign.target_amount,
-      end_date: createdCampaign.end_date || createdCampaign.deadline
+      start_date: createdCampaign.start_date || createdCampaign.created_at,
+      end_date: createdCampaign.end_date || createdCampaign.deadline,
+      deadline: createdCampaign.deadline || createdCampaign.end_date
     };
 
     return res.status(201).json({
@@ -164,6 +168,7 @@ async function updateCampaign(req, res) {
 
     const { title, description, category, status } = req.body;
     const goal_amount = req.body.goal_amount !== undefined ? req.body.goal_amount : req.body.target_amount;
+    const start_date = req.body.start_date;
     const deadline = req.body.deadline !== undefined ? req.body.deadline : req.body.end_date;
 
     if (status && !['Active', 'Completed', 'Closed'].includes(status)) {
@@ -184,6 +189,7 @@ async function updateCampaign(req, res) {
       title,
       description,
       goal_amount: goal_amount !== undefined ? parseFloat(goal_amount) : undefined,
+      start_date,
       deadline,
       category,
       status
@@ -194,7 +200,9 @@ async function updateCampaign(req, res) {
       ...updated,
       target_amount: updated.target_amount !== undefined ? updated.target_amount : updated.goal_amount,
       goal_amount: updated.goal_amount !== undefined ? updated.goal_amount : updated.target_amount,
-      end_date: updated.end_date || updated.deadline
+      start_date: updated.start_date || updated.created_at,
+      end_date: updated.end_date || updated.deadline,
+      deadline: updated.deadline || updated.end_date
     };
 
     return res.status(200).json({

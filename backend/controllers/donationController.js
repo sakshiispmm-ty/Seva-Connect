@@ -234,10 +234,28 @@ async function verifyDonation(req, res) {
       });
     }
 
+    if (donation.status === 'Completed') {
+      return res.status(200).json({
+        success: true,
+        message: `Donation ${donation.token} is already completed.`,
+        donation,
+        data: donation
+      });
+    }
+
+    if (donation.status === 'Verified') {
+      return res.status(200).json({
+        success: true,
+        message: `Donation ${donation.token} is already verified.`,
+        donation,
+        data: donation
+      });
+    }
+
     if (donation.status !== 'Pending Verification') {
       return res.status(400).json({
         success: false,
-        message: `Cannot verify donation: current status is "${donation.status}". Only "Pending Verification" donations can be verified.`
+        message: `Cannot verify donation: current status is "${donation.status}".`
       });
     }
 
@@ -317,10 +335,19 @@ async function completeDonation(req, res) {
       });
     }
 
-    if (donation.status !== 'Verified') {
+    if (donation.status === 'Completed') {
+      return res.status(200).json({
+        success: true,
+        message: `Donation ${donation.token} is already marked as Completed.`,
+        donation,
+        data: donation
+      });
+    }
+
+    if (donation.status !== 'Verified' && donation.status !== 'Pending Verification') {
       return res.status(400).json({
         success: false,
-        message: `Cannot complete donation: current status is "${donation.status}". A donation must be "Verified" before being marked as "Completed".`
+        message: `Cannot complete donation: current status is "${donation.status}".`
       });
     }
 
