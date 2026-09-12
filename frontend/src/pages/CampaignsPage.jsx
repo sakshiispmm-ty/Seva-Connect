@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
 import { Search, Megaphone, Heart, Target } from 'lucide-react';
+import { getCampaignImage } from '../utils/imageUtils';
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
@@ -166,26 +167,33 @@ export default function CampaignsPage() {
                   key={c.id}
                   className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col group"
                 >
-                  {/* Category Banner */}
-                  <div className="h-36 bg-gradient-to-tr from-[#05665D] to-[#087F73] p-5 flex flex-col justify-between text-white relative">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-xs border border-white/30">
-                        {c.category}
-                      </span>
-                      <span
-                        className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
-                          c.status === 'Active'
-                            ? 'bg-[#2EAD62] text-white'
-                            : 'bg-amber-400 text-gray-900'
-                        }`}
-                      >
-                        {c.status}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-white/80 flex items-center gap-1.5">
-                        <Target className="w-3.5 h-3.5" /> Goal: ₹{target.toLocaleString('en-IN')}
-                      </span>
+                  {/* Category Banner with Photo */}
+                  <div className="h-44 relative overflow-hidden group bg-gray-100">
+                    <img
+                      src={getCampaignImage(c)}
+                      alt={c.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-4 flex flex-col justify-between text-white">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#087F73]/90 text-white backdrop-blur-xs border border-white/20 shadow-xs">
+                          {c.category}
+                        </span>
+                        <span
+                          className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full shadow-xs ${
+                            c.status === 'Active'
+                              ? 'bg-[#2EAD62] text-white'
+                              : 'bg-amber-400 text-gray-900'
+                          }`}
+                        >
+                          {c.status}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-white font-bold flex items-center gap-1.5 drop-shadow-sm">
+                          <Target className="w-3.5 h-3.5 text-[#F7BA3E]" /> Goal: ₹{target.toLocaleString('en-IN')}
+                        </span>
+                      </div>
                     </div>
                   </div>
 

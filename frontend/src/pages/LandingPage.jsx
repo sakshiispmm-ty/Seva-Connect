@@ -49,6 +49,7 @@ export default function LandingPage() {
       raised: '₹98,000',
       donors: '142 Donors',
       icon: BookOpen,
+      image: '/assets/campaigns/education.jpg',
       badgeColor: 'bg-amber-100 text-amber-800'
     },
     {
@@ -59,6 +60,7 @@ export default function LandingPage() {
       raised: '₹1,45,000',
       donors: '280 Donors',
       icon: Gift,
+      image: '/assets/campaigns/nutrition.jpg',
       badgeColor: 'bg-emerald-100 text-emerald-800'
     },
     {
@@ -69,6 +71,7 @@ export default function LandingPage() {
       raised: '₹1,90,000',
       donors: '315 Donors',
       icon: Activity,
+      image: '/assets/campaigns/medical.jpg',
       badgeColor: 'bg-teal-100 text-teal-800'
     }
   ];
@@ -300,46 +303,58 @@ export default function LandingPage() {
                 return (
                   <div
                     key={idx}
-                    className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                    className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${cause.badgeColor}`}>
-                          <Icon className="w-3.5 h-3.5" />
-                          {cause.category}
-                        </span>
-                        <span className="text-xs text-[#667085] flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5" /> {cause.donors}
-                        </span>
+                      {/* Cause Header Image */}
+                      <div className="h-44 relative overflow-hidden bg-gray-100">
+                        <img
+                          src={cause.image}
+                          alt={cause.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 flex flex-col justify-between">
+                          <div className="flex items-center justify-between">
+                            <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-xs ${cause.badgeColor}`}>
+                              <Icon className="w-3.5 h-3.5" />
+                              {cause.category}
+                            </span>
+                            <span className="text-xs text-white/90 font-medium flex items-center gap-1 bg-black/40 backdrop-blur-xs px-2 py-0.5 rounded-full">
+                              <Users className="w-3.5 h-3.5 text-white" /> {cause.donors}
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
-                      <h3 className="text-lg font-bold text-[#17243A] leading-snug mb-2">
-                        {cause.title}
-                      </h3>
+                      <div className="p-6">
+                        <h3 className="text-lg font-bold text-[#17243A] leading-snug mb-2 group-hover:text-[#087F73] transition-colors">
+                          {cause.title}
+                        </h3>
 
-                      <p className="text-xs text-[#667085] flex items-center gap-1.5 mb-4">
-                        <HeartHandshake className="w-3.5 h-3.5 text-[#087F73]" />
-                        Organized by: <strong className="text-[#17243A]">{cause.ngo}</strong>
-                      </p>
+                        <p className="text-xs text-[#667085] flex items-center gap-1.5 mb-4">
+                          <HeartHandshake className="w-3.5 h-3.5 text-[#087F73]" />
+                          Organized by: <strong className="text-[#17243A]">{cause.ngo}</strong>
+                        </p>
 
-                      {/* Mock Progress Bar */}
-                      <div className="space-y-1.5 pt-2">
-                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-[#087F73] rounded-full" style={{ width: '68%' }}></div>
-                        </div>
-                        <div className="flex justify-between text-xs font-bold">
-                          <span className="text-[#087F73]">{cause.raised} Raised</span>
-                          <span className="text-gray-400">Goal: {cause.goal}</span>
+                        {/* Mock Progress Bar */}
+                        <div className="space-y-1.5 pt-2">
+                          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-[#087F73] rounded-full" style={{ width: '68%' }}></div>
+                          </div>
+                          <div className="flex justify-between text-xs font-bold">
+                            <span className="text-[#087F73]">{cause.raised} Raised</span>
+                            <span className="text-gray-400">Goal: {cause.goal}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div className="px-6 pb-6 pt-0 flex items-center justify-between">
                       <span className="text-xs text-[#2EAD62] font-semibold flex items-center gap-1">
                         <CheckCircle className="w-3.5 h-3.5" /> Verified Need
                       </span>
-                      <Link to="/register">
-                        <button className="px-3.5 py-1.5 rounded-lg bg-[#087F73] text-white text-xs font-bold hover:bg-[#05665D] transition-colors">
+                      <Link to="/donate">
+                        <button className="px-3.5 py-1.5 rounded-lg bg-[#087F73] text-white text-xs font-bold hover:bg-[#05665D] transition-colors cursor-pointer">
                           Contribute
                         </button>
                       </Link>
@@ -403,34 +418,47 @@ export default function LandingPage() {
               </div>
 
               {/* Visual Card / NGO Impact Metrics */}
-              <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-md space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-[#087F73] text-white">
-                    <HeartHandshake className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-[#17243A]">Our Social Promise</h3>
-                    <p className="text-xs text-[#667085]">Bridging the gap between intent and impact</p>
+              <div className="space-y-6">
+                <div className="relative rounded-3xl overflow-hidden shadow-lg border border-gray-200 group">
+                  <img
+                    src="/assets/about_community.jpg"
+                    alt="SevaConnect NGO Volunteers and Community Children"
+                    className="w-full h-72 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#17243A]/85 via-black/20 to-transparent flex items-end p-6">
+                    <div className="text-white">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#087F73] text-white inline-block mb-1.5 shadow-sm">
+                        Grassroots Solidarity
+                      </span>
+                      <p className="text-sm sm:text-base font-bold text-white drop-shadow-sm">
+                        Empowering grassroots initiatives across 15+ community districts
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#EAF6F3] border border-[#087F73]/15 space-y-2">
-                  <p className="text-xs font-bold text-[#087F73] uppercase tracking-wider">Direct Accountability</p>
-                  <p className="text-xs text-[#17243A] leading-relaxed">
-                    Every donation and community resource is tracked through verified NGO partners to ensure zero leakage and maximum grassroots impact.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
-                    <p className="text-2xl font-black text-[#087F73]">100%</p>
-                    <p className="text-xs font-bold text-[#17243A] mt-1">Verified Trusts</p>
-                    <p className="text-[11px] text-[#667085]">Strict NGO Due Diligence</p>
+                <div className="bg-white p-6 sm:p-7 rounded-3xl border border-gray-200 shadow-md space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-[#087F73] text-white">
+                      <HeartHandshake className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-[#17243A]">Our Social Promise</h3>
+                      <p className="text-xs text-[#667085]">Bridging the gap between intent and impact</p>
+                    </div>
                   </div>
-                  <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
-                    <p className="text-2xl font-black text-[#F7BA3E]">Direct</p>
-                    <p className="text-xs font-bold text-[#17243A] mt-1">Resource Delivery</p>
-                    <p className="text-[11px] text-[#667085]">From Donors to Communities</p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-100">
+                      <p className="text-xl font-black text-[#087F73]">100%</p>
+                      <p className="text-xs font-bold text-[#17243A] mt-0.5">Verified Trusts</p>
+                      <p className="text-[10px] text-[#667085]">Strict NGO Due Diligence</p>
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-100">
+                      <p className="text-xl font-black text-[#F7BA3E]">Direct</p>
+                      <p className="text-xs font-bold text-[#17243A] mt-0.5">Resource Delivery</p>
+                      <p className="text-[10px] text-[#667085]">From Donors to Communities</p>
+                    </div>
                   </div>
                 </div>
               </div>

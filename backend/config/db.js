@@ -32,6 +32,7 @@ const INITIAL_CAMPAIGNS = [
     deadline: "2026-12-31",
     category: "Education",
     status: "Active",
+    image_url: "/assets/campaigns/education.jpg",
     created_by: 2,
     created_at: "2026-08-01T10:00:00.000Z",
     updated_at: "2026-08-01T10:00:00.000Z"
@@ -45,6 +46,7 @@ const INITIAL_CAMPAIGNS = [
     deadline: "2026-11-30",
     category: "Healthcare",
     status: "Active",
+    image_url: "/assets/campaigns/water.jpg",
     created_by: 2,
     created_at: "2026-08-05T11:00:00.000Z",
     updated_at: "2026-08-05T11:00:00.000Z"
@@ -58,6 +60,7 @@ const INITIAL_CAMPAIGNS = [
     deadline: "2026-10-15",
     category: "Disaster Relief",
     status: "Active",
+    image_url: "/assets/campaigns/flood_relief.jpg",
     created_by: 2,
     created_at: "2026-08-10T12:00:00.000Z",
     updated_at: "2026-08-10T12:00:00.000Z"
@@ -71,6 +74,7 @@ const INITIAL_CAMPAIGNS = [
     deadline: "2026-11-20",
     category: "Community Care",
     status: "Active",
+    image_url: "/assets/campaigns/elderly.jpg",
     created_by: 2,
     created_at: "2026-08-12T09:00:00.000Z",
     updated_at: "2026-08-12T09:00:00.000Z"
@@ -84,6 +88,7 @@ const INITIAL_CAMPAIGNS = [
     deadline: "2026-12-15",
     category: "Nutrition",
     status: "Active",
+    image_url: "/assets/campaigns/nutrition.jpg",
     created_by: 2,
     created_at: "2026-08-15T10:00:00.000Z",
     updated_at: "2026-08-15T10:00:00.000Z"
@@ -97,6 +102,7 @@ const INITIAL_CAMPAIGNS = [
     deadline: "2026-11-30",
     category: "Healthcare",
     status: "Active",
+    image_url: "/assets/campaigns/medical.jpg",
     created_by: 2,
     created_at: "2026-08-18T11:00:00.000Z",
     updated_at: "2026-08-18T11:00:00.000Z"
@@ -110,6 +116,7 @@ const INITIAL_CAMPAIGNS = [
     deadline: "2026-08-31",
     category: "Community Care",
     status: "Completed",
+    image_url: "/assets/campaigns/winter.jpg",
     created_by: 2,
     created_at: "2026-08-01T10:00:00.000Z",
     updated_at: "2026-09-01T10:00:00.000Z"

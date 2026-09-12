@@ -55,7 +55,8 @@ export default function DonorDashboard() {
       ngo: 'Vidya Jyoti Trust',
       goal: '₹1,50,000',
       raised: '₹98,000',
-      category: 'Education & Meals'
+      category: 'Education & Meals',
+      image: '/assets/campaigns/education.jpg'
     },
     {
       id: 2,
@@ -63,7 +64,8 @@ export default function DonorDashboard() {
       ngo: 'Jal Seva Foundation',
       goal: '₹2,20,000',
       raised: '₹1,65,000',
-      category: 'Water & Health'
+      category: 'Water & Health',
+      image: '/assets/campaigns/water.jpg'
     }
   ];
 
@@ -246,27 +248,40 @@ export default function DonorDashboard() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {sampleFeaturedCauses.map((cause, idx) => (
-                <div key={idx} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-                  <div className="flex justify-between items-start">
-                    <span className="text-[11px] font-bold text-[#087F73] bg-[#EAF6F3] px-2.5 py-0.5 rounded-full">
-                      {cause.category}
-                    </span>
-                    <span className="text-xs text-emerald-700 font-semibold flex items-center gap-1">
-                      <CheckCircle className="w-3.5 h-3.5" /> NGO Verified
-                    </span>
+                <div key={idx} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group">
+                  <div>
+                    <div className="h-36 relative overflow-hidden bg-gray-100">
+                      <img
+                        src={cause.image}
+                        alt={cause.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent p-3.5 flex items-end justify-between">
+                        <span className="text-[11px] font-bold text-white bg-[#087F73] px-2.5 py-0.5 rounded-full shadow-xs">
+                          {cause.category}
+                        </span>
+                        <span className="text-[11px] text-white font-semibold flex items-center gap-1 bg-black/40 backdrop-blur-xs px-2 py-0.5 rounded-full">
+                          <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> NGO Verified
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-5 space-y-2.5">
+                      <h4 className="text-sm font-bold text-[#17243A] group-hover:text-[#087F73] transition-colors">{cause.title}</h4>
+                      <p className="text-xs text-[#667085]">Partner NGO: <strong className="text-[#17243A]">{cause.ngo}</strong></p>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#087F73] rounded-full" style={{ width: '65%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-xs font-bold">
+                        <span className="text-[#087F73]">{cause.raised} Raised</span>
+                        <span className="text-gray-400">Target: {cause.goal}</span>
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="text-sm font-bold text-[#17243A]">{cause.title}</h4>
-                  <p className="text-xs text-[#667085]">Partner NGO: <strong className="text-[#17243A]">{cause.ngo}</strong></p>
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#087F73] rounded-full" style={{ width: '65%' }}></div>
-                  </div>
-                  <div className="flex justify-between text-xs font-bold">
-                    <span className="text-[#087F73]">{cause.raised} Raised</span>
-                    <span className="text-gray-400">Target: {cause.goal}</span>
-                  </div>
-                  <div className="pt-2 border-t border-gray-100">
+
+                  <div className="p-5 pt-0 border-t border-gray-100 mt-2">
                     <Link to={`/donate?campaignId=${cause.id}`}>
-                      <Button variant="primary" size="sm" className="w-full">
+                      <Button variant="primary" size="sm" className="w-full mt-3">
                         Donate to Cause →
                       </Button>
                     </Link>

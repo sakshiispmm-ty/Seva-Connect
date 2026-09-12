@@ -5,6 +5,7 @@ import Sidebar from '../../components/Sidebar';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Alert from '../../components/Alert';
+import { getCampaignImage } from '../../utils/imageUtils';
 import {
   Menu,
   Megaphone,
@@ -265,8 +266,17 @@ export default function CampaignManagement() {
                       return (
                         <tr key={c.id} className="hover:bg-gray-50/60 transition-colors">
                           <td className="py-3.5 px-4 max-w-xs">
-                            <p className="font-bold text-[#17243A] truncate">{c.title}</p>
-                            <p className="text-[11px] text-[#667085] truncate">{c.description}</p>
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={getCampaignImage(c)}
+                                alt={c.title}
+                                className="w-10 h-10 rounded-xl object-cover shrink-0 border border-gray-100 shadow-2xs"
+                              />
+                              <div className="min-w-0">
+                                <p className="font-bold text-[#17243A] truncate">{c.title}</p>
+                                <p className="text-[11px] text-[#667085] truncate">{c.description}</p>
+                              </div>
+                            </div>
                           </td>
                           <td className="py-3.5 px-4 whitespace-nowrap">
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-gray-100 text-gray-700 border border-gray-200">

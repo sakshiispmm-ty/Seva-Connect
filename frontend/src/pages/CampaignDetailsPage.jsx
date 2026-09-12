@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
 import QRCodeCard from '../components/QRCodeCard';
+import { getCampaignImage } from '../utils/imageUtils';
 import {
   ArrowLeft,
   Calendar,
@@ -94,15 +95,22 @@ export default function CampaignDetailsPage() {
           Back to All Campaigns
         </Link>
 
-        {/* Campaign Header Banner */}
-        <div className="bg-gradient-to-r from-[#05665D] via-[#087F73] to-[#2EAD62] rounded-3xl p-8 sm:p-10 text-white shadow-md relative overflow-hidden mb-10">
+        {/* Campaign Header Banner with Cover Image */}
+        <div className="relative rounded-3xl p-8 sm:p-12 text-white shadow-xl overflow-hidden mb-10 min-h-[300px] flex flex-col justify-end bg-gray-900">
+          <img
+            src={getCampaignImage(campaign)}
+            alt={campaign.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#17243A] via-[#17243A]/70 to-black/30" />
+
           <div className="relative z-10 max-w-3xl">
             <div className="flex flex-wrap items-center gap-2 mb-4">
-              <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/20 backdrop-blur-xs border border-white/30">
+              <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#087F73] text-white shadow-sm border border-white/20">
                 {campaign.category}
               </span>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
                   campaign.status === 'Active'
                     ? 'bg-[#2EAD62] text-white'
                     : 'bg-amber-400 text-gray-900'
@@ -112,20 +120,20 @@ export default function CampaignDetailsPage() {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight drop-shadow-md">
               {campaign.title}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-6 mt-6 text-xs sm:text-sm text-white/90">
+            <div className="flex flex-wrap items-center gap-6 mt-6 text-xs sm:text-sm text-white/95 font-medium">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4 h-4 text-[#2EAD62]" />
                 <span>
                   Started: {new Date(campaign.start_date || campaign.created_at).toLocaleDateString('en-IN')}
                 </span>
               </div>
               {campaign.end_date && (
                 <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4" />
+                  <Target className="w-4 h-4 text-[#F7BA3E]" />
                   <span>Target Date: {new Date(campaign.end_date).toLocaleDateString('en-IN')}</span>
                 </div>
               )}
@@ -179,6 +187,13 @@ export default function CampaignDetailsPage() {
               <h2 className="text-lg font-bold text-[#17243A] mb-4">
                 About this Initiative
               </h2>
+              <div className="mb-6 rounded-2xl overflow-hidden max-h-80 shadow-xs border border-gray-100">
+                <img
+                  src={getCampaignImage(campaign)}
+                  alt={campaign.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="prose prose-sm text-gray-600 leading-relaxed space-y-4">
                 <p className="whitespace-pre-line">{campaign.description}</p>
               </div>
