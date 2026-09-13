@@ -18,9 +18,7 @@ const PORTAL_CONFIG = {
     themeBg: 'bg-[#EAF6F3]',
     accentColor: '#087F73',
     activeTabBg: 'bg-[#087F73] text-white shadow-md',
-    badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    demoEmail: 'donor@gmail.com',
-    demoPassword: 'Donor123'
+    badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200'
   },
   volunteer: {
     key: 'volunteer',
@@ -33,9 +31,7 @@ const PORTAL_CONFIG = {
     themeBg: 'bg-cyan-50/60',
     accentColor: '#0284C7',
     activeTabBg: 'bg-[#0284C7] text-white shadow-md',
-    badgeClass: 'bg-cyan-100 text-cyan-800 border-cyan-200',
-    demoEmail: 'volunteer@gmail.com',
-    demoPassword: 'Password123'
+    badgeClass: 'bg-cyan-100 text-cyan-800 border-cyan-200'
   },
   admin: {
     key: 'admin',
@@ -48,9 +44,7 @@ const PORTAL_CONFIG = {
     themeBg: 'bg-purple-50/50',
     accentColor: '#7C3AED',
     activeTabBg: 'bg-[#7C3AED] text-white shadow-md',
-    badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
-    demoEmail: 'pateljiaa16@gmail.com',
-    demoPassword: 'Admin123'
+    badgeClass: 'bg-purple-100 text-purple-800 border-purple-200'
   }
 };
 
@@ -211,27 +205,12 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Portal Info Badge & Quick Fill */}
-        <div className="mb-4 flex flex-col items-center justify-center gap-2">
+        {/* Portal Info Badge */}
+        <div className="mb-4 flex items-center justify-center">
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${currentPortal.badgeClass}`}>
             <CheckCircle2 className="w-3.5 h-3.5" />
             {currentPortal.badge}
           </span>
-          <button
-            type="button"
-            id="quick-fill-demo-btn"
-            onClick={() => {
-              setFormData({
-                email: currentPortal.demoEmail,
-                password: currentPortal.demoPassword
-              });
-              setErrors({});
-            }}
-            className="text-[11px] text-[#667085] hover:text-[#17243A] font-semibold bg-white/70 hover:bg-white px-2.5 py-1 rounded-full border border-gray-200/80 shadow-2xs transition-all flex items-center gap-1.5"
-          >
-            <span>⚡ Use Demo {currentPortal.shortLabel}:</span>
-            <span className="text-[#087F73] font-mono">{currentPortal.demoEmail}</span>
-          </button>
         </div>
 
         {/* Login Form Card */}
