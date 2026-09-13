@@ -740,7 +740,7 @@ async function query(sql, params = []) {
   }
 
   // 9. SELECT ... FROM users ORDER BY created_at DESC
-  if (normalizedSql.includes('FROM users') && normalizedSql.includes('ORDER BY created_at DESC')) {
+  if (normalizedSql.includes('FROM users') && normalizedSql.includes('ORDER BY created_at DESC') && !normalizedSql.includes('LEFT JOIN donations') && !normalizedSql.includes('donations_count')) {
     const sorted = [...users].reverse().map(({ password, ...rest }) => rest);
     if (normalizedSql.includes('LIMIT')) {
       return [sorted.slice(0, 10)];
@@ -1622,8 +1622,10 @@ async function query(sql, params = []) {
   // ==========================================================
   if (normalizedSql.includes("WHERE u.role = 'Donor'") || normalizedSql.includes("WHERE role = 'Donor'")) {
     let donorsList = users.filter(u => u.role === 'Donor').map(u => {
-      const userDonations = donations.filter(d => d.donor_id === u.id || d.donor_email?.toLowerCase() === u.email?.toLowerCase());
-      const totalDonated = userDonations.reduce((acc, d) => acc + (parseFloat(d.amount) || 0), 0);
+      const userDonations = donations.filter(d => (d.donor_id && d.donor_id === u.id) || (d.donor_email && d.donor_email.toLowerCase() === u.email.toLowerCase()));
+      const totalDonated = userDonations
+        .filter(d => d.donation_type === 'Money' && (d.status === 'Completed' || d.status === 'Verified'))
+        .reduce((acc, d) => acc + (parseFloat(d.amount) || 0), 0);
       return {
         id: u.id,
         name: u.name,
@@ -1631,7 +1633,9 @@ async function query(sql, params = []) {
         phone: u.phone,
         created_at: u.created_at,
         donations_count: userDonations.length,
-        total_donated: totalDonated
+        total_donations_count: userDonations.length,
+        total_donated: totalDonated,
+        total_amount_donated: totalDonated
       };
     });
     return [donorsList];

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import SearchFilterBar from '../../components/SearchFilterBar';
+import NotificationBell from '../../components/NotificationBell';
 import Alert from '../../components/Alert';
 import { donorService } from '../../services/api';
 import { 
@@ -49,13 +50,17 @@ export default function DonorManagement() {
 
   // Client-side sort
   const sortedDonors = [...donors].sort((a, b) => {
-    if (sortBy === 'amount') return (b.total_amount_donated || 0) - (a.total_amount_donated || 0);
-    if (sortBy === 'donations') return (b.total_donations_count || 0) - (a.total_donations_count || 0);
+    const aAmt = parseFloat(a.total_amount_donated ?? a.total_donated ?? 0);
+    const bAmt = parseFloat(b.total_amount_donated ?? b.total_donated ?? 0);
+    if (sortBy === 'amount') return bAmt - aAmt;
+    const aCount = parseInt(a.total_donations_count ?? a.donations_count ?? 0, 10);
+    const bCount = parseInt(b.total_donations_count ?? b.donations_count ?? 0, 10);
+    if (sortBy === 'donations') return bCount - aCount;
     return new Date(b.created_at || 0) - new Date(a.created_at || 0);
   });
 
-  const totalRaisedFromDonors = donors.reduce((sum, d) => sum + (parseFloat(d.total_amount_donated) || 0), 0);
-  const totalCompletedPledges = donors.reduce((sum, d) => sum + (parseInt(d.total_donations_count, 10) || 0), 0);
+  const totalRaisedFromDonors = donors.reduce((sum, d) => sum + (parseFloat(d.total_amount_donated ?? d.total_donated) || 0), 0);
+  const totalCompletedPledges = donors.reduce((sum, d) => sum + (parseInt(d.total_donations_count ?? d.donations_count, 10) || 0), 0);
 
   return (
     <div className="min-h-screen bg-[#FAFAF9] flex">
@@ -78,7 +83,8 @@ export default function DonorManagement() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <NotificationBell align="right" />
             <Link
               to="/admin/donations"
               className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-[#0B4F6C] text-white hover:bg-[#093e54] transition-colors shadow-xs"
@@ -215,13 +221,13 @@ export default function DonorManagement() {
 
                         <td className="py-4 px-6 text-center">
                           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
-                            {donor.total_donations_count || 0} donations
+                            {donor.total_donations_count ?? donor.donations_count ?? 0} donations
                           </span>
                         </td>
 
                         <td className="py-4 px-6 text-right">
                           <span className="font-bold text-emerald-700 text-sm">
-                            ₹{(parseFloat(donor.total_amount_donated) || 0).toLocaleString('en-IN')}
+                            ₹{(parseFloat(donor.total_amount_donated ?? donor.total_donated) || 0).toLocaleString('en-IN')}
                           </span>
                         </td>
 

@@ -17,7 +17,9 @@ async function getAllDonors(req, res) {
         u.phone,
         u.created_at,
         COUNT(d.id) AS donations_count,
-        COALESCE(SUM(CASE WHEN d.donation_type = 'Money' AND d.status = 'Completed' THEN d.amount ELSE 0 END), 0) AS total_donated
+        COUNT(d.id) AS total_donations_count,
+        COALESCE(SUM(CASE WHEN d.donation_type = 'Money' AND d.status = 'Completed' THEN d.amount ELSE 0 END), 0) AS total_donated,
+        COALESCE(SUM(CASE WHEN d.donation_type = 'Money' AND d.status = 'Completed' THEN d.amount ELSE 0 END), 0) AS total_amount_donated
       FROM users u
       LEFT JOIN donations d ON (d.donor_id = u.id OR LOWER(d.donor_email) = LOWER(u.email))
       WHERE u.role = 'Donor'

@@ -7,7 +7,7 @@
     "message": "Assistance request #REQ-001 submitted by Sunita Devi for food rations (High Urgency).",
     "reference_id": 1,
     "reference_type": "assistance_request",
-    "is_read": false,
+    "is_read": true,
     "created_at": "2026-09-13T10:30:00.000Z"
   },
   {
@@ -29,7 +29,7 @@
     "message": "Aarav Sharma pledged ₹10,000 for Flood Relief 2026 awaiting verification.",
     "reference_id": 5,
     "reference_type": "donation",
-    "is_read": false,
+    "is_read": true,
     "created_at": "2026-09-13T12:00:00.000Z"
   },
   {
@@ -53,5 +53,15 @@
     "reference_type": "donation",
     "is_read": false,
     "created_at": "2026-09-13T13:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "recipient_id": 22,
+    "type": "TaskAssigned",
+    "message": "You have been assigned to a relief delivery task: Request #REQ-008 (Education).",
+    "reference_type": "AssistanceRequest",
+    "reference_id": 8,
+    "is_read": false,
+    "created_at": "2026-08-13T22:26:51.000Z"
   }
 ]
