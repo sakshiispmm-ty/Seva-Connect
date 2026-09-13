@@ -23,8 +23,11 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   }
 
   if (!isAuthenticated || !user) {
-    // Redirect unauthenticated users to login, keeping the attempted URL
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Redirect unauthenticated users to the specific login portal based on attempted URL
+    const isVolunteerRoute = location.pathname.startsWith('/volunteer');
+    const isAdminRoute = location.pathname.startsWith('/admin');
+    const targetLogin = isVolunteerRoute ? '/login/volunteer' : (isAdminRoute ? '/login/admin' : '/login');
+    return <Navigate to={targetLogin} state={{ from: location }} replace />;
   }
 
   // Check role authorization

@@ -47,6 +47,11 @@ export default function Footer() {
                 </a>
               </li>
               <li>
+                <Link to="/request-assistance" className="text-gray-300 hover:text-[#2EAD62] transition-colors">
+                  Request Assistance
+                </Link>
+              </li>
+              <li>
                 <a href="/#features" className="text-gray-300 hover:text-[#2EAD62] transition-colors">
                   Modules Preview
                 </a>
@@ -61,13 +66,18 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/login" className="text-gray-300 hover:text-[#2EAD62] transition-colors">
-                  Donor Login
+                <Link to="/login/donor" className="text-gray-300 hover:text-[#2EAD62] transition-colors">
+                  Donor Portal
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-gray-300 hover:text-[#2EAD62] transition-colors">
-                  Admin Portal
+                <Link to="/login/volunteer" className="text-gray-300 hover:text-[#2EAD62] transition-colors">
+                  Volunteer Portal
+                </Link>
+              </li>
+              <li>
+                <Link to="/login/admin" className="text-gray-300 hover:text-[#2EAD62] transition-colors">
+                  Admin Desk
                 </Link>
               </li>
               <li>

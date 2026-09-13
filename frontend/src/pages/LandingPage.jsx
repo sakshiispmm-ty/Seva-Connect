@@ -89,8 +89,8 @@ export default function LandingPage() {
       icon: Gift,
       tag: 'Donation Module',
       description: 'Facilitate secure monetary contributions and material donations with transparent fund allocation, automated 80G tax receipts, and complete donor auditability.',
-      link: '/admin/donations',
-      actionText: isAdmin ? 'Donation Desk →' : 'Donation Management →'
+      link: isAdmin ? '/admin/donations' : '/donate',
+      actionText: isAdmin ? 'Donation Desk →' : 'Make a Contribution →'
     },
     {
       title: 'Campaign Management',
@@ -105,32 +105,32 @@ export default function LandingPage() {
       icon: Users,
       tag: 'Volunteer Module',
       description: 'Recruit passionate local volunteers, assign on-ground relief tasks, coordinate disaster response teams, and confirm real-time aid handovers.',
-      link: isAdmin ? '/admin/volunteers' : (isVolunteer ? '/volunteer' : '/volunteer'),
-      actionText: isAdmin ? 'Volunteer Force →' : 'Volunteer Portal →'
+      link: isAdmin ? '/admin/volunteers' : (isVolunteer ? '/volunteer' : '/login/volunteer'),
+      actionText: isAdmin ? 'Volunteer Force →' : (isVolunteer ? 'Volunteer Dashboard →' : 'Volunteer Portal →')
     },
     {
       title: 'Beneficiary Registry',
       icon: HeartHandshake,
       tag: 'Beneficiary Module',
       description: 'Dignified beneficiary intake, direct identity verification, family ration distribution, and transparent community social welfare delivery.',
-      link: '/admin/beneficiaries',
-      actionText: 'Beneficiary Registry →'
+      link: isAdmin ? '/admin/beneficiaries' : '/request-assistance',
+      actionText: isAdmin ? 'Beneficiary Registry →' : 'Request Assistance →'
     },
     {
       title: 'Warehouse & Inventory',
       icon: Package,
       tag: 'Logistics Module',
       description: 'Real-time warehouse inventory for grain supplies, medicine kits, winter blankets, low-stock threshold alerts, and rapid disaster logistics.',
-      link: '/admin/inventory',
-      actionText: 'Warehouse & Inventory →'
+      link: isAdmin ? '/admin/inventory' : '/donate',
+      actionText: isAdmin ? 'Warehouse & Inventory →' : 'Pledge Supplies →'
     },
     {
       title: 'Assistance Pipeline & Dispatch',
       icon: FileText,
       tag: 'Aid Pipeline Module',
       description: 'Direct community request intake, priority urgency triage, verified relief dispatch, and real-time delivery confirmation by on-ground volunteers.',
-      link: '/admin/assistance-requests',
-      actionText: 'Assistance Pipeline →'
+      link: isAdmin ? '/admin/assistance-requests' : (isVolunteer ? '/volunteer' : '/request-assistance'),
+      actionText: isAdmin ? 'Assistance Pipeline →' : (isVolunteer ? 'Assigned Tasks →' : 'Submit Aid Request →')
     }
   ];
 
