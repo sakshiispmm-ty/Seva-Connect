@@ -14,7 +14,7 @@
     "name": "Jia Patel",
     "email": "pateljiaa16@gmail.com",
     "phone": "+91 9123456780",
-    "password": "$2a$10$153xmkEb6spNlu5mStInveRUnvvd3V.jFGQ988fAhL7SkvPjRqVnq",
+    "password": "$2a$10$xBk0ciaWUm.WN96y82d1pud7WWPtC3HFaA.9MeVg5Yy06HsvRxZtO",
     "role": "Admin",
     "created_at": "2026-08-01T09:00:00.000Z",
     "updated_at": "2026-08-01T09:00:00.000Z"
@@ -124,7 +124,7 @@
     "name": "Sakshi",
     "email": "sakshiispmm@gmail.com",
     "phone": "+91 7094562043",
-    "password": "$2a$10$AbDg9B9PKJdRhzc4rYnoouXr6L4rLxSz78rgGwhu3pMbIirzDuNfS",
+    "password": "$2a$10$xBk0ciaWUm.WN96y82d1pud7WWPtC3HFaA.9MeVg5Yy06HsvRxZtO",
     "role": "Admin",
     "created_at": "2026-08-01T09:15:00.000Z",
     "updated_at": "2026-08-01T09:15:00.000Z"
@@ -134,7 +134,7 @@
     "name": "Sanjana Patel",
     "email": "sanjanapatelspm@gmail.com",
     "phone": "+91 9123456781",
-    "password": "$2a$10$AbDg9B9PKJdRhzc4rYnoouXr6L4rLxSz78rgGwhu3pMbIirzDuNfS",
+    "password": "$2a$10$xBk0ciaWUm.WN96y82d1pud7WWPtC3HFaA.9MeVg5Yy06HsvRxZtO",
     "role": "Admin",
     "created_at": "2026-08-01T09:30:00.000Z",
     "updated_at": "2026-08-01T09:30:00.000Z"
@@ -144,7 +144,7 @@
     "name": "Shreeya",
     "email": "shreeyaspm31@gmail.com",
     "phone": "+91 9123456782",
-    "password": "$2a$10$AbDg9B9PKJdRhzc4rYnoouXr6L4rLxSz78rgGwhu3pMbIirzDuNfS",
+    "password": "$2a$10$xBk0ciaWUm.WN96y82d1pud7WWPtC3HFaA.9MeVg5Yy06HsvRxZtO",
     "role": "Admin",
     "created_at": "2026-08-01T09:45:00.000Z",
     "updated_at": "2026-08-01T09:45:00.000Z"

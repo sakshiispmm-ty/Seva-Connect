@@ -50,7 +50,7 @@ const PORTAL_CONFIG = {
     activeTabBg: 'bg-[#7C3AED] text-white shadow-md',
     badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
     demoEmail: 'pateljiaa16@gmail.com',
-    demoPassword: 'admin123'
+    demoPassword: 'Admin123'
   }
 };
 

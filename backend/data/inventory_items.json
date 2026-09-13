@@ -4,11 +4,11 @@
     "name": "Family Emergency Grain & Ration Kit (15kg)",
     "category": "Food & Nutrition",
     "unit": "Kits",
-    "quantity_available": 112,
-    "quantity_distributed": 57,
+    "quantity_available": 134,
+    "quantity_distributed": 61,
     "low_stock_threshold": 30,
     "created_at": "2026-08-01T10:00:00.000Z",
-    "updated_at": "2026-08-13T17:12:08.000Z"
+    "updated_at": "2026-09-13T13:26:50.160Z"
   },
   {
     "id": 2,

@@ -68,5 +68,19 @@
     "admin_notes": "Urgent emergency ration kits allocated for delivery by Rahul Sharma",
     "created_at": "2026-08-18T15:00:00.000Z",
     "updated_at": "2026-08-20T17:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "beneficiary_id": 6,
+    "category": "Food & Nutrition",
+    "description": "Urgent ration kits needed for 4 daily-wage families.",
+    "quantity_needed": "4 Kit",
+    "urgency": "High",
+    "status": "Completed",
+    "reviewed_by": 2,
+    "assigned_volunteer_id": 25,
+    "admin_notes": "Deliver immediately.",
+    "created_at": "2026-08-13T18:47:24.000Z",
+    "updated_at": "2026-09-13T13:26:50.130Z"
   }
 ]

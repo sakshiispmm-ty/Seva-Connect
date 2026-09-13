@@ -28,5 +28,15 @@
     "distribution_status": "Allocated",
     "created_at": "2026-08-13T17:12:08.000Z",
     "updated_at": "2026-08-13T17:12:08.000Z"
+  },
+  {
+    "id": 4,
+    "assistance_request_id": 6,
+    "inventory_item_id": 1,
+    "quantity": 4,
+    "allocated_by": 2,
+    "distribution_status": "Delivered",
+    "created_at": "2026-08-13T18:51:53.000Z",
+    "updated_at": "2026-09-13T13:26:50.160Z"
   }
 ]

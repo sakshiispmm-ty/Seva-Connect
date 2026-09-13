@@ -75,5 +75,38 @@
     "reference_id": null,
     "performed_by": null,
     "created_at": "2026-08-13T17:12:08.000Z"
+  },
+  {
+    "id": 8,
+    "inventory_item_id": 1,
+    "change_type": 4,
+    "quantity": 0,
+    "reason": 6,
+    "reference_type": 2,
+    "reference_id": null,
+    "performed_by": null,
+    "created_at": "2026-08-13T18:51:53.000Z"
+  },
+  {
+    "id": 9,
+    "inventory_item_id": 1,
+    "change_type": "Addition",
+    "quantity": 16,
+    "reason": "Procurement / In-kind receipt",
+    "reference_type": 2,
+    "reference_id": null,
+    "performed_by": null,
+    "created_at": "2026-08-13T18:54:11.000Z"
+  },
+  {
+    "id": 10,
+    "inventory_item_id": 1,
+    "change_type": "Addition",
+    "quantity": 10,
+    "reason": "Procurement / In-kind receipt",
+    "reference_type": 2,
+    "reference_id": null,
+    "performed_by": null,
+    "created_at": "2026-08-13T18:54:29.000Z"
   }
 ]
