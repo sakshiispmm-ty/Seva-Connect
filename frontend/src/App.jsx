@@ -17,6 +17,15 @@ import DonatePage from './pages/DonatePage';
 import DonationSuccessPage from './pages/DonationSuccessPage';
 import DonationHistoryPage from './pages/DonationHistoryPage';
 
+// V1.3 NGO Operations Pages
+import RequestAssistancePage from './pages/RequestAssistancePage';
+import VolunteerDashboard from './pages/volunteer/VolunteerDashboard';
+import VolunteerProfile from './pages/volunteer/VolunteerProfile';
+import BeneficiaryManagement from './pages/admin/BeneficiaryManagement';
+import AssistanceRequestManagement from './pages/admin/AssistanceRequestManagement';
+import InventoryManagement from './pages/admin/InventoryManagement';
+import VolunteerManagement from './pages/admin/VolunteerManagement';
+
 // Dashboards & Admin Pages
 import DonorDashboard from './pages/DonorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -31,18 +40,23 @@ export default function App() {
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/login/:role" element={<LoginPage />} />
+          <Route path="/donor/login" element={<Navigate to="/login/donor" replace />} />
+          <Route path="/volunteer/login" element={<Navigate to="/login/volunteer" replace />} />
+          <Route path="/admin/login" element={<Navigate to="/login/admin" replace />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/campaigns/:id" element={<CampaignDetailsPage />} />
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/donation-success" element={<DonationSuccessPage />} />
+          <Route path="/request-assistance" element={<RequestAssistancePage />} />
 
           {/* Protected Donor Routes */}
           <Route
             path="/donor"
             element={
-              <ProtectedRoute allowedRoles={['Donor']}>
+              <ProtectedRoute allowedRoles={['Donor', 'Admin']}>
                 <DonorDashboard />
               </ProtectedRoute>
             }
@@ -50,8 +64,26 @@ export default function App() {
           <Route
             path="/donor/history"
             element={
-              <ProtectedRoute allowedRoles={['Donor']}>
+              <ProtectedRoute allowedRoles={['Donor', 'Admin']}>
                 <DonationHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Volunteer Routes (V1.3) */}
+          <Route
+            path="/volunteer"
+            element={
+              <ProtectedRoute allowedRoles={['Volunteer', 'Admin']}>
+                <VolunteerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/volunteer/profile"
+            element={
+              <ProtectedRoute allowedRoles={['Volunteer', 'Admin']}>
+                <VolunteerProfile />
               </ProtectedRoute>
             }
           />
@@ -81,12 +113,44 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/assistance-requests"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <AssistanceRequestManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/beneficiaries"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <BeneficiaryManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/inventory"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <InventoryManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/volunteers"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <VolunteerManagement />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* Protected Profile Route (Accessible by both Donor and Admin) */}
+          {/* Protected Profile Route (Accessible by Donor, Admin, and Volunteer) */}
           <Route
             path="/profile"
             element={
-              <ProtectedRoute allowedRoles={['Donor', 'Admin']}>
+              <ProtectedRoute allowedRoles={['Donor', 'Admin', 'Volunteer']}>
                 <ProfilePage />
               </ProtectedRoute>
             }

@@ -43,7 +43,8 @@ export const authService = {
   logout: () => api.post('/auth/logout'),
   getMe: () => api.get('/auth/me'),
   forgotPassword: (data) => api.post('/auth/forgot-password', data),
-  resetPassword: (data) => api.post('/auth/reset-password', data)
+  resetPassword: (data) => api.post('/auth/reset-password', data),
+  getVirtualMailbox: (email) => api.get('/auth/virtual-mailbox', { params: { email } })
 };
 
 // User Profile Service
@@ -80,4 +81,39 @@ export const donationService = {
   getReceipt: (id) => api.get(`/donations/${id}/receipt`)
 };
 
+// Volunteer Service (V1.3)
+export const volunteerService = {
+  getProfile: () => api.get('/volunteers/profile'),
+  updateProfile: (data) => api.put('/volunteers/profile', data),
+  getTasks: () => api.get('/volunteers/tasks'),
+  deliverTask: (id) => api.put(`/volunteers/tasks/${id}/deliver`),
+  getAll: () => api.get('/volunteers')
+};
+
+// Beneficiary Service (V1.3)
+export const beneficiaryService = {
+  create: (data) => api.post('/beneficiaries', data),
+  getAll: () => api.get('/beneficiaries'),
+  getById: (id) => api.get(`/beneficiaries/${id}`),
+  update: (id, data) => api.put(`/beneficiaries/${id}`, data)
+};
+
+// Assistance Request Service (V1.3)
+export const assistanceRequestService = {
+  submit: (data) => api.post('/assistance-requests', data),
+  getAll: (params) => api.get('/assistance-requests', { params }),
+  getById: (id) => api.get(`/assistance-requests/${id}`),
+  review: (id, data) => api.put(`/assistance-requests/${id}/review`, data),
+  allocate: (id, data) => api.put(`/assistance-requests/${id}/allocate`, data)
+};
+
+// Inventory Service (V1.3)
+export const inventoryService = {
+  getAll: () => api.get('/inventory'),
+  create: (data) => api.post('/inventory', data),
+  adjust: (id, data) => api.put(`/inventory/${id}`, data),
+  getHistory: (id) => api.get(`/inventory/${id}/history`)
+};
+
 export default api;
+

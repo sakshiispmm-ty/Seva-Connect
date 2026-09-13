@@ -25,7 +25,7 @@ export default function DonorDashboard() {
       title: 'My Donations & History',
       icon: Gift,
       description: 'View your registered monetary gifts and in-kind contributions, check verification status, and download 80G tax receipts.',
-      tag: 'Live V1.2',
+      tag: 'Receipts & History',
       link: '/donor/history',
       actionText: 'My Donations',
       id: 'btn-my-donations'
@@ -34,7 +34,7 @@ export default function DonorDashboard() {
       title: 'Active Campaigns',
       icon: Megaphone,
       description: 'Explore live, community-vetted relief campaigns, healthcare camps, and child education projects requiring urgent support.',
-      tag: 'Live V1.2',
+      tag: 'Verified',
       link: '/campaigns',
       actionText: 'Browse Campaigns',
     },
@@ -42,7 +42,7 @@ export default function DonorDashboard() {
       title: 'Pledge Donation',
       icon: Heart,
       description: 'Register a new monetary donation or material aid (rations, medicines, books) towards any verified initiative.',
-      tag: 'Live V1.2',
+      tag: 'Direct Impact',
       link: '/donate',
       actionText: 'Make a Contribution',
     },
@@ -198,7 +198,7 @@ export default function DonorDashboard() {
                 <p className="text-xs text-[#667085]">Explore active initiatives, make pledges, and track verification status</p>
               </div>
               <span className="text-xs font-semibold text-[#087F73] bg-white px-3 py-1 rounded-full border border-gray-200">
-                Live V1.2 Operations
+                Active Giving Portals
               </span>
             </div>
 

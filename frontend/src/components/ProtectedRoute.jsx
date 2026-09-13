@@ -30,7 +30,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   // Check role authorization
   if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     // Redirect to permitted dashboard if role does not match
-    const destination = user.role === 'Admin' ? '/admin' : '/donor';
+    const destination = user.role === 'Admin' ? '/admin' : (user.role === 'Volunteer' ? '/volunteer' : '/donor');
     return <Navigate to={destination} replace />;
   }
 

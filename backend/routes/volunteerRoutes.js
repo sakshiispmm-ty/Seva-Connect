@@ -1,0 +1,15 @@
+const express = require('express');
+const router = express.Router();
+const volunteerController = require('../controllers/volunteerController');
+const { verifyToken, requireRole } = require('../middleware/authMiddleware');
+
+// Volunteer Routes (Volunteer Role or Admin)
+router.get('/profile', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getProfile);
+router.put('/profile', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.updateProfile);
+router.get('/tasks', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getTasks);
+router.put('/tasks/:id/deliver', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.deliverTask);
+
+// Admin Routes (Admin Role)
+router.get('/', verifyToken, requireRole('Admin'), volunteerController.getAllVolunteers);
+
+module.exports = router;

@@ -18,7 +18,9 @@ import {
   TrendingUp,
   BookOpen,
   Activity,
-  Award
+  Award,
+  FileText,
+  Truck
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -83,9 +85,7 @@ export default function LandingPage() {
       tag: 'Donation Module',
       description: 'Facilitate secure monetary contributions and material donations with transparent fund allocation, automated 80G tax receipts, and complete donor auditability.',
       link: '/donate',
-      status: 'Live V1.2',
-      actionText: 'Make a Contribution →',
-      isLive: true
+      actionText: 'Make a Contribution →'
     },
     {
       title: 'Campaign Management',
@@ -93,39 +93,39 @@ export default function LandingPage() {
       tag: 'Campaign Module',
       description: 'Create cause-driven appeals for disaster relief, girl-child education, health camps, and seasonal hunger alleviation with real-time progress tracking.',
       link: '/campaigns',
-      status: 'Live V1.2',
-      actionText: 'Explore Campaigns →',
-      isLive: true
+      actionText: 'Explore Campaigns →'
     },
     {
-      title: 'Volunteer Management',
+      title: 'Volunteer Operations',
       icon: Users,
       tag: 'Volunteer Module',
-      description: 'Recruit passionate local volunteers, assign on-ground relief tasks, coordinate disaster response teams, and celebrate volunteer milestones.',
-      link: '/register',
-      status: 'Volunteer Onboarding',
-      actionText: 'Join as Volunteer →',
-      isLive: false
+      description: 'Recruit passionate local volunteers, assign on-ground relief tasks, coordinate disaster response teams, and confirm real-time aid handovers.',
+      link: '/login/volunteer',
+      actionText: 'Volunteer Portal →'
     },
     {
-      title: 'Beneficiary Assistance',
+      title: 'Beneficiary Registry',
       icon: HeartHandshake,
       tag: 'Beneficiary Module',
       description: 'Dignified beneficiary intake, direct identity verification, family ration distribution, and transparent community social welfare delivery.',
-      link: '/campaigns',
-      status: 'Grassroots Aid',
-      actionText: 'View Causes →',
-      isLive: false
+      link: '/request-assistance',
+      actionText: 'Request Assistance →'
     },
     {
-      title: 'Resource Management',
+      title: 'Warehouse & Inventory',
       icon: Package,
       tag: 'Logistics Module',
-      description: 'Real-time warehouse inventory for grain supplies, medicine kits, winter blankets, emergency shelters, and rapid disaster logistics.',
+      description: 'Real-time warehouse inventory for grain supplies, medicine kits, winter blankets, low-stock threshold alerts, and rapid disaster logistics.',
       link: '/donate',
-      status: 'Material Pledges Live',
-      actionText: 'Pledge Supplies →',
-      isLive: true
+      actionText: 'Pledge Supplies →'
+    },
+    {
+      title: 'Assistance Pipeline & Dispatch',
+      icon: FileText,
+      tag: 'Aid Pipeline Module',
+      description: 'Direct community request intake, priority urgency triage, verified relief dispatch, and real-time delivery confirmation by on-ground volunteers.',
+      link: '/request-assistance',
+      actionText: 'Submit Aid Request →'
     }
   ];
 
@@ -527,10 +527,10 @@ export default function LandingPage() {
                 NGO Management Capabilities
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17243A]">
-                Feature Preview
+                Platform Capabilities
               </h2>
               <p className="text-sm text-[#667085]">
-                Professional informational cards previewing core modules designed to empower NGOs and donors in managing social initiatives and resources.
+                Integrated modules designed to empower NGOs, donors, and communities in managing social initiatives and relief resources.
               </p>
             </div>
 
@@ -557,12 +557,7 @@ export default function LandingPage() {
                       </h3>
                       <p className="text-sm text-[#667085] leading-relaxed">{feature.description}</p>
                     </div>
-                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
-                      <span className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
-                        feature.isLive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {feature.status}
-                      </span>
+                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-end text-xs">
                       <span className="font-bold text-[#087F73] group-hover:translate-x-1 transition-transform inline-flex items-center">
                         {feature.actionText}
                       </span>

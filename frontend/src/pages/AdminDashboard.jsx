@@ -347,6 +347,80 @@ export default function AdminDashboard() {
             );
           })()}
 
+          {/* V1.3 NGO OPERATIONS & DISPATCH MODULES */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-[#17243A]">
+                NGO Operational Modules & Relief Pipeline
+              </h3>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#EAF6F3] text-[#087F73] border border-[#087F73]/20">
+                Relief Pipeline
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Link
+                to="/admin/assistance-requests"
+                className="p-5 rounded-2xl bg-white border border-gray-200 hover:border-[#087F73] shadow-xs hover:shadow-md transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-[#17243A] group-hover:text-[#087F73] transition-colors">
+                  Assistance Requests
+                </h4>
+                <p className="text-xs text-[#667085] mt-1">
+                  Review beneficiary needs, approve requests, and allocate relief inventory.
+                </p>
+              </Link>
+
+              <Link
+                to="/admin/beneficiaries"
+                className="p-5 rounded-2xl bg-white border border-gray-200 hover:border-[#087F73] shadow-xs hover:shadow-md transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                  <HeartHandshake className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-[#17243A] group-hover:text-[#087F73] transition-colors">
+                  Beneficiary Registry
+                </h4>
+                <p className="text-xs text-[#667085] mt-1">
+                  Profiles, location addresses, and past assistance request history.
+                </p>
+              </Link>
+
+              <Link
+                to="/admin/inventory"
+                className="p-5 rounded-2xl bg-white border border-gray-200 hover:border-[#087F73] shadow-xs hover:shadow-md transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                  <Package className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-[#17243A] group-hover:text-[#087F73] transition-colors">
+                  Inventory & Stock Desk
+                </h4>
+                <p className="text-xs text-[#667085] mt-1">
+                  Available supplies, low-stock threshold flags, and stock audit trails.
+                </p>
+              </Link>
+
+              <Link
+                to="/admin/volunteers"
+                className="p-5 rounded-2xl bg-white border border-gray-200 hover:border-[#087F73] shadow-xs hover:shadow-md transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[#EAF6F3] text-[#087F73] flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                  <Users className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-[#17243A] group-hover:text-[#087F73] transition-colors">
+                  Volunteer Force
+                </h4>
+                <p className="text-xs text-[#667085] mt-1">
+                  Roster of active volunteers, availability windows, and task assignments.
+                </p>
+              </Link>
+            </div>
+          </div>
+
           {/* LIVE DONATIONS & VERIFICATION QUEUE (DIRECT ADMIN ACCESS) */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
@@ -509,6 +583,7 @@ export default function AdminDashboard() {
                   >
                     <option value="All">All Roles</option>
                     <option value="Donor">Donor</option>
+                    <option value="Volunteer">Volunteer</option>
                     <option value="Admin">Admin</option>
                   </select>
                 </div>
@@ -551,6 +626,8 @@ export default function AdminDashboard() {
                             className={`text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${
                               u.role === 'Admin'
                                 ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                : u.role === 'Volunteer'
+                                ? 'bg-purple-100 text-purple-800 border border-purple-200'
                                 : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                             }`}
                           >
@@ -588,10 +665,10 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
                   <h3 className="text-lg font-bold text-[#17243A]">Live Operational Desks</h3>
-                  <p className="text-xs text-[#667085]">Active Version 1.2 modules for campaign management and donation verification</p>
+                  <p className="text-xs text-[#667085]">Active modules for campaign management and donation verification</p>
                 </div>
                 <span className="text-xs font-semibold text-[#087F73] bg-[#EAF6F3] px-3 py-1 rounded-full">
-                  Live V1.2 Desks
+                  Operational Desks
                 </span>
               </div>
 

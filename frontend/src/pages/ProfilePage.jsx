@@ -206,7 +206,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <p className="mt-1 text-[11px] text-[#667085]">
-                    Email address is tied to your login identity and cannot be changed in V1.1.
+                    Email address is tied to your login identity and cannot be changed.
                   </p>
                 </div>
 

@@ -33,18 +33,24 @@ export default function Sidebar({ isOpen, onClose, role }) {
     { label: 'My Profile', path: '/profile', icon: User },
   ];
 
+  const volunteerLinks = [
+    { label: 'Assigned Tasks', path: '/volunteer', icon: LayoutDashboard },
+    { label: 'Volunteer Profile', path: '/volunteer/profile', icon: User },
+    { label: 'Active Campaigns', path: '/campaigns', icon: Megaphone },
+  ];
+
   const adminLinks = [
     { label: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
     { label: 'Campaigns', path: '/admin/campaigns', icon: Megaphone },
     { label: 'Donation Desk', path: '/admin/donations', icon: Gift },
+    { label: 'Assistance Requests', path: '/admin/assistance-requests', icon: FileText },
+    { label: 'Beneficiaries', path: '/admin/beneficiaries', icon: HeartHandshake },
+    { label: 'Inventory', path: '/admin/inventory', icon: Package },
+    { label: 'Volunteers', path: '/admin/volunteers', icon: Users },
     { label: 'My Profile', path: '/profile', icon: User },
-    { label: 'Volunteers', path: '#', icon: Users, isPlaceholder: true },
-    { label: 'Beneficiaries', path: '#', icon: HeartHandshake, isPlaceholder: true },
-    { label: 'Inventory', path: '#', icon: Package, isPlaceholder: true },
-    { label: 'Reports', path: '#', icon: FileText, isPlaceholder: true },
   ];
 
-  const links = role === 'Admin' ? adminLinks : donorLinks;
+  const links = role === 'Admin' ? adminLinks : (role === 'Volunteer' ? volunteerLinks : donorLinks);
 
   return (
     <>
@@ -96,6 +102,8 @@ export default function Sidebar({ isOpen, onClose, role }) {
               className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                 role === 'Admin'
                   ? 'bg-[#F7BA3E]/20 text-[#17243A] border border-[#F7BA3E]'
+                  : role === 'Volunteer'
+                  ? 'bg-[#087F73]/15 text-[#087F73] border border-[#087F73]/40'
                   : 'bg-[#2EAD62]/20 text-[#05665D] border border-[#2EAD62]'
               }`}
             >

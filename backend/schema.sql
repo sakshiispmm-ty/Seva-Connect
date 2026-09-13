@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(150) NOT NULL UNIQUE,
   phone VARCHAR(20) NOT NULL,
   password VARCHAR(255) NOT NULL,
-  role ENUM('Donor', 'Admin') NOT NULL DEFAULT 'Donor',
+  role ENUM('Donor', 'Admin', 'Volunteer') NOT NULL DEFAULT 'Donor',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_email (email),
@@ -74,3 +74,117 @@ INSERT IGNORE INTO campaigns (id, title, description, goal_amount, start_date, d
 (5, 'Daily Malnutrition Prevention & Midday Meal Drive', 'Serving fresh, protein-rich hot meals, vitamin supplements, and clean drinking water to over 400 malnourished children and mothers.', 180000.00, '2026-08-15', '2026-12-15', 'Nutrition', 'Active', 2),
 (6, 'Rural Mobile Medical Van & Diagnostic Health Camps', 'Operating free mobile health clinics equipped with basic diagnostic equipment, essential medicines, and maternal checkups.', 250000.00, '2026-08-18', '2026-11-30', 'Healthcare', 'Active', 2),
 (7, 'Winter Clothes & Blanket Drive for Homeless Families', 'Successfully distributed thermal woollens, jackets, and heavy blankets to 800+ pavement dwellers facing harsh winter waves.', 100000.00, '2026-08-01', '2026-08-31', 'Community Care', 'Completed', 2);
+
+-- ==========================================================
+-- SevaConnect Database Schema V1.3 (NGO Operations)
+-- ==========================================================
+
+ALTER TABLE users MODIFY COLUMN role ENUM('Donor', 'Admin', 'Volunteer') NOT NULL DEFAULT 'Donor';
+
+CREATE TABLE IF NOT EXISTS volunteer_profiles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE,
+  skills VARCHAR(255),
+  availability VARCHAR(255),
+  status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS beneficiaries (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  phone VARCHAR(20),
+  email VARCHAR(150),
+  address TEXT,
+  category VARCHAR(100),
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS assistance_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  beneficiary_id INT NOT NULL,
+  category VARCHAR(100),
+  description TEXT NOT NULL,
+  quantity_needed VARCHAR(50),
+  urgency ENUM('Low', 'Medium', 'High') DEFAULT 'Medium',
+  status ENUM('Submitted', 'Under Review', 'Approved', 'Rejected', 'Resources Allocated', 'Volunteer Assigned', 'Completed') NOT NULL DEFAULT 'Submitted',
+  reviewed_by INT NULL,
+  assigned_volunteer_id INT NULL,
+  admin_notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (beneficiary_id) REFERENCES beneficiaries(id),
+  FOREIGN KEY (reviewed_by) REFERENCES users(id),
+  FOREIGN KEY (assigned_volunteer_id) REFERENCES users(id),
+  INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS inventory_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  category VARCHAR(100),
+  unit VARCHAR(30) NOT NULL,
+  quantity_available DECIMAL(12,2) NOT NULL DEFAULT 0,
+  quantity_distributed DECIMAL(12,2) NOT NULL DEFAULT 0,
+  low_stock_threshold DECIMAL(12,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS inventory_history (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  inventory_item_id INT NOT NULL,
+  change_type ENUM('Addition', 'Deduction') NOT NULL,
+  quantity DECIMAL(12,2) NOT NULL,
+  reason VARCHAR(255),
+  reference_type VARCHAR(50),
+  reference_id INT NULL,
+  performed_by INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id),
+  FOREIGN KEY (performed_by) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS resource_allocations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  assistance_request_id INT NOT NULL,
+  inventory_item_id INT NOT NULL,
+  quantity DECIMAL(12,2) NOT NULL,
+  allocated_by INT NOT NULL,
+  distribution_status ENUM('Allocated', 'Delivered') NOT NULL DEFAULT 'Allocated',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (assistance_request_id) REFERENCES assistance_requests(id),
+  FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id),
+  FOREIGN KEY (allocated_by) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Initial Seed Inventory Items
+INSERT IGNORE INTO inventory_items (id, name, category, unit, quantity_available, quantity_distributed, low_stock_threshold) VALUES
+(1, 'Family Emergency Grain & Ration Kit (15kg)', 'Food & Nutrition', 'Kits', 120.00, 45.00, 30.00),
+(2, 'Thermal Winter Woollen Blankets', 'Winter Relief', 'Pieces', 85.00, 150.00, 25.00),
+(3, 'Community Medical First-Aid Kit', 'Medical & Health', 'Boxes', 40.00, 15.00, 15.00),
+(4, 'Sanitary Hygiene & Soap Packs', 'Hygiene & Water', 'Packs', 18.00, 95.00, 20.00),
+(5, 'Primary School Remedial Study Kit', 'Education', 'Sets', 60.00, 35.00, 15.00);
+
+-- Initial Seed Admin & Volunteer Users (Password: Password123)
+INSERT IGNORE INTO users (id, name, email, phone, password, role) VALUES
+(2, 'Jia Admin', 'admin@sevaconnect.org', '+91 9123456780', '$2a$10$Yj1rE5YSlerLKIwS1IbBH.ujIfZ8OpnAiBMjRMi./pBvcVjd1J0Te', 'Admin'),
+(22, 'Sakshi Patel', 'volunteer@gmail.com', '9876543299', '$2a$10$Yj1rE5YSlerLKIwS1IbBH.ujIfZ8OpnAiBMjRMi./pBvcVjd1J0Te', 'Volunteer'),
+(23, 'Sanjana Sharma', 'sanjana.volunteer@email.com', '9823456711', '$2a$10$Yj1rE5YSlerLKIwS1IbBH.ujIfZ8OpnAiBMjRMi./pBvcVjd1J0Te', 'Volunteer'),
+(24, 'Shreeya Mehta', 'shreeya.volunteer@email.com', '9812345622', '$2a$10$Yj1rE5YSlerLKIwS1IbBH.ujIfZ8OpnAiBMjRMi./pBvcVjd1J0Te', 'Volunteer'),
+(25, 'Ananya Roy', 'ananya.volunteer@email.com', '9834567833', '$2a$10$Yj1rE5YSlerLKIwS1IbBH.ujIfZ8OpnAiBMjRMi./pBvcVjd1J0Te', 'Volunteer'),
+(26, 'Vikram Joshi', 'vikram.volunteer@email.com', '9845678944', '$2a$10$Yj1rE5YSlerLKIwS1IbBH.ujIfZ8OpnAiBMjRMi./pBvcVjd1J0Te', 'Volunteer');
+
+-- Initial Seed Volunteer Profiles
+INSERT IGNORE INTO volunteer_profiles (id, user_id, skills, availability, status) VALUES
+(1, 22, 'Emergency First Aid, Food Distribution, Vehicle Logistics', 'Weekends & Evenings', 'Active'),
+(2, 23, 'Medical First Aid, Health Checkups, Nutrition Guidance', 'Full-Time (Emergency On-Call)', 'Active'),
+(3, 24, 'Education & Teaching, Youth Mentoring, Digital Literacy', 'Weekdays (Afternoons)', 'Active'),
+(4, 25, 'Field Coordination, Beneficiary Verification, Community Liaison', 'Flexible / Shift-based', 'Active'),
+(5, 26, 'Heavy Transport, Warehouse Inventory, Emergency Logistics', 'Weekends & Emergency Calls', 'Active');
+
+

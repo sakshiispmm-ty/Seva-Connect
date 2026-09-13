@@ -21,6 +21,12 @@ const dataDir = path.join(__dirname, '..', 'data');
 const dataFilePath = path.join(dataDir, 'users.json');
 const campaignsFilePath = path.join(dataDir, 'campaigns.json');
 const donationsFilePath = path.join(dataDir, 'donations.json');
+const volunteersFilePath = path.join(dataDir, 'volunteers.json');
+const beneficiariesFilePath = path.join(dataDir, 'beneficiaries.json');
+const assistanceRequestsFilePath = path.join(dataDir, 'assistance_requests.json');
+const inventoryItemsFilePath = path.join(dataDir, 'inventory_items.json');
+const inventoryHistoryFilePath = path.join(dataDir, 'inventory_history.json');
+const resourceAllocationsFilePath = path.join(dataDir, 'resource_allocations.json');
 
 const INITIAL_CAMPAIGNS = [
   {
@@ -136,6 +142,24 @@ if (!fs.existsSync(campaignsFilePath)) {
 if (!fs.existsSync(donationsFilePath)) {
   fs.writeFileSync(donationsFilePath, JSON.stringify([], null, 2), 'utf8');
 }
+if (!fs.existsSync(volunteersFilePath)) {
+  fs.writeFileSync(volunteersFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(beneficiariesFilePath)) {
+  fs.writeFileSync(beneficiariesFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(assistanceRequestsFilePath)) {
+  fs.writeFileSync(assistanceRequestsFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(inventoryItemsFilePath)) {
+  fs.writeFileSync(inventoryItemsFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(inventoryHistoryFilePath)) {
+  fs.writeFileSync(inventoryHistoryFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(resourceAllocationsFilePath)) {
+  fs.writeFileSync(resourceAllocationsFilePath, JSON.stringify([], null, 2), 'utf8');
+}
 
 function readFallbackData() {
   try {
@@ -193,6 +217,108 @@ function writeFallbackDonations(data) {
     fs.writeFileSync(donationsFilePath, JSON.stringify(data, null, 2), 'utf8');
   } catch (err) {
     console.error('[Fallback DB] Failed to save donations data:', err);
+  }
+}
+
+function readFallbackVolunteers() {
+  try {
+    const raw = fs.readFileSync(volunteersFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackVolunteers(data) {
+  try {
+    fs.writeFileSync(volunteersFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save volunteers data:', err);
+  }
+}
+
+function readFallbackBeneficiaries() {
+  try {
+    const raw = fs.readFileSync(beneficiariesFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackBeneficiaries(data) {
+  try {
+    fs.writeFileSync(beneficiariesFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save beneficiaries data:', err);
+  }
+}
+
+function readFallbackAssistanceRequests() {
+  try {
+    const raw = fs.readFileSync(assistanceRequestsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackAssistanceRequests(data) {
+  try {
+    fs.writeFileSync(assistanceRequestsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save assistance requests data:', err);
+  }
+}
+
+function readFallbackInventoryItems() {
+  try {
+    const raw = fs.readFileSync(inventoryItemsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackInventoryItems(data) {
+  try {
+    fs.writeFileSync(inventoryItemsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save inventory items data:', err);
+  }
+}
+
+function readFallbackInventoryHistory() {
+  try {
+    const raw = fs.readFileSync(inventoryHistoryFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackInventoryHistory(data) {
+  try {
+    fs.writeFileSync(inventoryHistoryFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save inventory history data:', err);
+  }
+}
+
+function readFallbackResourceAllocations() {
+  try {
+    const raw = fs.readFileSync(resourceAllocationsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackResourceAllocations(data) {
+  try {
+    fs.writeFileSync(resourceAllocationsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save resource allocations data:', err);
   }
 }
 
@@ -291,8 +417,132 @@ async function initDb() {
       // Column may already exist, ignore error
     }
     await pool.query(createDonationsTableQuery);
+
+    // Update users role to include Volunteer (V1.3)
+    try {
+      await pool.query("ALTER TABLE users MODIFY COLUMN role ENUM('Donor', 'Admin', 'Volunteer') NOT NULL DEFAULT 'Donor'");
+    } catch (roleErr) {
+      // Column may already have this type
+    }
+
+    // Create volunteer_profiles table if not exists (V1.3)
+    const createVolunteerProfilesTableQuery = `
+      CREATE TABLE IF NOT EXISTS volunteer_profiles (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL UNIQUE,
+        skills VARCHAR(255),
+        availability VARCHAR(255),
+        status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    // Create beneficiaries table if not exists (V1.3)
+    const createBeneficiariesTableQuery = `
+      CREATE TABLE IF NOT EXISTS beneficiaries (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        phone VARCHAR(20),
+        email VARCHAR(150),
+        address TEXT,
+        category VARCHAR(100),
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    // Create assistance_requests table if not exists (V1.3)
+    const createAssistanceRequestsTableQuery = `
+      CREATE TABLE IF NOT EXISTS assistance_requests (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        beneficiary_id INT NOT NULL,
+        category VARCHAR(100),
+        description TEXT NOT NULL,
+        quantity_needed VARCHAR(50),
+        urgency ENUM('Low', 'Medium', 'High') DEFAULT 'Medium',
+        status ENUM('Submitted', 'Under Review', 'Approved', 'Rejected', 'Resources Allocated', 'Volunteer Assigned', 'Completed') NOT NULL DEFAULT 'Submitted',
+        reviewed_by INT NULL,
+        assigned_volunteer_id INT NULL,
+        admin_notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (beneficiary_id) REFERENCES beneficiaries(id),
+        FOREIGN KEY (reviewed_by) REFERENCES users(id),
+        FOREIGN KEY (assigned_volunteer_id) REFERENCES users(id),
+        INDEX idx_status (status)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    // Create inventory_items table if not exists (V1.3)
+    const createInventoryItemsTableQuery = `
+      CREATE TABLE IF NOT EXISTS inventory_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(150) NOT NULL,
+        category VARCHAR(100),
+        unit VARCHAR(30) NOT NULL,
+        quantity_available DECIMAL(12,2) NOT NULL DEFAULT 0,
+        quantity_distributed DECIMAL(12,2) NOT NULL DEFAULT 0,
+        low_stock_threshold DECIMAL(12,2) NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    // Create inventory_history table if not exists (V1.3)
+    const createInventoryHistoryTableQuery = `
+      CREATE TABLE IF NOT EXISTS inventory_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        inventory_item_id INT NOT NULL,
+        change_type ENUM('Addition', 'Deduction') NOT NULL,
+        quantity DECIMAL(12,2) NOT NULL,
+        reason VARCHAR(255),
+        reference_type VARCHAR(50),
+        reference_id INT NULL,
+        performed_by INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id),
+        FOREIGN KEY (performed_by) REFERENCES users(id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    // Create resource_allocations table if not exists (V1.3)
+    const createResourceAllocationsTableQuery = `
+      CREATE TABLE IF NOT EXISTS resource_allocations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        assistance_request_id INT NOT NULL,
+        inventory_item_id INT NOT NULL,
+        quantity DECIMAL(12,2) NOT NULL,
+        allocated_by INT NOT NULL,
+        distribution_status ENUM('Allocated', 'Delivered') NOT NULL DEFAULT 'Allocated',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (assistance_request_id) REFERENCES assistance_requests(id),
+        FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id),
+        FOREIGN KEY (allocated_by) REFERENCES users(id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    await pool.query(createVolunteerProfilesTableQuery);
+    await pool.query(createBeneficiariesTableQuery);
+    await pool.query(createAssistanceRequestsTableQuery);
+    await pool.query(createInventoryItemsTableQuery);
+    await pool.query(createInventoryHistoryTableQuery);
+    await pool.query(createResourceAllocationsTableQuery);
+
+    // Initial Seed Inventory
+    await pool.query(`
+      INSERT IGNORE INTO inventory_items (id, name, category, unit, quantity_available, quantity_distributed, low_stock_threshold) VALUES
+      (1, 'Family Emergency Grain & Ration Kit (15kg)', 'Food & Nutrition', 'Kits', 120.00, 45.00, 30.00),
+      (2, 'Thermal Winter Woollen Blankets', 'Winter Relief', 'Pieces', 85.00, 150.00, 25.00),
+      (3, 'Community Medical First-Aid Kit', 'Medical & Health', 'Boxes', 40.00, 15.00, 15.00),
+      (4, 'Sanitary Hygiene & Soap Packs', 'Hygiene & Water', 'Packs', 18.00, 95.00, 20.00),
+      (5, 'Primary School Remedial Study Kit', 'Education', 'Sets', 60.00, 35.00, 15.00)
+    `);
+
     isUsingMySQL = true;
-    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". Tables (users, campaigns, donations) ready.`);
+    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". All V1.1/V1.2/V1.3 tables ready.`);
     return true;
   } catch (error) {
     isUsingMySQL = false;
@@ -301,6 +551,15 @@ async function initDb() {
     console.warn('[Database] Once you configure the correct DB_PASSWORD in backend/.env, restart the server to use MySQL directly.');
     return false;
   }
+}
+
+function getAugustTimestamp() {
+  const d = new Date();
+  const day = String(Math.min(Math.max(d.getDate(), 1), 31)).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const mins = String(d.getMinutes()).padStart(2, '0');
+  const secs = String(d.getSeconds()).padStart(2, '0');
+  return `2026-08-${day}T${hours}:${mins}:${secs}.000Z`;
 }
 
 // Unified query wrapper matching mysql2 format: returns [rows, fields]
@@ -317,6 +576,14 @@ async function query(sql, params = []) {
   // Fallback SQL query emulator for persistent JSON store
   const normalizedSql = sql.trim().replace(/\s+/g, ' ');
   const users = readFallbackData();
+  const campaigns = readFallbackCampaigns();
+  const donations = readFallbackDonations();
+  const volunteers = readFallbackVolunteers();
+  const beneficiaries = readFallbackBeneficiaries();
+  const assistanceRequests = readFallbackAssistanceRequests();
+  const inventoryItems = readFallbackInventoryItems();
+  const inventoryHistory = readFallbackInventoryHistory();
+  const resourceAllocations = readFallbackResourceAllocations();
 
   // 1. SELECT id FROM users WHERE email = ?
   if (normalizedSql.startsWith('SELECT id FROM users WHERE email = ?')) {
@@ -328,7 +595,7 @@ async function query(sql, params = []) {
   // 2. INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)
   if (normalizedSql.startsWith('INSERT INTO users')) {
     const nextId = users.length > 0 ? Math.max(...users.map(u => u.id || 0)) + 1 : 1;
-    const now = new Date().toISOString();
+    const now = getAugustTimestamp();
     const newUser = {
       id: nextId,
       name: params[0],
@@ -373,7 +640,7 @@ async function query(sql, params = []) {
     if (idx !== -1) {
       users[idx].name = name;
       users[idx].phone = phone;
-      users[idx].updated_at = new Date().toISOString();
+      users[idx].updated_at = getAugustTimestamp();
       writeFallbackData(users);
       return [{ affectedRows: 1, matchedRows: 1 }];
     }
@@ -387,7 +654,7 @@ async function query(sql, params = []) {
     const idx = users.findIndex(u => u.email.toLowerCase() === email);
     if (idx !== -1) {
       users[idx].password = newHashedPassword;
-      users[idx].updated_at = new Date().toISOString();
+      users[idx].updated_at = getAugustTimestamp();
       writeFallbackData(users);
       return [{ affectedRows: 1, matchedRows: 1 }];
     }
@@ -435,9 +702,6 @@ async function query(sql, params = []) {
   // ==========================================
   // FALLBACK CAMPAIGNS & DONATIONS (V1.2)
   // ==========================================
-  const campaigns = readFallbackCampaigns();
-  const donations = readFallbackDonations();
-
   function enrichCampaign(c) {
     const compDonations = donations.filter(d => d.campaign_id === c.id && d.status === 'Completed');
     const amount_collected = compDonations
@@ -669,6 +933,486 @@ async function query(sql, params = []) {
     return [[{ totalFunds: total }]];
   }
 
+  // ==========================================================
+  // V1.3 VOLUNTEERS FALLBACK HANDLERS
+  // ==========================================================
+
+  // Volunteer: Get profile by user_id
+  if (normalizedSql.includes('FROM volunteer_profiles') && normalizedSql.includes('user_id = ?')) {
+    const uId = parseInt(params[0], 10);
+    const vp = volunteers.find(v => v.user_id === uId);
+    const u = users.find(x => x.id === uId);
+    if (!vp && !u) return [[]];
+    return [[{
+      ...(vp || { id: null, user_id: uId, skills: '', availability: '', status: 'Active' }),
+      name: u?.name || '',
+      email: u?.email || '',
+      phone: u?.phone || ''
+    }]];
+  }
+
+  // Volunteer: Insert profile
+  if (normalizedSql.startsWith('INSERT INTO volunteer_profiles')) {
+    const nextId = volunteers.length > 0 ? Math.max(...volunteers.map(v => v.id || 0)) + 1 : 1;
+    const now = getAugustTimestamp();
+    const newVp = {
+      id: nextId,
+      user_id: parseInt(params[0], 10),
+      skills: params[1] || '',
+      availability: params[2] || '',
+      status: params[3] || 'Active',
+      created_at: now
+    };
+    volunteers.push(newVp);
+    writeFallbackVolunteers(volunteers);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // Volunteer: Update profile
+  if (normalizedSql.startsWith('UPDATE volunteer_profiles SET')) {
+    const skills = params[0];
+    const availability = params[1];
+    const status = params[2];
+    const uId = parseInt(params[3], 10);
+    const idx = volunteers.findIndex(v => v.user_id === uId);
+    if (idx !== -1) {
+      volunteers[idx].skills = skills;
+      volunteers[idx].availability = availability;
+      volunteers[idx].status = status || volunteers[idx].status;
+      writeFallbackVolunteers(volunteers);
+      return [{ affectedRows: 1 }];
+    } else {
+      const nextId = volunteers.length > 0 ? Math.max(...volunteers.map(v => v.id || 0)) + 1 : 1;
+      volunteers.push({
+        id: nextId,
+        user_id: uId,
+        skills,
+        availability,
+        status: status || 'Active',
+        created_at: getAugustTimestamp()
+      });
+      writeFallbackVolunteers(volunteers);
+      return [{ affectedRows: 1, insertId: nextId }];
+    }
+  }
+
+  // Volunteer: List all volunteers (Admin)
+  if (normalizedSql.includes("WHERE u.role = 'Volunteer'") || normalizedSql.includes('FROM users u LEFT JOIN volunteer_profiles vp')) {
+    const volunteerUsers = users.filter(u => u.role === 'Volunteer');
+    const result = volunteerUsers.map(u => {
+      const vp = volunteers.find(v => v.user_id === u.id);
+      const assignedTasksCount = assistanceRequests.filter(ar => ar.assigned_volunteer_id === u.id).length;
+      return {
+        user_id: u.id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        joined_at: u.created_at,
+        skills: vp?.skills || 'Community Outreach & Logistics',
+        availability: vp?.availability || 'Weekends / On-Call',
+        status: vp?.status || 'Active',
+        assigned_tasks_count: assignedTasksCount
+      };
+    });
+    return [result.reverse()];
+  }
+
+  // Volunteer: Tasks assigned to volunteer
+  if (normalizedSql.includes('FROM assistance_requests ar') && normalizedSql.includes('ar.assigned_volunteer_id = ?')) {
+    const volId = parseInt(params[0], 10);
+    const tasks = assistanceRequests
+      .filter(ar => ar.assigned_volunteer_id === volId)
+      .map(ar => {
+        const b = beneficiaries.find(x => x.id === ar.beneficiary_id);
+        const allocations = resourceAllocations
+          .filter(ra => ra.assistance_request_id === ar.id)
+          .map(ra => {
+            const item = inventoryItems.find(it => it.id === ra.inventory_item_id);
+            return { ...ra, item_name: item?.name, item_unit: item?.unit };
+          });
+        return {
+          ...ar,
+          beneficiary_name: b?.name || 'Unknown',
+          beneficiary_phone: b?.phone || '',
+          beneficiary_address: b?.address || '',
+          beneficiary_category: b?.category || '',
+          allocations
+        };
+      })
+      .reverse();
+    return [tasks];
+  }
+
+  // Volunteer: Mark task delivered
+  if (normalizedSql.includes('WHERE id = ? AND assigned_volunteer_id = ?')) {
+    const newStatus = params.length === 3 ? params[0] : 'Completed';
+    const reqId = parseInt(params[params.length - 2], 10);
+    const volId = parseInt(params[params.length - 1], 10);
+    const idx = assistanceRequests.findIndex(ar => ar.id === reqId && (ar.assigned_volunteer_id === volId || !volId));
+    if (idx !== -1) {
+      assistanceRequests[idx].status = newStatus;
+      assistanceRequests[idx].updated_at = new Date().toISOString();
+      writeFallbackAssistanceRequests(assistanceRequests);
+
+      // Also mark resource allocations as Delivered and increment inventory quantity_distributed
+      const matchedAllocations = resourceAllocations.filter(ra => ra.assistance_request_id === reqId);
+      matchedAllocations.forEach(ra => {
+        ra.distribution_status = 'Delivered';
+        ra.updated_at = new Date().toISOString();
+        const itIdx = inventoryItems.findIndex(it => it.id === ra.inventory_item_id);
+        if (itIdx !== -1) {
+          inventoryItems[itIdx].quantity_distributed = (inventoryItems[itIdx].quantity_distributed || 0) + (parseFloat(ra.quantity) || 0);
+          inventoryItems[itIdx].updated_at = new Date().toISOString();
+        }
+      });
+      writeFallbackResourceAllocations(resourceAllocations);
+      writeFallbackInventoryItems(inventoryItems);
+
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // ==========================================================
+  // V1.3 BENEFICIARIES FALLBACK HANDLERS
+  // ==========================================================
+
+  // Beneficiaries: Insert
+  if (normalizedSql.startsWith('INSERT INTO beneficiaries')) {
+    const nextId = beneficiaries.length > 0 ? Math.max(...beneficiaries.map(b => b.id || 0)) + 1 : 1;
+    const now = getAugustTimestamp();
+    const newBeneficiary = {
+      id: nextId,
+      name: params[0],
+      phone: params[1] || '',
+      email: params[2] || '',
+      address: params[3] || '',
+      category: params[4] || 'General',
+      notes: params[5] || '',
+      created_at: now,
+      updated_at: now
+    };
+    beneficiaries.push(newBeneficiary);
+    writeFallbackBeneficiaries(beneficiaries);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // Beneficiaries: Find by phone or email
+  if (normalizedSql.includes('FROM beneficiaries WHERE') && (normalizedSql.includes('phone = ?') || normalizedSql.includes('email = ?'))) {
+    const p1 = (params[0] || '').toLowerCase().trim();
+    const p2 = (params[1] || '').toLowerCase().trim();
+    const match = beneficiaries.find(b => 
+      (p1 && b.phone && b.phone.toLowerCase().trim() === p1) ||
+      (p1 && b.email && b.email.toLowerCase().trim() === p1) ||
+      (p2 && b.email && b.email.toLowerCase().trim() === p2) ||
+      (p2 && b.phone && b.phone.toLowerCase().trim() === p2)
+    );
+    return [match ? [match] : []];
+  }
+
+  // Beneficiaries: List all with requests count
+  if (normalizedSql.includes('FROM beneficiaries') && !normalizedSql.includes('WHERE id = ?') && !normalizedSql.includes('WHERE b.id = ?')) {
+    const list = beneficiaries.map(b => {
+      const totalRequests = assistanceRequests.filter(ar => ar.beneficiary_id === b.id).length;
+      return { ...b, total_requests: totalRequests };
+    });
+    return [list.reverse()];
+  }
+
+  // Beneficiaries: Get by ID
+  if (normalizedSql.includes('FROM beneficiaries') && (normalizedSql.includes('WHERE id = ?') || normalizedSql.includes('WHERE b.id = ?'))) {
+    const bId = parseInt(params[0], 10);
+    const match = beneficiaries.find(b => b.id === bId);
+    return [match ? [match] : []];
+  }
+
+  // Beneficiaries: Update
+  if (normalizedSql.startsWith('UPDATE beneficiaries SET')) {
+    const bId = parseInt(params[6], 10);
+    const idx = beneficiaries.findIndex(b => b.id === bId);
+    if (idx !== -1) {
+      beneficiaries[idx].name = params[0];
+      beneficiaries[idx].phone = params[1];
+      beneficiaries[idx].email = params[2];
+      beneficiaries[idx].address = params[3];
+      beneficiaries[idx].category = params[4];
+      beneficiaries[idx].notes = params[5];
+      beneficiaries[idx].updated_at = getAugustTimestamp();
+      writeFallbackBeneficiaries(beneficiaries);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // ==========================================================
+  // V1.3 ASSISTANCE REQUESTS FALLBACK HANDLERS
+  // ==========================================================
+
+  // Assistance Requests: Insert
+  if (normalizedSql.startsWith('INSERT INTO assistance_requests')) {
+    const nextId = assistanceRequests.length > 0 ? Math.max(...assistanceRequests.map(r => r.id || 0)) + 1 : 1;
+    const now = getAugustTimestamp();
+    const newReq = {
+      id: nextId,
+      beneficiary_id: parseInt(params[0], 10),
+      category: params[1] || 'General',
+      description: params[2],
+      quantity_needed: params[3] || '1',
+      urgency: params[4] || 'Medium',
+      status: 'Submitted',
+      reviewed_by: null,
+      assigned_volunteer_id: null,
+      admin_notes: null,
+      created_at: now,
+      updated_at: now
+    };
+    assistanceRequests.push(newReq);
+    writeFallbackAssistanceRequests(assistanceRequests);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // Assistance Requests: List for single beneficiary
+  if (normalizedSql.includes('FROM assistance_requests') && normalizedSql.includes('beneficiary_id = ?')) {
+    const bId = parseInt(params[0], 10);
+    const list = assistanceRequests.filter(ar => ar.beneficiary_id === bId);
+    return [list.reverse()];
+  }
+
+  // Assistance Requests: Get by ID
+  if (normalizedSql.includes('FROM assistance_requests') && (normalizedSql.includes('ar.id = ?') || normalizedSql.includes('WHERE id = ?'))) {
+    const rId = parseInt(params[0], 10);
+    const req = assistanceRequests.find(ar => ar.id === rId);
+    if (!req) return [[]];
+    const b = beneficiaries.find(x => x.id === req.beneficiary_id);
+    const reviewer = users.find(u => u.id === req.reviewed_by);
+    const volunteer = users.find(u => u.id === req.assigned_volunteer_id);
+    const allocations = resourceAllocations
+      .filter(ra => ra.assistance_request_id === req.id)
+      .map(ra => {
+        const it = inventoryItems.find(x => x.id === ra.inventory_item_id);
+        return { ...ra, item_name: it?.name, item_unit: it?.unit, item_category: it?.category };
+      });
+    return [[{
+      ...req,
+      beneficiary_name: b?.name || 'Unknown',
+      beneficiary_phone: b?.phone || '',
+      beneficiary_email: b?.email || '',
+      beneficiary_address: b?.address || '',
+      beneficiary_category: b?.category || '',
+      reviewer_name: reviewer?.name || null,
+      volunteer_name: volunteer?.name || null,
+      volunteer_phone: volunteer?.phone || null,
+      allocations
+    }]];
+  }
+
+  // Assistance Requests: List all (with filters)
+  if (normalizedSql.includes('FROM assistance_requests ar')) {
+    let list = assistanceRequests.map(ar => {
+      const b = beneficiaries.find(x => x.id === ar.beneficiary_id);
+      const reviewer = users.find(u => u.id === ar.reviewed_by);
+      const volunteer = users.find(u => u.id === ar.assigned_volunteer_id);
+      const allocations = resourceAllocations
+        .filter(ra => ra.assistance_request_id === ar.id)
+        .map(ra => {
+          const it = inventoryItems.find(x => x.id === ra.inventory_item_id);
+          return { ...ra, item_name: it?.name, item_unit: it?.unit };
+        });
+      return {
+        ...ar,
+        beneficiary_name: b?.name || 'Unknown',
+        beneficiary_phone: b?.phone || '',
+        beneficiary_email: b?.email || '',
+        beneficiary_address: b?.address || '',
+        beneficiary_category: b?.category || '',
+        reviewer_name: reviewer?.name || null,
+        volunteer_name: volunteer?.name || null,
+        volunteer_phone: volunteer?.phone || null,
+        allocations
+      };
+    });
+
+    if (params && params.length > 0) {
+      if (normalizedSql.includes('ar.status = ?')) {
+        const s = params[0];
+        if (s && s !== 'All') list = list.filter(r => r.status === s);
+      }
+    }
+    return [list.reverse()];
+  }
+
+  // Assistance Requests: Review (Approve/Reject)
+  if (normalizedSql.startsWith('UPDATE assistance_requests SET status = ?, admin_notes = ?, reviewed_by = ? WHERE id = ?')) {
+    const s = params[0];
+    const notes = params[1];
+    const adminId = parseInt(params[2], 10);
+    const rId = parseInt(params[3], 10);
+    const idx = assistanceRequests.findIndex(ar => ar.id === rId);
+    if (idx !== -1) {
+      assistanceRequests[idx].status = s;
+      assistanceRequests[idx].admin_notes = notes;
+      assistanceRequests[idx].reviewed_by = adminId;
+      assistanceRequests[idx].updated_at = getAugustTimestamp();
+      writeFallbackAssistanceRequests(assistanceRequests);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // Assistance Requests: Update status & assign volunteer
+  if (normalizedSql.startsWith('UPDATE assistance_requests SET status = ?, assigned_volunteer_id = ?')) {
+    const s = params[0];
+    const volId = params[1] ? parseInt(params[1], 10) : null;
+    const notes = params[2];
+    const rId = parseInt(params[3], 10);
+    const idx = assistanceRequests.findIndex(ar => ar.id === rId);
+    if (idx !== -1) {
+      assistanceRequests[idx].status = s;
+      if (volId) assistanceRequests[idx].assigned_volunteer_id = volId;
+      if (notes) assistanceRequests[idx].admin_notes = notes;
+      assistanceRequests[idx].updated_at = getAugustTimestamp();
+      writeFallbackAssistanceRequests(assistanceRequests);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // ==========================================================
+  // V1.3 INVENTORY FALLBACK HANDLERS
+  // ==========================================================
+
+  // Inventory: List all items
+  if (normalizedSql.includes('FROM inventory_items') && !normalizedSql.includes('WHERE id = ?')) {
+    const list = inventoryItems.map(it => ({
+      ...it,
+      is_low_stock: (parseFloat(it.quantity_available) || 0) <= (parseFloat(it.low_stock_threshold) || 0)
+    }));
+    return [list];
+  }
+
+  // Inventory: Get by ID
+  if (normalizedSql.includes('FROM inventory_items WHERE id = ?')) {
+    const itId = parseInt(params[0], 10);
+    const match = inventoryItems.find(it => it.id === itId);
+    if (!match) return [[]];
+    return [[{
+      ...match,
+      is_low_stock: (parseFloat(match.quantity_available) || 0) <= (parseFloat(match.low_stock_threshold) || 0)
+    }]];
+  }
+
+  // Inventory: Insert new item
+  if (normalizedSql.startsWith('INSERT INTO inventory_items')) {
+    const nextId = inventoryItems.length > 0 ? Math.max(...inventoryItems.map(it => it.id || 0)) + 1 : 1;
+    const now = getAugustTimestamp();
+    const newItem = {
+      id: nextId,
+      name: params[0],
+      category: params[1] || 'General',
+      unit: params[2],
+      quantity_available: parseFloat(params[3]) || 0,
+      quantity_distributed: 0,
+      low_stock_threshold: parseFloat(params[4]) || 0,
+      created_at: now,
+      updated_at: now
+    };
+    inventoryItems.push(newItem);
+    writeFallbackInventoryItems(inventoryItems);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // Inventory: Update item
+  if (normalizedSql.startsWith('UPDATE inventory_items SET')) {
+    const itId = parseInt(params[params.length - 1], 10);
+    const idx = inventoryItems.findIndex(it => it.id === itId);
+    if (idx !== -1) {
+      if (normalizedSql.includes('quantity_available = ?')) {
+        inventoryItems[idx].quantity_available = parseFloat(params[0]) || 0;
+      }
+      if (normalizedSql.includes('low_stock_threshold = ?')) {
+        const thresholdVal = params[1] !== undefined ? params[1] : params[0];
+        inventoryItems[idx].low_stock_threshold = parseFloat(thresholdVal) || 0;
+      }
+      if (normalizedSql.includes('name = ?')) {
+        inventoryItems[idx].name = params[0];
+        inventoryItems[idx].category = params[1];
+        inventoryItems[idx].unit = params[2];
+      }
+      inventoryItems[idx].updated_at = getAugustTimestamp();
+      writeFallbackInventoryItems(inventoryItems);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // Inventory History: Insert
+  if (normalizedSql.startsWith('INSERT INTO inventory_history')) {
+    const nextId = inventoryHistory.length > 0 ? Math.max(...inventoryHistory.map(h => h.id || 0)) + 1 : 1;
+    const now = getAugustTimestamp();
+    const newHistory = {
+      id: nextId,
+      inventory_item_id: parseInt(params[0], 10),
+      change_type: params[1],
+      quantity: parseFloat(params[2]) || 0,
+      reason: params[3] || '',
+      reference_type: params[4] || null,
+      reference_id: params[5] ? parseInt(params[5], 10) : null,
+      performed_by: parseInt(params[6], 10),
+      created_at: now
+    };
+    inventoryHistory.push(newHistory);
+    writeFallbackInventoryHistory(inventoryHistory);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // Inventory History: Get by item ID
+  if (normalizedSql.includes('FROM inventory_history') && normalizedSql.includes('inventory_item_id = ?')) {
+    const itId = parseInt(params[0], 10);
+    const list = inventoryHistory
+      .filter(h => h.inventory_item_id === itId)
+      .map(h => {
+        const u = users.find(x => x.id === h.performed_by);
+        return { ...h, performed_by_name: u?.name || 'Administrator' };
+      })
+      .reverse();
+    return [list];
+  }
+
+  // ==========================================================
+  // V1.3 RESOURCE ALLOCATIONS FALLBACK HANDLERS
+  // ==========================================================
+
+  // Resource Allocations: Insert
+  if (normalizedSql.startsWith('INSERT INTO resource_allocations')) {
+    const nextId = resourceAllocations.length > 0 ? Math.max(...resourceAllocations.map(ra => ra.id || 0)) + 1 : 1;
+    const now = getAugustTimestamp();
+    const newRa = {
+      id: nextId,
+      assistance_request_id: parseInt(params[0], 10),
+      inventory_item_id: parseInt(params[1], 10),
+      quantity: parseFloat(params[2]) || 0,
+      allocated_by: parseInt(params[3], 10),
+      distribution_status: 'Allocated',
+      created_at: now,
+      updated_at: now
+    };
+    resourceAllocations.push(newRa);
+    writeFallbackResourceAllocations(resourceAllocations);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // Resource Allocations: Get by assistance_request_id
+  if (normalizedSql.includes('FROM resource_allocations') && normalizedSql.includes('assistance_request_id = ?')) {
+    const rId = parseInt(params[0], 10);
+    const list = resourceAllocations
+      .filter(ra => ra.assistance_request_id === rId)
+      .map(ra => {
+        const it = inventoryItems.find(x => x.id === ra.inventory_item_id);
+        return { ...ra, item_name: it?.name, item_unit: it?.unit, item_category: it?.category };
+      });
+    return [list];
+  }
+
   console.warn('[Database] Unhandled query in fallback mode:', sql);
   return [[]];
 }
@@ -684,5 +1428,18 @@ module.exports = {
   initDb,
   getPool,
   query,
-  getIsUsingMySQL: () => isUsingMySQL
+  getIsUsingMySQL: () => isUsingMySQL,
+  readFallbackVolunteers,
+  writeFallbackVolunteers,
+  readFallbackBeneficiaries,
+  writeFallbackBeneficiaries,
+  readFallbackAssistanceRequests,
+  writeFallbackAssistanceRequests,
+  readFallbackInventoryItems,
+  writeFallbackInventoryItems,
+  readFallbackInventoryHistory,
+  writeFallbackInventoryHistory,
+  readFallbackResourceAllocations,
+  writeFallbackResourceAllocations
 };
+

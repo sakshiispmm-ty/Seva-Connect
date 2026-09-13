@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
-import { User, Mail, Phone, Lock, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { User, Mail, Phone, Lock, ShieldCheck, HeartHandshake, Users } from 'lucide-react';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -66,7 +66,7 @@ export default function RegisterPage() {
       errs.confirmPassword = 'Passwords do not match.';
     }
 
-    if (!formData.role || !['Donor', 'Admin'].includes(formData.role)) {
+    if (!formData.role || !['Donor', 'Admin', 'Volunteer'].includes(formData.role)) {
       errs.role = 'Please select a valid role.';
     }
 
@@ -101,7 +101,8 @@ export default function RegisterPage() {
         phone: formData.phone.trim(),
         password: formData.password,
         confirmPassword: formData.confirmPassword,
-        role: formData.role
+        role: formData.role,
+        adminSecretKey: formData.adminSecretKey?.trim()
       });
 
       if (result && result.success) {
@@ -220,9 +221,9 @@ export default function RegisterPage() {
               <label className="block text-sm font-semibold text-[#17243A] mb-1.5">
                 Registering As <span className="text-rose-500">*</span>
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <label
-                  className={`flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                  className={`flex items-center gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-all ${
                     formData.role === 'Donor'
                       ? 'border-[#087F73] bg-[#EAF6F3] text-[#087F73]'
                       : 'border-gray-200 hover:border-gray-300 text-[#17243A]'
@@ -239,12 +240,34 @@ export default function RegisterPage() {
                   <HeartHandshake className="w-5 h-5 shrink-0" />
                   <div className="text-left">
                     <p className="text-sm font-bold leading-none">Donor</p>
-                    <p className="text-[11px] text-[#667085] mt-1">Community Contributor</p>
+                    <p className="text-[10px] text-[#667085] mt-1">Contributor</p>
                   </div>
                 </label>
 
                 <label
-                  className={`flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                  className={`flex items-center gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                    formData.role === 'Volunteer'
+                      ? 'border-[#087F73] bg-[#EAF6F3] text-[#087F73]'
+                      : 'border-gray-200 hover:border-gray-300 text-[#17243A]'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="role"
+                    value="Volunteer"
+                    checked={formData.role === 'Volunteer'}
+                    onChange={handleChange}
+                    className="sr-only"
+                  />
+                  <Users className="w-5 h-5 shrink-0" />
+                  <div className="text-left">
+                    <p className="text-sm font-bold leading-none">Volunteer</p>
+                    <p className="text-[10px] text-[#667085] mt-1">Field Logistics</p>
+                  </div>
+                </label>
+
+                <label
+                  className={`flex items-center gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-all ${
                     formData.role === 'Admin'
                       ? 'border-[#087F73] bg-[#EAF6F3] text-[#087F73]'
                       : 'border-gray-200 hover:border-gray-300 text-[#17243A]'
@@ -261,7 +284,7 @@ export default function RegisterPage() {
                   <ShieldCheck className="w-5 h-5 shrink-0" />
                   <div className="text-left">
                     <p className="text-sm font-bold leading-none">Admin</p>
-                    <p className="text-[11px] text-[#667085] mt-1">System & NGO Oversight</p>
+                    <p className="text-[10px] text-[#667085] mt-1">NGO Oversight</p>
                   </div>
                 </label>
               </div>
