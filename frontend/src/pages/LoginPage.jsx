@@ -131,6 +131,12 @@ export default function LoginPage() {
       const result = await login(formData.email.trim().toLowerCase(), formData.password);
 
       if (result.success) {
+        const fromPath = location.state?.from?.pathname;
+        if (fromPath && fromPath !== '/login' && !fromPath.startsWith('/login/')) {
+          navigate(fromPath, { replace: true });
+          return;
+        }
+
         // If user is Admin, direct them to whichever workspace they selected!
         if (result.role === 'Admin') {
           if (activePortal === 'donor') {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
@@ -24,6 +25,10 @@ import {
 } from 'lucide-react';
 
 export default function LandingPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
+  const isVolunteer = user?.role === 'Volunteer';
+
   // Interactive Donation Impact Calculator state for hero showcase
   const [selectedAmount, setSelectedAmount] = useState(1000);
   const [customAmount, setCustomAmount] = useState('');
@@ -84,48 +89,48 @@ export default function LandingPage() {
       icon: Gift,
       tag: 'Donation Module',
       description: 'Facilitate secure monetary contributions and material donations with transparent fund allocation, automated 80G tax receipts, and complete donor auditability.',
-      link: '/donate',
-      actionText: 'Make a Contribution →'
+      link: '/admin/donations',
+      actionText: isAdmin ? 'Donation Desk →' : 'Donation Management →'
     },
     {
       title: 'Campaign Management',
       icon: Megaphone,
       tag: 'Campaign Module',
       description: 'Create cause-driven appeals for disaster relief, girl-child education, health camps, and seasonal hunger alleviation with real-time progress tracking.',
-      link: '/campaigns',
-      actionText: 'Explore Campaigns →'
+      link: isAdmin ? '/admin/campaigns' : '/campaigns',
+      actionText: isAdmin ? 'Campaign Management →' : 'Explore Campaigns →'
     },
     {
       title: 'Volunteer Operations',
       icon: Users,
       tag: 'Volunteer Module',
       description: 'Recruit passionate local volunteers, assign on-ground relief tasks, coordinate disaster response teams, and confirm real-time aid handovers.',
-      link: '/login/volunteer',
-      actionText: 'Volunteer Portal →'
+      link: isAdmin ? '/admin/volunteers' : (isVolunteer ? '/volunteer' : '/volunteer'),
+      actionText: isAdmin ? 'Volunteer Force →' : 'Volunteer Portal →'
     },
     {
       title: 'Beneficiary Registry',
       icon: HeartHandshake,
       tag: 'Beneficiary Module',
       description: 'Dignified beneficiary intake, direct identity verification, family ration distribution, and transparent community social welfare delivery.',
-      link: '/request-assistance',
-      actionText: 'Request Assistance →'
+      link: '/admin/beneficiaries',
+      actionText: 'Beneficiary Registry →'
     },
     {
       title: 'Warehouse & Inventory',
       icon: Package,
       tag: 'Logistics Module',
       description: 'Real-time warehouse inventory for grain supplies, medicine kits, winter blankets, low-stock threshold alerts, and rapid disaster logistics.',
-      link: '/donate',
-      actionText: 'Pledge Supplies →'
+      link: '/admin/inventory',
+      actionText: 'Warehouse & Inventory →'
     },
     {
       title: 'Assistance Pipeline & Dispatch',
       icon: FileText,
       tag: 'Aid Pipeline Module',
       description: 'Direct community request intake, priority urgency triage, verified relief dispatch, and real-time delivery confirmation by on-ground volunteers.',
-      link: '/request-assistance',
-      actionText: 'Submit Aid Request →'
+      link: '/admin/assistance-requests',
+      actionText: 'Assistance Pipeline →'
     }
   ];
 
