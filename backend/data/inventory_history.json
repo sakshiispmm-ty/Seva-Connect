@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "inventory_item_id": 1,
+    "change_type": "Addition",
+    "quantity": 165,
+    "reason": "Initial warehouse procurement and community grain collection",
+    "reference_type": "Procurement",
+    "reference_id": null,
+    "performed_by": 2,
+    "created_at": "2026-08-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "inventory_item_id": 1,
+    "change_type": "Deduction",
+    "quantity": 45,
+    "reason": "Distribution for urban slum relief",
+    "reference_type": "AssistanceRequest",
+    "reference_id": null,
+    "performed_by": 2,
+    "created_at": "2026-08-15T12:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "inventory_item_id": 1,
+    "change_type": "Deduction",
+    "quantity": 10,
+    "reason": "In-kind receipt and distribution",
+    "reference_type": "AssistanceRequest",
+    "reference_id": null,
+    "performed_by": 2,
+    "created_at": "2026-08-18T14:30:00.000Z"
+  },
+  {
+    "id": 4,
+    "inventory_item_id": 1,
+    "change_type": "Deduction",
+    "quantity": 5,
+    "reason": "Emergency flood ration kits allocated",
+    "reference_type": "AssistanceRequest",
+    "reference_id": 5,
+    "performed_by": 2,
+    "created_at": "2026-08-20T16:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "inventory_item_id": 2,
+    "change_type": "Addition",
+    "quantity": 13,
+    "reason": "Procurement / In-kind receipt",
+    "reference_type": 2,
+    "reference_id": null,
+    "performed_by": null,
+    "created_at": "2026-09-13T11:22:47.831Z"
+  },
+  {
+    "id": 6,
+    "inventory_item_id": 1,
+    "change_type": "Addition",
+    "quantity": 13,
+    "reason": "Procurement / In-kind receipt",
+    "reference_type": 2,
+    "reference_id": null,
+    "performed_by": null,
+    "created_at": "2026-09-13T11:23:03.946Z"
+  },
+  {
+    "id": 7,
+    "inventory_item_id": 1,
+    "change_type": 1,
+    "quantity": 0,
+    "reason": 2,
+    "reference_type": 2,
+    "reference_id": null,
+    "performed_by": null,
+    "created_at": "2026-08-13T17:12:08.000Z"
+  }
+]

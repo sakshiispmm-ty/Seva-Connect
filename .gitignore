@@ -35,4 +35,6 @@ backend/data/*.json
 !backend/data/inventory_items.json
 !backend/data/assistance_requests.json
 !backend/data/donations.json
+!backend/data/inventory_history.json
+!backend/data/resource_allocations.json
 

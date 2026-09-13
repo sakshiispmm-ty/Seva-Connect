@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "assistance_request_id": 1,
+    "inventory_item_id": 1,
+    "quantity": 2,
+    "allocated_by": 2,
+    "distribution_status": "Delivered",
+    "created_at": "2026-08-06T11:00:00.000Z",
+    "updated_at": "2026-08-08T14:30:00.000Z"
+  },
+  {
+    "id": 2,
+    "assistance_request_id": 5,
+    "inventory_item_id": 1,
+    "quantity": 5,
+    "allocated_by": 2,
+    "distribution_status": "Delivered",
+    "created_at": "2026-08-18T16:00:00.000Z",
+    "updated_at": "2026-08-20T17:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "assistance_request_id": 2,
+    "inventory_item_id": 1,
+    "quantity": 1,
+    "allocated_by": 2,
+    "distribution_status": "Allocated",
+    "created_at": "2026-08-13T17:12:08.000Z",
+    "updated_at": "2026-08-13T17:12:08.000Z"
+  }
+]
