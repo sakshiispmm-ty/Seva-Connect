@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "name": "Family Emergency Grain & Ration Kit (15kg)",
+    "category": "Food & Nutrition",
+    "unit": "Kits",
+    "quantity_available": 112,
+    "quantity_distributed": 57,
+    "low_stock_threshold": 30,
+    "created_at": "2026-08-01T10:00:00.000Z",
+    "updated_at": "2026-08-13T17:12:08.000Z"
+  },
+  {
+    "id": 2,
+    "name": "Thermal Winter Woollen Blankets",
+    "category": "Winter Relief",
+    "unit": "Pieces",
+    "quantity_available": 98,
+    "quantity_distributed": 150,
+    "low_stock_threshold": 25,
+    "created_at": "2026-08-01T10:00:00.000Z",
+    "updated_at": "2026-09-13T11:22:47.739Z"
+  },
+  {
+    "id": 3,
+    "name": "Community Medical First-Aid Kit",
+    "category": "Medical & Health",
+    "unit": "Boxes",
+    "quantity_available": 40,
+    "quantity_distributed": 15,
+    "low_stock_threshold": 15,
+    "created_at": "2026-08-01T10:00:00.000Z",
+    "updated_at": "2026-08-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "name": "Sanitary Hygiene & Soap Packs",
+    "category": "Hygiene & Water",
+    "unit": "Packs",
+    "quantity_available": 18,
+    "quantity_distributed": 95,
+    "low_stock_threshold": 20,
+    "created_at": "2026-08-01T10:00:00.000Z",
+    "updated_at": "2026-08-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "name": "Primary School Remedial Study Kit",
+    "category": "Education",
+    "unit": "Sets",
+    "quantity_available": 60,
+    "quantity_distributed": 35,
+    "low_stock_threshold": 15,
+    "created_at": "2026-08-01T10:00:00.000Z",
+    "updated_at": "2026-08-01T10:00:00.000Z"
+  }
+]

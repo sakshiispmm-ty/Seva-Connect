@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "beneficiary_id": 1,
+    "category": "Food & Nutrition",
+    "description": "Urgent emergency ration kits for 5 family members stranded due to flash waterlogging.",
+    "quantity_needed": "2 Kits",
+    "urgency": "High",
+    "status": "Completed",
+    "reviewed_by": 2,
+    "assigned_volunteer_id": 22,
+    "admin_notes": "Verified situation via community coordinator. Approved priority dispatch.",
+    "created_at": "2026-08-06T09:00:00.000Z",
+    "updated_at": "2026-08-08T14:30:00.000Z"
+  },
+  {
+    "id": 2,
+    "beneficiary_id": 2,
+    "category": "Education",
+    "description": "Remedial school learning supplies, notebook packs, and stationery sets for 3 children.",
+    "quantity_needed": "3 Sets",
+    "urgency": "Medium",
+    "status": "Resources Allocated",
+    "reviewed_by": null,
+    "assigned_volunteer_id": null,
+    "admin_notes": null,
+    "created_at": "2026-08-11T14:20:00.000Z",
+    "updated_at": "2026-08-13T17:12:08.000Z"
+  },
+  {
+    "id": 3,
+    "beneficiary_id": 3,
+    "category": "Food & Nutrition",
+    "description": "Urgent emergency grain ration for 4 members",
+    "quantity_needed": "2 Kits",
+    "urgency": "High",
+    "status": "Submitted",
+    "reviewed_by": null,
+    "assigned_volunteer_id": null,
+    "admin_notes": null,
+    "created_at": "2026-08-14T10:15:00.000Z",
+    "updated_at": "2026-08-14T10:15:00.000Z"
+  },
+  {
+    "id": 4,
+    "beneficiary_id": 4,
+    "category": "Education",
+    "description": "Need textbooks, notebooks, stationery and other educational supplies",
+    "quantity_needed": "5 Kit",
+    "urgency": "Medium",
+    "status": "Under Review",
+    "reviewed_by": 2,
+    "assigned_volunteer_id": null,
+    "admin_notes": "Assigned for verification by community team",
+    "created_at": "2026-08-16T11:45:00.000Z",
+    "updated_at": "2026-08-17T09:30:00.000Z"
+  },
+  {
+    "id": 5,
+    "beneficiary_id": 5,
+    "category": "Food & Nutrition",
+    "description": "Daily wage labor stopped due to flooding, urgent ration needed. Emergency food rations for family of 5 for two weeks.",
+    "quantity_needed": "5 Kits",
+    "urgency": "High",
+    "status": "Completed",
+    "reviewed_by": 2,
+    "assigned_volunteer_id": 22,
+    "admin_notes": "Urgent emergency ration kits allocated for delivery by Rahul Sharma",
+    "created_at": "2026-08-18T15:00:00.000Z",
+    "updated_at": "2026-08-20T17:00:00.000Z"
+  }
+]

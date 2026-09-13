@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "user_id": 22,
+    "skills": "Emergency First Aid, Food Distribution, Vehicle Logistics",
+    "availability": "Weekends & Evenings",
+    "status": "Active",
+    "created_at": "2026-08-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "user_id": 23,
+    "skills": "Medical First Aid, Health Checkups, Nutrition Guidance",
+    "availability": "Full-Time (Emergency On-Call)",
+    "status": "Active",
+    "created_at": "2026-08-02T11:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "user_id": 24,
+    "skills": "Education & Teaching, Youth Mentoring, Digital Literacy",
+    "availability": "Weekdays (Afternoons)",
+    "status": "Active",
+    "created_at": "2026-08-03T09:30:00.000Z"
+  },
+  {
+    "id": 4,
+    "user_id": 25,
+    "skills": "Field Coordination, Beneficiary Verification, Community Liaison",
+    "availability": "Flexible / Shift-based",
+    "status": "Active",
+    "created_at": "2026-08-04T14:15:00.000Z"
+  },
+  {
+    "id": 5,
+    "user_id": 26,
+    "skills": "Heavy Transport, Warehouse Inventory, Emergency Logistics",
+    "availability": "Weekends & Emergency Calls",
+    "status": "Active",
+    "created_at": "2026-08-05T08:45:00.000Z"
+  }
+]

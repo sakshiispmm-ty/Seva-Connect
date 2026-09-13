@@ -29,3 +29,10 @@ Thumbs.db
 # Local temporary data
 backend/data/*.json
 !backend/data/campaigns.json
+!backend/data/users.json
+!backend/data/volunteers.json
+!backend/data/beneficiaries.json
+!backend/data/inventory_items.json
+!backend/data/assistance_requests.json
+!backend/data/donations.json
+
