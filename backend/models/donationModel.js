@@ -107,7 +107,7 @@ const donationModel = {
   /**
    * List all donations (Admin filterable)
    */
-  async getAll({ status, campaign_id, donation_type, searchToken } = {}) {
+  async getAll({ status, campaign_id, donation_type, searchToken, search, campaign, type } = {}) {
     let sql = `
       SELECT d.*, c.title AS campaign_title, c.category AS campaign_category,
              u.name AS verifier_name
@@ -118,21 +118,30 @@ const donationModel = {
     const params = [];
     const conditions = [];
 
-    if (status) {
+    if (status && status !== 'All') {
       conditions.push('d.status = ?');
       params.push(status);
     }
-    if (campaign_id) {
-      conditions.push('d.campaign_id = ?');
-      params.push(parseInt(campaign_id, 10));
+    const targetCampaign = campaign_id || campaign;
+    if (targetCampaign && targetCampaign !== 'All') {
+      if (!isNaN(parseInt(targetCampaign, 10))) {
+        conditions.push('d.campaign_id = ?');
+        params.push(parseInt(targetCampaign, 10));
+      } else {
+        conditions.push('LOWER(c.title) LIKE ?');
+        params.push(`%${targetCampaign.trim().toLowerCase()}%`);
+      }
     }
-    if (donation_type) {
+    const targetType = donation_type || type;
+    if (targetType && targetType !== 'All') {
       conditions.push('d.donation_type = ?');
-      params.push(donation_type);
+      params.push(targetType);
     }
-    if (searchToken) {
-      conditions.push('d.token LIKE ?');
-      params.push(`%${searchToken.trim().toUpperCase()}%`);
+    const targetSearch = search || searchToken;
+    if (targetSearch && targetSearch.trim()) {
+      conditions.push('(d.token LIKE ? OR LOWER(d.donor_name) LIKE ? OR LOWER(c.title) LIKE ?)');
+      const term = `%${targetSearch.trim().toLowerCase()}%`;
+      params.push(`%${targetSearch.trim().toUpperCase()}%`, term, term);
     }
 
     if (conditions.length > 0) {
@@ -142,7 +151,27 @@ const donationModel = {
     sql += ` ORDER BY d.created_at DESC`;
 
     const [rows] = await query(sql, params);
-    return rows || [];
+    let results = rows || [];
+
+    if (targetSearch && targetSearch.trim()) {
+      const term = targetSearch.trim().toLowerCase();
+      results = results.filter(d => 
+        (d.token && d.token.toLowerCase().includes(term)) ||
+        (d.donor_name && d.donor_name.toLowerCase().includes(term)) ||
+        (d.campaign_title && d.campaign_title.toLowerCase().includes(term))
+      );
+    }
+    if (status && status !== 'All') {
+      results = results.filter(d => d.status === status);
+    }
+    if (targetType && targetType !== 'All') {
+      results = results.filter(d => d.donation_type === targetType);
+    }
+    if (targetCampaign && targetCampaign !== 'All') {
+      results = results.filter(d => String(d.campaign_id) === String(targetCampaign) || (d.campaign_title && d.campaign_title.toLowerCase().includes(String(targetCampaign).toLowerCase())));
+    }
+
+    return results;
   },
 
   /**

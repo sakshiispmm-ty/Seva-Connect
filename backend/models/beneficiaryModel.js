@@ -53,18 +53,47 @@ const beneficiaryModel = {
   /**
    * List all beneficiaries with their total requests count
    */
-  async getAll() {
-    const sql = `
+  async getAll({ search, category } = {}) {
+    let sql = `
       SELECT 
         b.*,
         COUNT(ar.id) AS total_requests
       FROM beneficiaries b
       LEFT JOIN assistance_requests ar ON b.id = ar.beneficiary_id
-      GROUP BY b.id
-      ORDER BY b.created_at DESC
     `;
-    const [rows] = await query(sql);
-    return rows || [];
+    const conditions = [];
+    const params = [];
+
+    if (category && category !== 'All') {
+      conditions.push('b.category = ?');
+      params.push(category);
+    }
+    if (search && search.trim()) {
+      conditions.push('(LOWER(b.name) LIKE ? OR LOWER(b.email) LIKE ? OR b.phone LIKE ? OR LOWER(b.address) LIKE ?)');
+      const term = `%${search.trim().toLowerCase()}%`;
+      params.push(term, term, `%${search.trim()}%`, term);
+    }
+
+    if (conditions.length > 0) {
+      sql += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    sql += ` GROUP BY b.id ORDER BY b.created_at DESC`;
+    const [rows] = await query(sql, params);
+    let results = rows || [];
+    if (search && search.trim()) {
+      const s = search.trim().toLowerCase();
+      results = results.filter(b => 
+        (b.name && b.name.toLowerCase().includes(s)) ||
+        (b.email && b.email.toLowerCase().includes(s)) ||
+        (b.phone && b.phone.includes(s)) ||
+        (b.address && b.address.toLowerCase().includes(s))
+      );
+    }
+    if (category && category !== 'All') {
+      results = results.filter(b => b.category === category);
+    }
+    return results;
   },
 
   /**

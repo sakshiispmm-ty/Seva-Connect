@@ -4,6 +4,8 @@ import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Alert from '../../components/Alert';
 import LowStockTag from '../../components/LowStockTag';
+import SearchFilterBar from '../../components/SearchFilterBar';
+import NotificationBell from '../../components/NotificationBell';
 import { inventoryService } from '../../services/api';
 import { 
   Package, 
@@ -36,6 +38,7 @@ export default function InventoryManagement() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
   const [filterLowStockOnly, setFilterLowStockOnly] = useState(false);
 
   // Add Item Modal
@@ -177,7 +180,8 @@ export default function InventoryManagement() {
       (it.category || '').toLowerCase().includes(q) ||
       (it.unit || '').toLowerCase().includes(q);
     const matchesLowStock = !filterLowStockOnly || it.is_low_stock;
-    return matchesQuery && matchesLowStock;
+    const matchesCategory = categoryFilter === 'All' || it.category === categoryFilter;
+    return matchesQuery && matchesLowStock && matchesCategory;
   });
 
   const lowStockCount = items.filter(it => it.is_low_stock).length;
@@ -203,15 +207,18 @@ export default function InventoryManagement() {
               </p>
             </div>
           </div>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleOpenAdd}
-            className="flex items-center gap-1.5"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Stock Item</span>
-          </Button>
+          <div className="flex items-center gap-3">
+            <NotificationBell align="right" />
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleOpenAdd}
+              className="flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Stock Item</span>
+            </Button>
+          </div>
         </header>
 
         {/* Content */}
@@ -271,31 +278,36 @@ export default function InventoryManagement() {
             </div>
           </div>
 
-          {/* Search & Filter */}
-          <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3 flex-1">
-              <Search className="w-5 h-5 text-gray-400 shrink-0" />
-              <input
-                type="text"
-                placeholder="Search inventory items by name, category, or unit..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full text-sm text-[#17243A] focus:outline-none placeholder-gray-400"
-              />
-            </div>
-
-            <button
-              onClick={() => setFilterLowStockOnly(!filterLowStockOnly)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 self-start sm:self-auto ${
-                filterLowStockOnly
-                  ? 'bg-amber-100 text-amber-900 border-amber-300'
-                  : 'bg-gray-50 text-[#667085] border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <AlertTriangle className="w-3.5 h-3.5" />
-              <span>Show Low-Stock Only ({lowStockCount})</span>
-            </button>
-          </div>
+          {/* Search & Filter Bar (V2.1) */}
+          <SearchFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search inventory items by name, SKU, or category..."
+            filters={[
+              {
+                id: 'category',
+                label: 'Category',
+                value: categoryFilter,
+                onChange: setCategoryFilter,
+                options: [
+                  { value: 'All', label: 'All Categories' },
+                  ...CATEGORIES.map(c => ({ value: c, label: c }))
+                ]
+              }
+            ]}
+            toggle={{
+              id: 'low-stock-toggle',
+              label: 'Low Stock Only',
+              checked: filterLowStockOnly,
+              onChange: setFilterLowStockOnly,
+              badge: lowStockCount > 0 ? String(lowStockCount) : undefined
+            }}
+            onClearAll={() => {
+              setSearchQuery('');
+              setCategoryFilter('All');
+              setFilterLowStockOnly(false);
+            }}
+          />
 
           {/* Table */}
           <div className="bg-white rounded-2xl shadow-xs border border-gray-100 overflow-hidden">

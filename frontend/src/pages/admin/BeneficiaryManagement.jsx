@@ -4,6 +4,7 @@ import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Alert from '../../components/Alert';
 import RequestStatusBadge from '../../components/RequestStatusBadge';
+import SearchFilterBar from '../../components/SearchFilterBar';
 import { beneficiaryService } from '../../services/api';
 import { 
   HeartHandshake, 
@@ -28,6 +29,7 @@ export default function BeneficiaryManagement() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
 
   // Modals
   const [showAddModal, setShowAddModal] = useState(false);
@@ -50,7 +52,10 @@ export default function BeneficiaryManagement() {
   const fetchBeneficiaries = async () => {
     setLoading(true);
     try {
-      const response = await beneficiaryService.getAll();
+      const response = await beneficiaryService.getAll({
+        search: searchQuery,
+        category: categoryFilter
+      });
       if (response.data && response.data.success) {
         setBeneficiaries(response.data.beneficiaries || []);
       }
@@ -63,7 +68,7 @@ export default function BeneficiaryManagement() {
 
   useEffect(() => {
     fetchBeneficiaries();
-  }, []);
+  }, [categoryFilter]);
 
   const openAddModal = () => {
     setEditingBeneficiary(null);
@@ -153,12 +158,13 @@ export default function BeneficiaryManagement() {
 
   const filteredBeneficiaries = beneficiaries.filter(b => {
     const q = searchQuery.toLowerCase();
-    return (
+    const matchesSearch =
       (b.name || '').toLowerCase().includes(q) ||
       (b.phone || '').toLowerCase().includes(q) ||
       (b.address || '').toLowerCase().includes(q) ||
-      (b.category || '').toLowerCase().includes(q)
-    );
+      (b.category || '').toLowerCase().includes(q);
+    const matchesCategory = categoryFilter === 'All' || b.category === categoryFilter;
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -213,17 +219,32 @@ export default function BeneficiaryManagement() {
             />
           )}
 
-          {/* Search bar */}
-          <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs flex items-center gap-3">
-            <Search className="w-5 h-5 text-gray-400 shrink-0" />
-            <input
-              type="text"
-              placeholder="Search beneficiaries by name, contact phone, category, or address..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-sm text-[#17243A] focus:outline-none placeholder-gray-400"
-            />
-          </div>
+          {/* Search & Filter Bar (V2.1) */}
+          <SearchFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search beneficiaries by name, phone, category, or address..."
+            filters={[
+              {
+                id: 'category',
+                label: 'Category',
+                value: categoryFilter,
+                onChange: setCategoryFilter,
+                options: [
+                  { value: 'All', label: 'All Categories' },
+                  { value: 'General Displaced / Low-income', label: 'General Displaced / Low-income' },
+                  { value: 'Flood Victim', label: 'Flood Victim' },
+                  { value: 'Medical Emergency', label: 'Medical Emergency' },
+                  { value: 'Winter Wave Relief', label: 'Winter Wave Relief' },
+                  { value: 'Elderly Care', label: 'Elderly Care' }
+                ]
+              }
+            ]}
+            onClearAll={() => {
+              setSearchQuery('');
+              setCategoryFilter('All');
+            }}
+          />
 
           {/* Table */}
           <div className="bg-white rounded-2xl shadow-xs border border-gray-100 overflow-hidden">

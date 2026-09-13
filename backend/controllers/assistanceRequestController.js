@@ -1,5 +1,7 @@
 const assistanceRequestModel = require('../models/assistanceRequestModel');
 const beneficiaryModel = require('../models/beneficiaryModel');
+const notificationModel = require('../models/notificationModel');
+const { query } = require('../config/db');
 const { validateAssistanceRequest, validateBeneficiary } = require('../utils/validationUtils');
 
 /**
@@ -10,7 +12,6 @@ async function submitRequest(req, res) {
   try {
     const {
       beneficiary_id,
-      // If beneficiary_id not supplied, allow submitting beneficiary info inline
       name,
       phone,
       email,
@@ -65,6 +66,18 @@ async function submitRequest(req, res) {
       urgency: urgency || 'Medium'
     });
 
+    // 4. Trigger In-App Notification to Admins (V2.1)
+    try {
+      await notificationModel.notifyAdmins({
+        type: 'AssistanceRequest',
+        message: `New aid request #${request.id} submitted for ${request.category}: "${description.substring(0, 45)}..."`,
+        reference_type: 'AssistanceRequest',
+        reference_id: request.id
+      });
+    } catch (notifErr) {
+      console.warn('[Assistance Request Controller] Failed to trigger admin notification:', notifErr.message);
+    }
+
     return res.status(201).json({
       success: true,
       message: 'Assistance request submitted successfully. Our team will review it shortly.',
@@ -82,14 +95,16 @@ async function submitRequest(req, res) {
 /**
  * GET /api/assistance-requests
  * Access: Admin only
+ * Query: status, urgency, category, priority, search
  */
 async function getAllRequests(req, res) {
   try {
-    const { status, urgency, category } = req.query;
-    const requests = await assistanceRequestModel.getAll({ status, urgency, category });
+    const { status, urgency, category, priority, search } = req.query;
+    const requests = await assistanceRequestModel.getAll({ status, urgency, category, priority, search });
 
     return res.status(200).json({
       success: true,
+      count: requests.length,
       requests
     });
   } catch (error) {
@@ -137,6 +152,69 @@ async function getRequestById(req, res) {
 }
 
 /**
+ * GET /api/assistance-requests/:id/matches
+ * Access: Admin only (V2.1 Resource Matching)
+ */
+async function getMatches(req, res) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request ID.'
+      });
+    }
+
+    const matches = await assistanceRequestModel.getSuggestedMatches(id);
+
+    return res.status(200).json({
+      success: true,
+      requestId: id,
+      count: matches.length,
+      matches
+    });
+  } catch (error) {
+    console.error('[Assistance Request Controller] getMatches error:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to compute inventory matches.'
+    });
+  }
+}
+
+/**
+ * PUT /api/assistance-requests/:id/priority
+ * Access: Admin only (V2.1 Volunteer Task Tracking)
+ */
+async function updatePriority(req, res) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { priority, deadline } = req.body;
+
+    if (priority && !['Low', 'Medium', 'High'].includes(priority)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Priority must be "Low", "Medium", or "High".'
+      });
+    }
+
+    const updated = await assistanceRequestModel.updatePriority(id, { priority, deadline });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Priority and deadline updated successfully.',
+      request: updated
+    });
+  } catch (error) {
+    console.error('[Assistance Request Controller] updatePriority error:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update priority and deadline.'
+    });
+  }
+}
+
+/**
  * PUT /api/assistance-requests/:id/review
  * Access: Admin only
  */
@@ -154,6 +232,24 @@ async function reviewRequest(req, res) {
     }
 
     const updated = await assistanceRequestModel.review(id, { status, adminNotes }, adminId);
+
+    // Trigger notification to beneficiary if linked user account exists
+    if (updated && updated.beneficiary_email) {
+      try {
+        const [users] = await query("SELECT id FROM users WHERE LOWER(email) = ?", [updated.beneficiary_email.toLowerCase()]);
+        if (users && users.length > 0) {
+          await notificationModel.create({
+            recipient_id: users[0].id,
+            type: 'AssistanceRequestUpdate',
+            message: `Your assistance request #REQ-00${id} was marked as "${status}" by an administrator.`,
+            reference_type: 'AssistanceRequest',
+            reference_id: id
+          });
+        }
+      } catch (e) {
+        // Silent fail for unlinked beneficiaries
+      }
+    }
 
     return res.status(200).json({
       success: true,
@@ -177,12 +273,10 @@ async function allocateResources(req, res) {
   try {
     const id = parseInt(req.params.id, 10);
     const adminId = req.user.id;
-    let { allocations, volunteerId, assigned_volunteer_id, inventory_item_id, quantity, adminNotes, notes } = req.body;
+    let { allocations, volunteerId, assigned_volunteer_id, inventory_item_id, quantity, adminNotes, notes, priority, deadline } = req.body;
 
-    // Normalize volunteer ID
     const targetVolunteerId = volunteerId || assigned_volunteer_id;
 
-    // Normalize allocations array
     if (!allocations || !Array.isArray(allocations)) {
       if (inventory_item_id && quantity) {
         allocations = [{ inventory_item_id: parseInt(inventory_item_id, 10), quantity: parseFloat(quantity) }];
@@ -193,9 +287,30 @@ async function allocateResources(req, res) {
 
     const updated = await assistanceRequestModel.allocateAndAssign(
       id,
-      { allocations, volunteerId: targetVolunteerId, adminNotes: adminNotes || notes },
+      {
+        allocations,
+        volunteerId: targetVolunteerId,
+        adminNotes: adminNotes || notes,
+        priority,
+        deadline
+      },
       adminId
     );
+
+    // Trigger In-App Notification to Volunteer (V2.1)
+    if (targetVolunteerId) {
+      try {
+        await notificationModel.create({
+          recipient_id: parseInt(targetVolunteerId, 10),
+          type: 'TaskAssigned',
+          message: `You have been assigned to a relief delivery task: Request #REQ-00${id} (${updated.category}).`,
+          reference_type: 'AssistanceRequest',
+          reference_id: id
+        });
+      } catch (notifErr) {
+        console.warn('[Assistance Request Controller] Failed to notify volunteer:', notifErr.message);
+      }
+    }
 
     return res.status(200).json({
       success: true,
@@ -216,6 +331,8 @@ module.exports = {
   submitRequest,
   getAllRequests,
   getRequestById,
+  getMatches,
+  updatePriority,
   reviewRequest,
   allocateResources
 };

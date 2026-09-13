@@ -46,7 +46,8 @@ async function createBeneficiary(req, res) {
  */
 async function getAllBeneficiaries(req, res) {
   try {
-    const beneficiaries = await beneficiaryModel.getAll();
+    const { search, category } = req.query;
+    const beneficiaries = await beneficiaryModel.getAll({ search, category });
     return res.status(200).json({
       success: true,
       beneficiaries

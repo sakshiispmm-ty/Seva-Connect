@@ -1,5 +1,6 @@
 const donationModel = require('../models/donationModel');
 const campaignModel = require('../models/campaignModel');
+const notificationModel = require('../models/notificationModel');
 const { EMAIL_REGEX, PHONE_REGEX } = require('../utils/validationUtils');
 
 /**
@@ -110,6 +111,19 @@ async function registerDonation(req, res) {
 
     const donation = await donationModel.getById(result.id);
 
+    // Notify admins about new donation
+    try {
+      await notificationModel.notifyAdmins({
+        type: 'NewDonation',
+        title: 'New Donation Registered',
+        message: `${donation.donor_name} registered a ${donation.donation_type} donation (${donation.token}).`,
+        reference_id: donation.id,
+        reference_type: 'Donation'
+      });
+    } catch (notifErr) {
+      console.error('[Donation Controller] notifyAdmins error:', notifErr);
+    }
+
     return res.status(201).json({
       success: true,
       message: 'Donation registered successfully! Your tracking token has been generated.',
@@ -192,11 +206,14 @@ async function getDonationByToken(req, res) {
  */
 async function getDonations(req, res) {
   try {
-    const { status, campaign_id, donation_type, searchToken } = req.query;
+    const { status, campaign_id, campaign, donation_type, type, search, searchToken } = req.query;
     const donations = await donationModel.getAll({
       status,
       campaign_id,
+      campaign,
       donation_type,
+      type,
+      search,
       searchToken
     });
 
@@ -262,6 +279,22 @@ async function verifyDonation(req, res) {
     await donationModel.updateStatus(id, 'Verified', req.user.id);
     const updated = await donationModel.getById(id);
 
+    // Notify donor if registered
+    if (updated.donor_id) {
+      try {
+        await notificationModel.create({
+          user_id: updated.donor_id,
+          type: 'DonationVerified',
+          title: 'Donation Verified',
+          message: `Your donation (${updated.token}) has been verified. Thank you for your support!`,
+          reference_id: updated.id,
+          reference_type: 'Donation'
+        });
+      } catch (err) {
+        console.error('[Donation Controller] verify notification error:', err);
+      }
+    }
+
     return res.status(200).json({
       success: true,
       message: `Donation ${updated.token} has been verified successfully.`,
@@ -302,6 +335,22 @@ async function rejectDonation(req, res) {
 
     await donationModel.updateStatus(id, 'Rejected', req.user.id);
     const updated = await donationModel.getById(id);
+
+    // Notify donor if registered
+    if (updated.donor_id) {
+      try {
+        await notificationModel.create({
+          user_id: updated.donor_id,
+          type: 'DonationRejected',
+          title: 'Donation Update',
+          message: `Your donation (${updated.token}) could not be verified and was rejected. Please contact support.`,
+          reference_id: updated.id,
+          reference_type: 'Donation'
+        });
+      } catch (err) {
+        console.error('[Donation Controller] reject notification error:', err);
+      }
+    }
 
     return res.status(200).json({
       success: true,

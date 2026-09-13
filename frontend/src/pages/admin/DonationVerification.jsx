@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { donationService } from '../../services/api';
 import Sidebar from '../../components/Sidebar';
 import DonationStatusBadge from '../../components/DonationStatusBadge';
 import ReceiptView from '../../components/ReceiptView';
+import SearchFilterBar from '../../components/SearchFilterBar';
 import Button from '../../components/Button';
 import {
   Menu,
@@ -21,7 +23,8 @@ export default function DonationVerification() {
   const [error, setError] = useState('');
 
   // Search & Filter
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [statusFilter, setStatusFilter] = useState('All');
   const [typeFilter, setTypeFilter] = useState('All');
 
@@ -227,43 +230,43 @@ export default function DonationVerification() {
             </div>
           </div>
 
-          {/* Search and Filters */}
-          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="relative flex-1 w-full">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search token (SC-DON-000001), donor name, email or campaign..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#087F73]"
-              />
-            </div>
-
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="text-xs px-3 py-2 rounded-xl border border-gray-200 bg-white font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#087F73]"
-              >
-                <option value="All">All Statuses</option>
-                <option value="Pending Verification">Pending Verification</option>
-                <option value="Verified">Verified</option>
-                <option value="Completed">Completed</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="text-xs px-3 py-2 rounded-xl border border-gray-200 bg-white font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#087F73]"
-              >
-                <option value="All">All Types</option>
-                <option value="Money">Money</option>
-                <option value="Item">Items / In-Kind</option>
-              </select>
-            </div>
-          </div>
+          {/* Search & Filter Bar (V2.1) */}
+          <SearchFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search token (SC-DON-000001), donor name, email or campaign..."
+            filters={[
+              {
+                id: 'status',
+                label: 'Status',
+                value: statusFilter,
+                onChange: setStatusFilter,
+                options: [
+                  { value: 'All', label: 'All Statuses' },
+                  { value: 'Pending Verification', label: 'Pending Verification' },
+                  { value: 'Verified', label: 'Verified' },
+                  { value: 'Completed', label: 'Completed' },
+                  { value: 'Rejected', label: 'Rejected' }
+                ]
+              },
+              {
+                id: 'type',
+                label: 'Donation Type',
+                value: typeFilter,
+                onChange: setTypeFilter,
+                options: [
+                  { value: 'All', label: 'All Types' },
+                  { value: 'Money', label: 'Money' },
+                  { value: 'Item', label: 'Items / In-Kind' }
+                ]
+              }
+            ]}
+            onClearAll={() => {
+              setSearchQuery('');
+              setStatusFilter('All');
+              setTypeFilter('All');
+            }}
+          />
 
           {/* Feedback message banner */}
           {feedbackMessage && (

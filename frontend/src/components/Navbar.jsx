@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Menu, X, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
 import Button from './Button';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -81,6 +82,8 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
+                <NotificationBell align="right" />
+
                 <Link
                   to={dashboardPath}
                   className="flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-lg bg-[#EAF6F3] text-[#087F73] hover:bg-[#087F73] hover:text-white transition-all duration-200"

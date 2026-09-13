@@ -12,8 +12,11 @@ import {
   Package,
   FileText,
   LogOut,
-  X
+  X,
+  UserCheck,
+  Bell
 } from 'lucide-react';
+import NotificationBell from './NotificationBell';
 
 export default function Sidebar({ isOpen, onClose, role }) {
   const { user, logout } = useAuth();
@@ -30,6 +33,7 @@ export default function Sidebar({ isOpen, onClose, role }) {
     { label: 'Active Campaigns', path: '/campaigns', icon: Megaphone },
     { label: 'Pledge Donation', path: '/donate', icon: HeartHandshake },
     { label: 'My Donations', path: '/donor/history', icon: Gift },
+    { label: 'Notifications', path: '/notifications', icon: Bell },
     { label: 'My Profile', path: '/profile', icon: User },
   ];
 
@@ -37,16 +41,19 @@ export default function Sidebar({ isOpen, onClose, role }) {
     { label: 'Assigned Tasks', path: '/volunteer', icon: LayoutDashboard },
     { label: 'Volunteer Profile', path: '/volunteer/profile', icon: User },
     { label: 'Active Campaigns', path: '/campaigns', icon: Megaphone },
+    { label: 'Notifications', path: '/notifications', icon: Bell },
   ];
 
   const adminLinks = [
     { label: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
     { label: 'Campaigns', path: '/admin/campaigns', icon: Megaphone },
     { label: 'Donation Desk', path: '/admin/donations', icon: Gift },
+    { label: 'Donors', path: '/admin/donors', icon: HeartHandshake },
     { label: 'Assistance Requests', path: '/admin/assistance-requests', icon: FileText },
-    { label: 'Beneficiaries', path: '/admin/beneficiaries', icon: HeartHandshake },
+    { label: 'Beneficiaries', path: '/admin/beneficiaries', icon: Users },
     { label: 'Inventory', path: '/admin/inventory', icon: Package },
-    { label: 'Volunteers', path: '/admin/volunteers', icon: Users },
+    { label: 'Volunteers', path: '/admin/volunteers', icon: UserCheck },
+    { label: 'Notifications', path: '/notifications', icon: Bell },
     { label: 'My Profile', path: '/profile', icon: User },
   ];
 
@@ -77,12 +84,15 @@ export default function Sidebar({ isOpen, onClose, role }) {
               className="h-10 w-auto max-h-10 object-contain"
             />
           </Link>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-[#667085] hover:bg-gray-100 lg:hidden"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell align="left" />
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-[#667085] hover:bg-gray-100 lg:hidden"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* User Card */}

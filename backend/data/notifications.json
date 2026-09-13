@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "recipient_id": 2,
+    "type": "ASSISTANCE_REQUEST_NEW",
+    "title": "New High-Priority Request",
+    "message": "Assistance request #REQ-001 submitted by Sunita Devi for food rations (High Urgency).",
+    "reference_id": 1,
+    "reference_type": "assistance_request",
+    "is_read": false,
+    "created_at": "2026-09-13T10:30:00.000Z"
+  },
+  {
+    "id": 2,
+    "recipient_id": 2,
+    "type": "LOW_STOCK_ALERT",
+    "title": "Low Stock Warning: Rice Bags (25kg)",
+    "message": "Stock is currently 8 bags (Threshold: 10). Reorder or solicit community donations soon.",
+    "reference_id": 1,
+    "reference_type": "inventory",
+    "is_read": true,
+    "created_at": "2026-09-13T11:15:00.000Z"
+  },
+  {
+    "id": 3,
+    "recipient_id": 2,
+    "type": "DONATION_RECEIVED",
+    "title": "New Online Donation",
+    "message": "Aarav Sharma pledged ₹10,000 for Flood Relief 2026 awaiting verification.",
+    "reference_id": 5,
+    "reference_type": "donation",
+    "is_read": false,
+    "created_at": "2026-09-13T12:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "recipient_id": 22,
+    "type": "TASK_ASSIGNED",
+    "title": "New Relief Task Assigned",
+    "message": "You have been assigned to deliver Medical First Aid Kits to North District Health Camp (Due: 2026-09-25).",
+    "reference_id": 7,
+    "reference_type": "task",
+    "is_read": false,
+    "created_at": "2026-09-13T12:30:00.000Z"
+  },
+  {
+    "id": 5,
+    "recipient_id": 1,
+    "type": "DONATION_VERIFIED",
+    "title": "Donation Verified & 80G Receipt Ready",
+    "message": "Your contribution of ₹5,000 towards Clean Water Initiative has been verified. Download your 80G certificate in your donor dashboard.",
+    "reference_id": 1,
+    "reference_type": "donation",
+    "is_read": false,
+    "created_at": "2026-09-13T13:00:00.000Z"
+  }
+]

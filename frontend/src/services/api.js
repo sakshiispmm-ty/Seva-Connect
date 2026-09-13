@@ -81,38 +81,55 @@ export const donationService = {
   getReceipt: (id) => api.get(`/donations/${id}/receipt`)
 };
 
-// Volunteer Service (V1.3)
+// Volunteer Service (V1.3 & V2.1)
 export const volunteerService = {
   getProfile: () => api.get('/volunteers/profile'),
   updateProfile: (data) => api.put('/volunteers/profile', data),
-  getTasks: () => api.get('/volunteers/tasks'),
+  getTasks: (params) => api.get('/volunteers/tasks', { params }),
+  updateTaskStatus: (id, data) => api.put(`/volunteers/tasks/${id}/status`, data),
   deliverTask: (id) => api.put(`/volunteers/tasks/${id}/deliver`),
-  getAll: () => api.get('/volunteers')
+  getAll: (params) => api.get('/volunteers', { params }),
+  getActivity: (id) => api.get(`/volunteers/${id}/activity`)
 };
 
-// Beneficiary Service (V1.3)
+// Beneficiary Service (V1.3 & V2.1)
 export const beneficiaryService = {
   create: (data) => api.post('/beneficiaries', data),
-  getAll: () => api.get('/beneficiaries'),
+  getAll: (params) => api.get('/beneficiaries', { params }),
   getById: (id) => api.get(`/beneficiaries/${id}`),
   update: (id, data) => api.put(`/beneficiaries/${id}`, data)
 };
 
-// Assistance Request Service (V1.3)
+// Assistance Request Service (V1.3 & V2.1)
 export const assistanceRequestService = {
   submit: (data) => api.post('/assistance-requests', data),
   getAll: (params) => api.get('/assistance-requests', { params }),
   getById: (id) => api.get(`/assistance-requests/${id}`),
   review: (id, data) => api.put(`/assistance-requests/${id}/review`, data),
-  allocate: (id, data) => api.put(`/assistance-requests/${id}/allocate`, data)
+  allocate: (id, data) => api.put(`/assistance-requests/${id}/allocate`, data),
+  getMatches: (id) => api.get(`/assistance-requests/${id}/matches`),
+  updatePriority: (id, data) => api.put(`/assistance-requests/${id}/priority`, data)
 };
 
-// Inventory Service (V1.3)
+// Inventory Service (V1.3 & V2.1)
 export const inventoryService = {
-  getAll: () => api.get('/inventory'),
+  getAll: (params) => api.get('/inventory', { params }),
   create: (data) => api.post('/inventory', data),
   adjust: (id, data) => api.put(`/inventory/${id}`, data),
   getHistory: (id) => api.get(`/inventory/${id}/history`)
+};
+
+// Donor Service (V2.1)
+export const donorService = {
+  getAll: (params) => api.get('/donors', { params })
+};
+
+// Notification Service (V2.1)
+export const notificationService = {
+  getAll: (params) => api.get('/notifications', { params }),
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  markAsRead: (id) => api.put(`/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/notifications/mark-all-read')
 };
 
 export default api;

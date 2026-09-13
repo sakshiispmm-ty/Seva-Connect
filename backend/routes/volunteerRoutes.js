@@ -7,9 +7,11 @@ const { verifyToken, requireRole } = require('../middleware/authMiddleware');
 router.get('/profile', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getProfile);
 router.put('/profile', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.updateProfile);
 router.get('/tasks', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getTasks);
+router.put('/tasks/:id/status', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.updateTaskStatus);
 router.put('/tasks/:id/deliver', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.deliverTask);
 
 // Admin Routes (Admin Role)
 router.get('/', verifyToken, requireRole('Admin'), volunteerController.getAllVolunteers);
+router.get('/:id/activity', verifyToken, requireRole('Admin'), volunteerController.getVolunteerActivity);
 
 module.exports = router;

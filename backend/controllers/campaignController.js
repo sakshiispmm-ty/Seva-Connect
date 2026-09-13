@@ -6,8 +6,8 @@ const campaignModel = require('../models/campaignModel');
  */
 async function getCampaigns(req, res) {
   try {
-    const { status, category } = req.query;
-    const campaignsRaw = await campaignModel.getAll({ status, category });
+    const { status, category, search } = req.query;
+    const campaignsRaw = await campaignModel.getAll({ status, category, search });
 
     const campaigns = campaignsRaw.map(c => ({
       ...c,

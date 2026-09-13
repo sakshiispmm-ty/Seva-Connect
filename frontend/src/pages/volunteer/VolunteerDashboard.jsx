@@ -4,6 +4,7 @@ import Sidebar from '../../components/Sidebar';
 import RequestStatusBadge from '../../components/RequestStatusBadge';
 import Button from '../../components/Button';
 import Alert from '../../components/Alert';
+import NotificationBell from '../../components/NotificationBell';
 import { volunteerService } from '../../services/api';
 import { 
   LayoutDashboard, 
@@ -27,7 +28,9 @@ export default function VolunteerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState('All'); // 'All', 'Assigned', 'In Progress', 'Completed'
+  const [sortBy, setSortBy] = useState('deadline'); // 'deadline', 'priority', 'recent'
+  const [updatingTaskId, setUpdatingTaskId] = useState(null);
 
   // Confirmation Modal state
   const [selectedTaskToDeliver, setSelectedTaskToDeliver] = useState(null);
@@ -54,6 +57,23 @@ export default function VolunteerDashboard() {
     fetchTasks();
   }, []);
 
+  const handleStartTask = async (task) => {
+    setUpdatingTaskId(task.id);
+    setError('');
+    setSuccessMessage('');
+    try {
+      const res = await volunteerService.updateTaskStatus(task.id, { status: 'In Progress' });
+      if (res.data && res.data.success) {
+        setSuccessMessage(`Task #REQ-00${task.id} is now in progress.`);
+        fetchTasks();
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update task status.');
+    } finally {
+      setUpdatingTaskId(null);
+    }
+  };
+
   const handleConfirmDeliver = async () => {
     if (!selectedTaskToDeliver) return;
     setConfirmingDelivery(true);
@@ -78,14 +98,30 @@ export default function VolunteerDashboard() {
 
   // Compute stats
   const totalTasks = tasks.length;
-  const pendingTasks = tasks.filter(t => t.status !== 'Completed').length;
+  const inProgressTasks = tasks.filter(t => t.status === 'In Progress').length;
+  const assignedTasks = tasks.filter(t => t.status === 'Volunteer Assigned' || t.status === 'Assigned').length;
   const completedTasks = tasks.filter(t => t.status === 'Completed').length;
 
   // Filter tasks
   const filteredTasks = tasks.filter(task => {
-    if (activeFilter === 'Active') return task.status !== 'Completed';
+    if (activeFilter === 'Assigned') return task.status === 'Volunteer Assigned' || task.status === 'Assigned';
+    if (activeFilter === 'In Progress') return task.status === 'In Progress';
     if (activeFilter === 'Completed') return task.status === 'Completed';
     return true;
+  });
+
+  // Sort tasks
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    if (sortBy === 'deadline') {
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline) - new Date(b.deadline);
+    }
+    if (sortBy === 'priority') {
+      const pMap = { High: 3, Medium: 2, Low: 1 };
+      return (pMap[b.priority || 'Medium'] || 2) - (pMap[a.priority || 'Medium'] || 2);
+    }
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
   });
 
   return (
@@ -109,7 +145,8 @@ export default function VolunteerDashboard() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <NotificationBell align="right" />
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#EAF6F3] text-[#087F73] border border-[#087F73]/20">
               <Sparkles className="w-3.5 h-3.5" />
               Verified Volunteer
@@ -137,64 +174,88 @@ export default function VolunteerDashboard() {
             />
           )}
 
-          {/* Activity Metrics Summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            <div className="p-5 rounded-2xl bg-white border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#EAF6F3] text-[#087F73] flex items-center justify-center font-bold">
-                <Truck className="w-6 h-6" />
+          {/* Activity Metrics Summary (V2.1) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="p-4 rounded-xl bg-white border border-gray-100 shadow-2xs flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#EAF6F3] text-[#087F73] flex items-center justify-center font-bold shrink-0">
+                <Truck className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#667085] uppercase tracking-wider">Total Assigned</p>
-                <p className="text-2xl font-extrabold text-[#17243A]">{totalTasks}</p>
+                <p className="text-[11px] font-semibold text-[#667085] uppercase tracking-wider">Assigned</p>
+                <p className="text-xl font-extrabold text-[#17243A]">{totalTasks}</p>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
-                <Clock className="w-6 h-6" />
+            <div className="p-4 rounded-xl bg-white border border-gray-100 shadow-2xs flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0">
+                <Clock className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#667085] uppercase tracking-wider">Pending Delivery</p>
-                <p className="text-2xl font-extrabold text-amber-700">{pendingTasks}</p>
+                <p className="text-[11px] font-semibold text-[#667085] uppercase tracking-wider">Awaiting Start</p>
+                <p className="text-xl font-extrabold text-amber-700">{assignedTasks}</p>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                <CheckCheck className="w-6 h-6" />
+            <div className="p-4 rounded-xl bg-white border border-gray-100 shadow-2xs flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+                <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#667085] uppercase tracking-wider">Completed</p>
-                <p className="text-2xl font-extrabold text-emerald-700">{completedTasks}</p>
+                <p className="text-[11px] font-semibold text-[#667085] uppercase tracking-wider">In Progress</p>
+                <p className="text-xl font-extrabold text-blue-700">{inProgressTasks}</p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white border border-gray-100 shadow-2xs flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+                <CheckCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-[#667085] uppercase tracking-wider">Delivered</p>
+                <p className="text-xl font-extrabold text-emerald-700">{completedTasks}</p>
               </div>
             </div>
           </div>
 
           {/* Task Feed */}
           <div className="bg-white rounded-2xl shadow-xs border border-gray-100 overflow-hidden">
-            {/* Header & Filter Tabs */}
-            <div className="p-5 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Header, Filter Tabs & Sort */}
+            <div className="p-5 sm:p-6 border-b border-gray-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-[#17243A]">Assigned Relief Tasks & Deliveries</h2>
                 <p className="text-xs text-[#667085] mt-0.5">
-                  Confirm delivery once relief resources are safely handed over to the beneficiary.
+                  Track field status, update progress, and record doorstep delivery confirmations.
                 </p>
               </div>
 
-              <div className="inline-flex p-1 bg-gray-100 rounded-xl">
-                {['All', 'Active', 'Completed'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveFilter(tab)}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      activeFilter === tab
-                        ? 'bg-white text-[#17243A] shadow-xs'
-                        : 'text-[#667085] hover:text-[#17243A]'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Filter Tabs */}
+                <div className="inline-flex p-1 bg-gray-100 rounded-xl">
+                  {['All', 'Assigned', 'In Progress', 'Completed'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveFilter(tab)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        activeFilter === tab
+                          ? 'bg-white text-[#17243A] shadow-xs'
+                          : 'text-[#667085] hover:text-[#17243A]'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Sort selector */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#087F73]/20"
+                >
+                  <option value="deadline">Sort: Soonest Deadline</option>
+                  <option value="priority">Sort: Highest Priority</option>
+                  <option value="recent">Sort: Recently Assigned</option>
+                </select>
               </div>
             </div>
 
@@ -204,7 +265,7 @@ export default function VolunteerDashboard() {
                 <div className="w-8 h-8 border-4 border-[#087F73] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
                 <p className="text-sm text-[#667085]">Loading assigned tasks...</p>
               </div>
-            ) : filteredTasks.length === 0 ? (
+            ) : sortedTasks.length === 0 ? (
               <div className="p-12 text-center">
                 <div className="w-12 h-12 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Package className="w-6 h-6" />
@@ -213,13 +274,14 @@ export default function VolunteerDashboard() {
                 <p className="text-xs text-[#667085] mt-1">
                   {activeFilter === 'Completed'
                     ? 'You have not marked any deliveries as completed yet.'
-                    : 'There are currently no active assistance deliveries assigned to you.'}
+                    : 'There are currently no tasks matching this filter.'}
                 </p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {filteredTasks.map((task) => {
+                {sortedTasks.map((task) => {
                   const isCompleted = task.status === 'Completed';
+                  const isInProgress = task.status === 'In Progress';
 
                   return (
                     <div
@@ -227,11 +289,25 @@ export default function VolunteerDashboard() {
                       className="p-5 sm:p-6 hover:bg-gray-50/50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-6"
                     >
                       <div className="space-y-3 flex-1">
-                        <div className="flex flex-wrap items-center gap-2.5">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-xs font-extrabold text-[#087F73]">
                             #REQ-00{task.id}
                           </span>
                           <RequestStatusBadge status={task.status} size="sm" />
+
+                          {/* Priority Badge */}
+                          <span
+                            className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
+                              task.priority === 'High'
+                                ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                : task.priority === 'Low'
+                                ? 'bg-slate-100 text-slate-600 border-slate-200'
+                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                            }`}
+                          >
+                            {task.priority || 'Medium'} Priority
+                          </span>
+
                           <span
                             className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                               task.urgency === 'High'
@@ -241,6 +317,14 @@ export default function VolunteerDashboard() {
                           >
                             {task.urgency} Urgency
                           </span>
+
+                          {task.deadline && (
+                            <span className="text-[11px] font-medium text-slate-600 flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md">
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              Deadline: {new Date(task.deadline).toLocaleDateString()}
+                            </span>
+                          )}
+
                           <span className="text-[11px] font-semibold text-[#667085]">
                             {task.category}
                           </span>
@@ -276,7 +360,7 @@ export default function VolunteerDashboard() {
                           {task.allocations && task.allocations.length > 0 && (
                             <div className="mt-2 flex flex-wrap items-center gap-2">
                               <span className="text-[11px] font-bold text-[#087F73] uppercase tracking-wider">
-                                Allocated Resources:
+                                Allocated Supplies:
                               </span>
                               {task.allocations.map((alloc) => (
                                 <span
@@ -292,22 +376,33 @@ export default function VolunteerDashboard() {
                         </div>
                       </div>
 
-                      {/* Action Button */}
-                      <div className="shrink-0 flex items-center gap-3">
+                      {/* Action Buttons (V2.1 status progression) */}
+                      <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         {isCompleted ? (
                           <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
                             <CheckCircle2 className="w-4 h-4" />
                             Delivered Successfully
                           </span>
                         ) : (
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => setSelectedTaskToDeliver(task)}
-                            className="w-full sm:w-auto"
-                          >
-                            Mark as Delivered
-                          </Button>
+                          <>
+                            {!isInProgress && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleStartTask(task)}
+                                loading={updatingTaskId === task.id}
+                              >
+                                Start Task
+                              </Button>
+                            )}
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => setSelectedTaskToDeliver(task)}
+                            >
+                              {isInProgress ? 'Complete Delivery' : 'Mark Delivered'}
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>

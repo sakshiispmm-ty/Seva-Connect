@@ -187,4 +187,28 @@ INSERT IGNORE INTO volunteer_profiles (id, user_id, skills, availability, status
 (4, 25, 'Field Coordination, Beneficiary Verification, Community Liaison', 'Flexible / Shift-based', 'Active'),
 (5, 26, 'Heavy Transport, Warehouse Inventory, Emergency Logistics', 'Weekends & Emergency Calls', 'Active');
 
+-- ==========================================================
+-- SevaConnect Database Schema V2.1 (Smart Operations)
+-- ==========================================================
+
+-- Volunteer task tracking additions
+ALTER TABLE assistance_requests
+  ADD COLUMN priority ENUM('Low', 'Medium', 'High') DEFAULT 'Medium' AFTER urgency,
+  ADD COLUMN deadline DATE NULL AFTER priority;
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  recipient_id INT NOT NULL,
+  type VARCHAR(50) NOT NULL,
+  message VARCHAR(255) NOT NULL,
+  reference_type VARCHAR(50),
+  reference_id INT NULL,
+  is_read BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (recipient_id) REFERENCES users(id),
+  INDEX idx_recipient_read (recipient_id, is_read)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
 

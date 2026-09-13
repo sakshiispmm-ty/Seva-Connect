@@ -27,6 +27,7 @@ const assistanceRequestsFilePath = path.join(dataDir, 'assistance_requests.json'
 const inventoryItemsFilePath = path.join(dataDir, 'inventory_items.json');
 const inventoryHistoryFilePath = path.join(dataDir, 'inventory_history.json');
 const resourceAllocationsFilePath = path.join(dataDir, 'resource_allocations.json');
+const notificationsFilePath = path.join(dataDir, 'notifications.json');
 
 const INITIAL_CAMPAIGNS = [
   {
@@ -160,6 +161,10 @@ if (!fs.existsSync(inventoryHistoryFilePath)) {
 if (!fs.existsSync(resourceAllocationsFilePath)) {
   fs.writeFileSync(resourceAllocationsFilePath, JSON.stringify([], null, 2), 'utf8');
 }
+if (!fs.existsSync(notificationsFilePath)) {
+  fs.writeFileSync(notificationsFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+
 
 function readFallbackData() {
   try {
@@ -321,6 +326,24 @@ function writeFallbackResourceAllocations(data) {
     console.error('[Fallback DB] Failed to save resource allocations data:', err);
   }
 }
+
+function readFallbackNotifications() {
+  try {
+    const raw = fs.readFileSync(notificationsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackNotifications(data) {
+  try {
+    fs.writeFileSync(notificationsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save notifications data:', err);
+  }
+}
+
 
 async function initDb() {
   try {
@@ -531,6 +554,31 @@ async function initDb() {
     await pool.query(createInventoryHistoryTableQuery);
     await pool.query(createResourceAllocationsTableQuery);
 
+    // Create notifications table if not exists (V2.1)
+    const createNotificationsTableQuery = `
+      CREATE TABLE IF NOT EXISTS notifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        recipient_id INT NOT NULL,
+        type VARCHAR(50) NOT NULL,
+        message VARCHAR(255) NOT NULL,
+        reference_type VARCHAR(50),
+        reference_id INT NULL,
+        is_read BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (recipient_id) REFERENCES users(id),
+        INDEX idx_recipient_read (recipient_id, is_read)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+    await pool.query(createNotificationsTableQuery);
+
+    // Add priority and deadline columns to assistance_requests if missing (V2.1)
+    try {
+      await pool.query("ALTER TABLE assistance_requests ADD COLUMN priority ENUM('Low', 'Medium', 'High') DEFAULT 'Medium' AFTER urgency");
+    } catch (e) { /* column may already exist */ }
+    try {
+      await pool.query("ALTER TABLE assistance_requests ADD COLUMN deadline DATE NULL AFTER priority");
+    } catch (e) { /* column may already exist */ }
+
     // Initial Seed Inventory
     await pool.query(`
       INSERT IGNORE INTO inventory_items (id, name, category, unit, quantity_available, quantity_distributed, low_stock_threshold) VALUES
@@ -584,6 +632,7 @@ async function query(sql, params = []) {
   const inventoryItems = readFallbackInventoryItems();
   const inventoryHistory = readFallbackInventoryHistory();
   const resourceAllocations = readFallbackResourceAllocations();
+  const notifications = readFallbackNotifications();
 
   // 1. SELECT id FROM users WHERE email = ?
   if (normalizedSql.startsWith('SELECT id FROM users WHERE email = ?')) {
@@ -727,11 +776,26 @@ async function query(sql, params = []) {
     let filtered = campaigns.map(enrichCampaign);
     if (normalizedSql.includes('status = ?') || normalizedSql.includes('c.status = ?')) {
       const status = params[0];
-      filtered = filtered.filter(c => c.status === status);
+      if (status && status !== 'All') {
+        filtered = filtered.filter(c => c.status === status);
+      }
     }
     if (normalizedSql.includes('category = ?') || normalizedSql.includes('c.category = ?')) {
       const cat = params[params.length - 1];
-      filtered = filtered.filter(c => c.category === cat);
+      if (cat && cat !== 'All') {
+        filtered = filtered.filter(c => c.category === cat);
+      }
+    }
+    if (normalizedSql.includes('c.title) like ?') || normalizedSql.includes('description) like ?')) {
+      const searchParam = params.find(p => typeof p === 'string' && p.startsWith('%') && p.endsWith('%'));
+      if (searchParam) {
+        const s = searchParam.slice(1, -1).toLowerCase();
+        filtered = filtered.filter(c => 
+          (c.title && c.title.toLowerCase().includes(s)) ||
+          (c.description && c.description.toLowerCase().includes(s)) ||
+          (c.category && c.category.toLowerCase().includes(s))
+        );
+      }
     }
     return [filtered.reverse()];
   }
@@ -1001,7 +1065,10 @@ async function query(sql, params = []) {
     const volunteerUsers = users.filter(u => u.role === 'Volunteer');
     const result = volunteerUsers.map(u => {
       const vp = volunteers.find(v => v.user_id === u.id);
-      const assignedTasksCount = assistanceRequests.filter(ar => ar.assigned_volunteer_id === u.id).length;
+      const volunteerTasks = assistanceRequests.filter(ar => ar.assigned_volunteer_id === u.id);
+      const assignedTasksCount = volunteerTasks.length;
+      const pendingTasksCount = volunteerTasks.filter(t => t.status !== 'Completed').length;
+      const completedTasksCount = volunteerTasks.filter(t => t.status === 'Completed').length;
       return {
         user_id: u.id,
         name: u.name,
@@ -1011,7 +1078,9 @@ async function query(sql, params = []) {
         skills: vp?.skills || 'Community Outreach & Logistics',
         availability: vp?.availability || 'Weekends / On-Call',
         status: vp?.status || 'Active',
-        assigned_tasks_count: assignedTasksCount
+        assigned_tasks_count: assignedTasksCount,
+        pending_tasks_count: pendingTasksCount,
+        completed_tasks_count: completedTasksCount
       };
     });
     return [result.reverse()];
@@ -1032,6 +1101,8 @@ async function query(sql, params = []) {
           });
         return {
           ...ar,
+          priority: ar.priority || 'Medium',
+          deadline: ar.deadline || null,
           beneficiary_name: b?.name || 'Unknown',
           beneficiary_phone: b?.phone || '',
           beneficiary_address: b?.address || '',
@@ -1112,10 +1183,28 @@ async function query(sql, params = []) {
 
   // Beneficiaries: List all with requests count
   if (normalizedSql.includes('FROM beneficiaries') && !normalizedSql.includes('WHERE id = ?') && !normalizedSql.includes('WHERE b.id = ?')) {
-    const list = beneficiaries.map(b => {
+    let list = beneficiaries.map(b => {
       const totalRequests = assistanceRequests.filter(ar => ar.beneficiary_id === b.id).length;
       return { ...b, total_requests: totalRequests };
     });
+    if (normalizedSql.includes('b.category = ?')) {
+      const cat = params[0];
+      if (cat && cat !== 'All') {
+        list = list.filter(b => b.category === cat);
+      }
+    }
+    if (normalizedSql.includes('lower(b.name) like ?')) {
+      const searchParam = params.find(p => typeof p === 'string' && p.startsWith('%') && p.endsWith('%'));
+      if (searchParam) {
+        const s = searchParam.slice(1, -1).toLowerCase();
+        list = list.filter(b => 
+          (b.name && b.name.toLowerCase().includes(s)) ||
+          (b.email && b.email.toLowerCase().includes(s)) ||
+          (b.phone && b.phone.includes(s)) ||
+          (b.address && b.address.toLowerCase().includes(s))
+        );
+      }
+    }
     return [list.reverse()];
   }
 
@@ -1159,6 +1248,8 @@ async function query(sql, params = []) {
       description: params[2],
       quantity_needed: params[3] || '1',
       urgency: params[4] || 'Medium',
+      priority: 'Medium',
+      deadline: null,
       status: 'Submitted',
       reviewed_by: null,
       assigned_volunteer_id: null,
@@ -1174,7 +1265,11 @@ async function query(sql, params = []) {
   // Assistance Requests: List for single beneficiary
   if (normalizedSql.includes('FROM assistance_requests') && normalizedSql.includes('beneficiary_id = ?')) {
     const bId = parseInt(params[0], 10);
-    const list = assistanceRequests.filter(ar => ar.beneficiary_id === bId);
+    const list = assistanceRequests.filter(ar => ar.beneficiary_id === bId).map(ar => ({
+      ...ar,
+      priority: ar.priority || 'Medium',
+      deadline: ar.deadline || null
+    }));
     return [list.reverse()];
   }
 
@@ -1194,6 +1289,8 @@ async function query(sql, params = []) {
       });
     return [[{
       ...req,
+      priority: req.priority || 'Medium',
+      deadline: req.deadline || null,
       beneficiary_name: b?.name || 'Unknown',
       beneficiary_phone: b?.phone || '',
       beneficiary_email: b?.email || '',
@@ -1220,6 +1317,8 @@ async function query(sql, params = []) {
         });
       return {
         ...ar,
+        priority: ar.priority || 'Medium',
+        deadline: ar.deadline || null,
         beneficiary_name: b?.name || 'Unknown',
         beneficiary_phone: b?.phone || '',
         beneficiary_email: b?.email || '',
@@ -1234,8 +1333,12 @@ async function query(sql, params = []) {
 
     if (params && params.length > 0) {
       if (normalizedSql.includes('ar.status = ?')) {
-        const s = params[0];
+        const s = params.find(p => ['Submitted', 'Under Review', 'Approved', 'Rejected', 'Resources Allocated', 'Volunteer Assigned', 'Completed'].includes(p));
         if (s && s !== 'All') list = list.filter(r => r.status === s);
+      }
+      if (normalizedSql.includes('ar.priority = ?')) {
+        const p = params.find(param => ['Low', 'Medium', 'High'].includes(param));
+        if (p && p !== 'All') list = list.filter(r => (r.priority || 'Medium') === p);
       }
     }
     return [list.reverse()];
@@ -1413,6 +1516,127 @@ async function query(sql, params = []) {
     return [list];
   }
 
+  // ==========================================================
+  // V2.1 NOTIFICATIONS FALLBACK HANDLERS
+  // ==========================================================
+
+  // Notifications: Insert
+  if (normalizedSql.startsWith('INSERT INTO notifications')) {
+    const nextId = notifications.length > 0 ? Math.max(...notifications.map(n => n.id || 0)) + 1 : 1;
+    const now = getAugustTimestamp();
+    const newNotif = {
+      id: nextId,
+      recipient_id: parseInt(params[0], 10),
+      type: params[1],
+      message: params[2],
+      reference_type: params[3] || null,
+      reference_id: params[4] ? parseInt(params[4], 10) : null,
+      is_read: false,
+      created_at: now
+    };
+    notifications.push(newNotif);
+    writeFallbackNotifications(notifications);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // Notifications: Count unread
+  if (normalizedSql.includes('FROM notifications') && normalizedSql.includes('COUNT(')) {
+    const rId = parseInt(params[0], 10);
+    const count = notifications.filter(n => n.recipient_id === rId && !n.is_read).length;
+    return [[{ unread_count: count, count }]];
+  }
+
+  // Notifications: Get by recipient
+  if (normalizedSql.includes('FROM notifications') && normalizedSql.includes('recipient_id = ?')) {
+    const rId = parseInt(params[0], 10);
+    const list = notifications
+      .filter(n => n.recipient_id === rId)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return [list];
+  }
+
+  // Notifications: Mark single as read
+  if (/UPDATE notifications SET is_read = (TRUE|1|true) WHERE id = \? AND recipient_id = \?/i.test(normalizedSql)) {
+    const nId = parseInt(params[0], 10);
+    const rId = parseInt(params[1], 10);
+    const idx = notifications.findIndex(n => n.id === nId && n.recipient_id === rId);
+    if (idx !== -1) {
+      notifications[idx].is_read = true;
+      writeFallbackNotifications(notifications);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // Notifications: Mark all as read
+  if (/UPDATE notifications SET is_read = (TRUE|1|true) WHERE recipient_id = \?/i.test(normalizedSql)) {
+    const rId = parseInt(params[0], 10);
+    let count = 0;
+    notifications.forEach(n => {
+      if (n.recipient_id === rId && !n.is_read) {
+        n.is_read = true;
+        count++;
+      }
+    });
+    if (count > 0) writeFallbackNotifications(notifications);
+    return [{ affectedRows: count }];
+  }
+
+  // ==========================================================
+  // V2.1 VOLUNTEER TASK TRACKING & PRIORITY UPDATES
+  // ==========================================================
+
+  // Assistance Requests: Update priority & deadline (Admin)
+  if (normalizedSql.startsWith('UPDATE assistance_requests SET priority = ?, deadline = ? WHERE id = ?')) {
+    const priority = params[0] || 'Medium';
+    const deadline = params[1] || null;
+    const rId = parseInt(params[2], 10);
+    const idx = assistanceRequests.findIndex(ar => ar.id === rId);
+    if (idx !== -1) {
+      assistanceRequests[idx].priority = priority;
+      assistanceRequests[idx].deadline = deadline;
+      assistanceRequests[idx].updated_at = getAugustTimestamp();
+      writeFallbackAssistanceRequests(assistanceRequests);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // Assistance Requests: Volunteer status update (e.g. In Progress / Completed)
+  if (normalizedSql.startsWith('UPDATE assistance_requests SET status = ? WHERE id = ? AND assigned_volunteer_id = ?')) {
+    const s = params[0];
+    const rId = parseInt(params[1], 10);
+    const vId = parseInt(params[2], 10);
+    const idx = assistanceRequests.findIndex(ar => ar.id === rId && ar.assigned_volunteer_id === vId);
+    if (idx !== -1) {
+      assistanceRequests[idx].status = s;
+      assistanceRequests[idx].updated_at = getAugustTimestamp();
+      writeFallbackAssistanceRequests(assistanceRequests);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // ==========================================================
+  // V2.1 DONORS LIST FALLBACK HANDLER
+  // ==========================================================
+  if (normalizedSql.includes("WHERE u.role = 'Donor'") || normalizedSql.includes("WHERE role = 'Donor'")) {
+    let donorsList = users.filter(u => u.role === 'Donor').map(u => {
+      const userDonations = donations.filter(d => d.donor_id === u.id || d.donor_email?.toLowerCase() === u.email?.toLowerCase());
+      const totalDonated = userDonations.reduce((acc, d) => acc + (parseFloat(d.amount) || 0), 0);
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        created_at: u.created_at,
+        donations_count: userDonations.length,
+        total_donated: totalDonated
+      };
+    });
+    return [donorsList];
+  }
+
   console.warn('[Database] Unhandled query in fallback mode:', sql);
   return [[]];
 }
@@ -1440,6 +1664,9 @@ module.exports = {
   readFallbackInventoryHistory,
   writeFallbackInventoryHistory,
   readFallbackResourceAllocations,
-  writeFallbackResourceAllocations
+  writeFallbackResourceAllocations,
+  readFallbackNotifications,
+  writeFallbackNotifications
 };
+
 

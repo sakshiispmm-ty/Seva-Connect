@@ -1,25 +1,60 @@
 const { query } = require('../config/db');
+const notificationModel = require('./notificationModel');
 
 const inventoryModel = {
   /**
-   * List all inventory items with low-stock flag
+   * List all inventory items with low-stock flag and optional filters (V2.1)
    */
-  async getAll() {
-    const sql = `
+  async getAll({ search, category, lowStockOnly } = {}) {
+    let sql = `
       SELECT 
         *,
         (quantity_available <= low_stock_threshold) AS is_low_stock
       FROM inventory_items
-      ORDER BY name ASC
     `;
-    const [rows] = await query(sql);
-    return (rows || []).map(item => ({
+    const whereClauses = [];
+    const params = [];
+
+    if (category && category !== 'All') {
+      whereClauses.push('category = ?');
+      params.push(category);
+    }
+    if (lowStockOnly === true || lowStockOnly === 'true') {
+      whereClauses.push('(quantity_available <= low_stock_threshold)');
+    }
+    if (search && search.trim()) {
+      const term = `%${search.trim().toLowerCase()}%`;
+      whereClauses.push('(LOWER(name) LIKE ? OR LOWER(category) LIKE ?)');
+      params.push(term, term);
+    }
+
+    if (whereClauses.length > 0) {
+      sql += ' WHERE ' + whereClauses.join(' AND ');
+    }
+    sql += ' ORDER BY name ASC';
+
+    const [rows] = await query(sql, params);
+    let list = (rows || []).map(item => ({
       ...item,
       quantity_available: parseFloat(item.quantity_available) || 0,
       quantity_distributed: parseFloat(item.quantity_distributed) || 0,
       low_stock_threshold: parseFloat(item.low_stock_threshold) || 0,
       is_low_stock: Boolean(item.is_low_stock) || (parseFloat(item.quantity_available) <= parseFloat(item.low_stock_threshold))
     }));
+
+    // In-memory fallback filters
+    if (search && search.trim()) {
+      const term = search.trim().toLowerCase();
+      list = list.filter(i => (i.name && i.name.toLowerCase().includes(term)) || (i.category && i.category.toLowerCase().includes(term)));
+    }
+    if (category && category !== 'All') {
+      list = list.filter(i => i.category === category);
+    }
+    if (lowStockOnly === true || lowStockOnly === 'true') {
+      list = list.filter(i => i.is_low_stock);
+    }
+
+    return list;
   },
 
   /**
@@ -173,6 +208,20 @@ const inventoryModel = {
         newAvailable,
         item.id
       ]);
+
+      // Check Low Stock Threshold Alert (V2.1)
+      if (newAvailable <= item.low_stock_threshold) {
+        try {
+          await notificationModel.notifyAdmins({
+            type: 'LowInventory',
+            message: `Low Stock Alert: "${item.name}" has dropped to ${newAvailable} ${item.unit} (Threshold: ${item.low_stock_threshold}).`,
+            reference_type: 'Inventory',
+            reference_id: item.id
+          });
+        } catch (err) {
+          console.warn('[Inventory Model] Low inventory alert error:', err.message);
+        }
+      }
 
       // Record in inventory history
       await query(`

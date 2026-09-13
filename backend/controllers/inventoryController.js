@@ -7,9 +7,11 @@ const { validateInventoryItem } = require('../utils/validationUtils');
  */
 async function getAllInventory(req, res) {
   try {
-    const items = await inventoryModel.getAll();
+    const { search, category, lowStockOnly } = req.query;
+    const items = await inventoryModel.getAll({ search, category, lowStockOnly });
     return res.status(200).json({
       success: true,
+      count: items.length,
       items
     });
   } catch (error) {

@@ -5,6 +5,7 @@ import { adminService, donationService } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import Alert from '../components/Alert';
 import DonationStatusBadge from '../components/DonationStatusBadge';
+import NotificationBell from '../components/NotificationBell';
 import {
   Menu,
   Users,
@@ -22,7 +23,9 @@ import {
   ArrowRight,
   Search,
   UserX,
-  Filter
+  Filter,
+  Sparkles,
+  Bell
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -231,6 +234,7 @@ export default function AdminDashboard() {
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh Data</span>
             </button>
+            <NotificationBell align="right" />
             <div className="w-9 h-9 rounded-full bg-[#17243A] text-[#F7BA3E] flex items-center justify-center font-bold text-sm shadow-xs">
               {user?.name?.charAt(0)?.toUpperCase() || 'A'}
             </div>
@@ -347,7 +351,75 @@ export default function AdminDashboard() {
             );
           })()}
 
-          {/* V1.3 NGO OPERATIONS & DISPATCH MODULES */}
+          {/* VERSION 2.1 — SMART OPERATIONS & INTELLIGENCE RADAR */}
+          <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#17243A] via-[#0B3A36] to-[#087F73] text-white shadow-lg border border-teal-500/20 relative overflow-hidden">
+            <div className="absolute -right-12 -top-12 w-64 h-64 bg-teal-400/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -left-12 -bottom-12 w-64 h-64 bg-[#F7BA3E]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-[#F7BA3E] border border-[#F7BA3E]/30 rounded-full text-xs font-extrabold backdrop-blur-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-[#F7BA3E]" />
+                  <span>Version 2.1: Smart Operations</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                  Intelligent Resource Matching & Live Dispatch Radar
+                </h3>
+                <p className="text-xs sm:text-sm text-teal-100/85 leading-relaxed">
+                  Automated matching between warehouse relief inventory and beneficiary requirements, priority-based volunteer tracking with deadlines, multi-entity search/filters, and live in-app notifications.
+                </p>
+              </div>
+
+              {/* 4 Feature Highlights */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+                <Link
+                  to="/admin/assistance-requests"
+                  className="p-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-left group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold mb-2 group-hover:scale-110 transition-transform">
+                    <Sparkles className="w-4 h-4 text-[#F7BA3E]" />
+                  </div>
+                  <p className="text-xs font-bold text-white">Smart Match</p>
+                  <p className="text-[10px] text-teal-200 mt-0.5">Inventory ↔ Request</p>
+                </Link>
+
+                <Link
+                  to="/admin/volunteers"
+                  className="p-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-left group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center font-bold mb-2 group-hover:scale-110 transition-transform">
+                    <Clock className="w-4 h-4 text-blue-200" />
+                  </div>
+                  <p className="text-xs font-bold text-white">Task Tracking</p>
+                  <p className="text-[10px] text-teal-200 mt-0.5">Priority & Deadlines</p>
+                </Link>
+
+                <Link
+                  to="/admin/inventory"
+                  className="p-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-left group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold mb-2 group-hover:scale-110 transition-transform">
+                    <Package className="w-4 h-4 text-amber-300" />
+                  </div>
+                  <p className="text-xs font-bold text-white">Stock Radar</p>
+                  <p className="text-[10px] text-teal-200 mt-0.5">Low-Stock Filter</p>
+                </Link>
+
+                <Link
+                  to="/notifications"
+                  className="p-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-left group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold mb-2 group-hover:scale-110 transition-transform">
+                    <Bell className="w-4 h-4 text-purple-300" />
+                  </div>
+                  <p className="text-xs font-bold text-white">Notifications</p>
+                  <p className="text-[10px] text-teal-200 mt-0.5">Real-time Feed</p>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* NGO OPERATIONS & DISPATCH MODULES */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-[#17243A]">

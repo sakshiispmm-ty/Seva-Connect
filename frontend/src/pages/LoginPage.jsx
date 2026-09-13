@@ -211,12 +211,27 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Portal Info Badge */}
-        <div className="mb-4 flex items-center justify-center">
+        {/* Portal Info Badge & Quick Fill */}
+        <div className="mb-4 flex flex-col items-center justify-center gap-2">
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${currentPortal.badgeClass}`}>
             <CheckCircle2 className="w-3.5 h-3.5" />
             {currentPortal.badge}
           </span>
+          <button
+            type="button"
+            id="quick-fill-demo-btn"
+            onClick={() => {
+              setFormData({
+                email: currentPortal.demoEmail,
+                password: currentPortal.demoPassword
+              });
+              setErrors({});
+            }}
+            className="text-[11px] text-[#667085] hover:text-[#17243A] font-semibold bg-white/70 hover:bg-white px-2.5 py-1 rounded-full border border-gray-200/80 shadow-2xs transition-all flex items-center gap-1.5"
+          >
+            <span>⚡ Use Demo {currentPortal.shortLabel}:</span>
+            <span className="text-[#087F73] font-mono">{currentPortal.demoEmail}</span>
+          </button>
         </div>
 
         {/* Login Form Card */}

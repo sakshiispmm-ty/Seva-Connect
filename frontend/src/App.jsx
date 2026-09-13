@@ -31,6 +31,8 @@ import DonorDashboard from './pages/DonorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import CampaignManagement from './pages/admin/CampaignManagement';
 import DonationVerification from './pages/admin/DonationVerification';
+import DonorManagement from './pages/admin/DonorManagement';
+import NotificationsPage from './pages/NotificationsPage';
 
 export default function App() {
   return (
@@ -114,6 +116,14 @@ export default function App() {
             }
           />
           <Route
+            path="/admin/donors"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <DonorManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/assistance-requests"
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
@@ -152,6 +162,16 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['Donor', 'Admin', 'Volunteer']}>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Dedicated Notifications Feed Route (V2.1) */}
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute allowedRoles={['Donor', 'Admin', 'Volunteer']}>
+                <NotificationsPage />
               </ProtectedRoute>
             }
           />

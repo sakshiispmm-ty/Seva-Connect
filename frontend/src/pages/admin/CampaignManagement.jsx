@@ -5,6 +5,7 @@ import Sidebar from '../../components/Sidebar';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Alert from '../../components/Alert';
+import SearchFilterBar from '../../components/SearchFilterBar';
 import { getCampaignImage } from '../../utils/imageUtils';
 import {
   Menu,
@@ -22,6 +23,11 @@ export default function CampaignManagement() {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Search & Filter State (V2.1)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [categoryFilter, setCategoryFilter] = useState('All');
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -140,10 +146,23 @@ export default function CampaignManagement() {
   };
 
   const totalFundsCollected = campaigns.reduce(
-    (acc, c) => acc + (Number(c.amount_collected) || 0),
+    (sum, c) => sum + (Number(c.amount_collected) || 0),
     0
   );
   const activeCount = campaigns.filter((c) => c.status === 'Active').length;
+
+  const filteredCampaigns = campaigns.filter(c => {
+    if (statusFilter !== 'All' && c.status !== statusFilter) return false;
+    if (categoryFilter !== 'All' && c.category !== categoryFilter) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const mTitle = (c.title || '').toLowerCase().includes(q);
+      const mDesc = (c.description || '').toLowerCase().includes(q);
+      const mCat = (c.category || '').toLowerCase().includes(q);
+      if (!mTitle && !mDesc && !mCat) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-[#FAFCFB] flex">
@@ -214,12 +233,48 @@ export default function CampaignManagement() {
             </div>
           </div>
 
+          {/* Search & Filter Bar (V2.1) */}
+          <SearchFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search campaigns by title, description, or category..."
+            filters={[
+              {
+                id: 'status',
+                label: 'Status',
+                value: statusFilter,
+                onChange: setStatusFilter,
+                options: [
+                  { value: 'All', label: 'All Statuses' },
+                  { value: 'Active', label: 'Active' },
+                  { value: 'Completed', label: 'Completed' },
+                  { value: 'Paused', label: 'Paused' }
+                ]
+              },
+              {
+                id: 'category',
+                label: 'Category',
+                value: categoryFilter,
+                onChange: setCategoryFilter,
+                options: [
+                  { value: 'All', label: 'All Categories' },
+                  ...categories.map(c => ({ value: c, label: c }))
+                ]
+              }
+            ]}
+            onClearAll={() => {
+              setSearchQuery('');
+              setStatusFilter('All');
+              setCategoryFilter('All');
+            }}
+          />
+
           {/* Table Container */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="text-sm font-bold text-[#17243A]">Initiatives Roster</h3>
               <span className="text-xs text-[#667085] font-medium">
-                Showing {campaigns.length} total campaigns
+                Showing {filteredCampaigns.length} total campaigns
               </span>
             </div>
 
@@ -242,6 +297,14 @@ export default function CampaignManagement() {
                   Create Campaign
                 </Button>
               </div>
+            ) : filteredCampaigns.length === 0 ? (
+              <div className="p-12 text-center">
+                <Megaphone className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <h3 className="text-base font-bold text-[#17243A]">No Matching Campaigns</h3>
+                <p className="text-xs text-[#667085] mt-1">
+                  Try adjusting your search terms or category filter.
+                </p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
@@ -256,7 +319,7 @@ export default function CampaignManagement() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 text-gray-700">
-                    {campaigns.map((c) => {
+                    {filteredCampaigns.map((c) => {
                       const target = Number(c.target_amount) || 0;
                       const collected = Number(c.amount_collected) || 0;
                       const pct = target > 0 ? Math.min(Math.round((collected / target) * 100), 100) : 0;

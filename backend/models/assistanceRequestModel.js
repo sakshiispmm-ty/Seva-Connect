@@ -29,9 +29,9 @@ const assistanceRequestModel = {
   },
 
   /**
-   * List all assistance requests, filterable by status
+   * List all assistance requests, filterable by status, urgency, category, priority, and search
    */
-  async getAll({ status, urgency, category } = {}) {
+  async getAll({ status, urgency, category, priority, search } = {}) {
     let sql = `
       SELECT 
         ar.*,
@@ -63,6 +63,15 @@ const assistanceRequestModel = {
       whereClauses.push('ar.category = ?');
       params.push(category);
     }
+    if (priority && priority !== 'All') {
+      whereClauses.push('ar.priority = ?');
+      params.push(priority);
+    }
+    if (search && search.trim()) {
+      const term = `%${search.trim().toLowerCase()}%`;
+      whereClauses.push('(LOWER(b.name) LIKE ? OR LOWER(ar.category) LIKE ? OR LOWER(ar.description) LIKE ?)');
+      params.push(term, term, term);
+    }
 
     if (whereClauses.length > 0) {
       sql += ' WHERE ' + whereClauses.join(' AND ');
@@ -71,7 +80,26 @@ const assistanceRequestModel = {
     sql += ' ORDER BY ar.created_at DESC';
 
     const [rows] = await query(sql, params);
-    return rows || [];
+    let results = (rows || []).map(r => ({
+      ...r,
+      priority: r.priority || 'Medium',
+      deadline: r.deadline || null
+    }));
+
+    // In-memory fallback filtering for search and priority if query didn't apply them
+    if (search && search.trim()) {
+      const term = search.trim().toLowerCase();
+      results = results.filter(r =>
+        (r.beneficiary_name && r.beneficiary_name.toLowerCase().includes(term)) ||
+        (r.category && r.category.toLowerCase().includes(term)) ||
+        (r.description && r.description.toLowerCase().includes(term))
+      );
+    }
+    if (priority && priority !== 'All') {
+      results = results.filter(r => (r.priority || 'Medium') === priority);
+    }
+
+    return results;
   },
 
   /**
@@ -101,6 +129,8 @@ const assistanceRequestModel = {
     if (!rows || rows.length === 0) return null;
 
     const request = rows[0];
+    request.priority = request.priority || 'Medium';
+    request.deadline = request.deadline || null;
 
     // Fetch associated resource allocations
     const allocSql = `
@@ -143,9 +173,9 @@ const assistanceRequestModel = {
   },
 
   /**
-   * Admin: Allocate inventory resources and optionally assign a volunteer
+   * Admin: Allocate inventory resources, optionally assign a volunteer, priority and deadline
    */
-  async allocateAndAssign(id, { allocations = [], volunteerId = null, adminNotes = '' }, adminId) {
+  async allocateAndAssign(id, { allocations = [], volunteerId = null, adminNotes = '', priority = null, deadline = null }, adminId) {
     const existing = await this.getById(id);
     if (!existing) {
       throw new Error('Assistance request not found.');
@@ -157,9 +187,6 @@ const assistanceRequestModel = {
     }
 
     // 2. Determine new status:
-    // If volunteer is assigned -> 'Volunteer Assigned'
-    // Else if resources allocated -> 'Resources Allocated'
-    // Else keep current
     let nextStatus = existing.status;
     if (volunteerId) {
       nextStatus = 'Volunteer Assigned';
@@ -169,16 +196,134 @@ const assistanceRequestModel = {
 
     const assignedVolId = volunteerId ? parseInt(volunteerId, 10) : existing.assigned_volunteer_id;
     const combinedNotes = adminNotes ? adminNotes.trim() : existing.admin_notes;
+    const targetPriority = priority || existing.priority || 'Medium';
+    const targetDeadline = deadline !== undefined && deadline !== '' ? deadline : existing.deadline;
 
     const updateSql = `
       UPDATE assistance_requests
-      SET status = ?, assigned_volunteer_id = ?, admin_notes = ?
+      SET status = ?, assigned_volunteer_id = ?, admin_notes = ?, priority = ?, deadline = ?
       WHERE id = ?
     `;
-    await query(updateSql, [nextStatus, assignedVolId, combinedNotes, parseInt(id, 10)]);
+    await query(updateSql, [nextStatus, assignedVolId, combinedNotes, targetPriority, targetDeadline, parseInt(id, 10)]);
 
     return this.getById(id);
+  },
+
+  /**
+   * Admin: Update priority and deadline
+   */
+  async updatePriority(id, { priority, deadline }) {
+    const existing = await this.getById(id);
+    if (!existing) {
+      throw new Error('Assistance request not found.');
+    }
+
+    const targetPriority = priority || existing.priority || 'Medium';
+    const targetDeadline = deadline !== undefined ? deadline : existing.deadline;
+
+    const sql = `
+      UPDATE assistance_requests
+      SET priority = ?, deadline = ?
+      WHERE id = ?
+    `;
+    await query(sql, [targetPriority, targetDeadline, parseInt(id, 10)]);
+
+    return this.getById(id);
+  },
+
+  /**
+   * Resource Matching (V2.1):
+   * Given an assistance request, suggest matching inventory items
+   */
+  async getSuggestedMatches(requestId) {
+    const request = await this.getById(requestId);
+    if (!request) {
+      throw new Error('Assistance request not found.');
+    }
+
+    // Get all available items with stock > 0
+    const [allRows] = await query("SELECT * FROM inventory_items WHERE quantity_available > 0");
+    const items = allRows || [];
+
+    const reqCategory = (request.category || '').toLowerCase().trim();
+    const reqDesc = (request.description || '').toLowerCase();
+    const reqQty = (request.quantity_needed || '').toLowerCase();
+
+    // Key search tokens from description and quantity
+    const rawTokens = (reqDesc + ' ' + reqQty)
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 2 && !['and', 'for', 'the', 'with', 'from', 'need', 'needed', 'please', 'urgent'].includes(w));
+    const tokens = Array.from(new Set(rawTokens));
+
+    const scoredItems = items.map(item => {
+      let score = 0;
+      const reasons = [];
+      const itemCat = (item.category || '').toLowerCase().trim();
+      const itemName = (item.name || '').toLowerCase().trim();
+
+      // 1. Category match (+50 exact, +30 partial)
+      if (itemCat === reqCategory) {
+        score += 50;
+        reasons.push(`Category: ${item.category}`);
+      } else if (itemCat.includes(reqCategory) || reqCategory.includes(itemCat)) {
+        score += 30;
+        reasons.push(`Category: ${item.category}`);
+      }
+
+      // 2. Keyword matches in item name (+20 each)
+      const matchedKeywords = [];
+      for (const token of tokens) {
+        if (itemName.includes(token)) {
+          score += 20;
+          matchedKeywords.push(token);
+        }
+      }
+      if (matchedKeywords.length > 0) {
+        reasons.push(`Keywords: ${matchedKeywords.slice(0, 3).join(', ')}`);
+      }
+
+      // 3. Category cross-mapping bonuses
+      if (reqCategory.includes('food') && (itemName.includes('grain') || itemName.includes('ration') || itemName.includes('meal'))) {
+        score += 25;
+        if (!reasons.some(r => r.includes('Food'))) reasons.push('Food Relief Good');
+      }
+      if (reqCategory.includes('education') && (itemName.includes('school') || itemName.includes('study') || itemName.includes('kit'))) {
+        score += 25;
+        if (!reasons.some(r => r.includes('Education'))) reasons.push('Education Supply');
+      }
+      if ((reqCategory.includes('health') || reqCategory.includes('medical')) && (itemName.includes('medical') || itemName.includes('first-aid') || itemName.includes('hygiene'))) {
+        score += 25;
+        if (!reasons.some(r => r.includes('Medical'))) reasons.push('Medical & Health Supply');
+      }
+
+      return {
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        unit: item.unit,
+        quantity_available: parseFloat(item.quantity_available) || 0,
+        low_stock_threshold: parseFloat(item.low_stock_threshold) || 0,
+        is_low_stock: (parseFloat(item.quantity_available) || 0) <= (parseFloat(item.low_stock_threshold) || 0),
+        score,
+        match_reasons: reasons
+      };
+    });
+
+    let matches = scoredItems.filter(i => i.score > 0);
+    matches.sort((a, b) => b.score - a.score || b.quantity_available - a.quantity_available);
+
+    // If no direct keyword or category match, return top warehouse items with stock
+    if (matches.length === 0) {
+      matches = scoredItems.map(i => ({
+        ...i,
+        match_reasons: ['Available Warehouse Supply']
+      }));
+    }
+
+    return matches;
   }
 };
 
 module.exports = assistanceRequestModel;
+

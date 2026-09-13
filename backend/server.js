@@ -16,6 +16,8 @@ const volunteerRoutes = require('./routes/volunteerRoutes');
 const beneficiaryRoutes = require('./routes/beneficiaryRoutes');
 const assistanceRequestRoutes = require('./routes/assistanceRequestRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const donorRoutes = require('./routes/donorRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -35,7 +37,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     app: 'SevaConnect Backend API',
-    version: '1.3.0',
+    version: '2.1.0',
     timestamp: new Date().toISOString()
   });
 });
@@ -50,6 +52,8 @@ app.use('/api/volunteers', volunteerRoutes);
 app.use('/api/beneficiaries', beneficiaryRoutes);
 app.use('/api/assistance-requests', assistanceRequestRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/donors', donorRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

@@ -39,9 +39,9 @@ const volunteerModel = {
   },
 
   /**
-   * Admin: List all volunteers with availability/status and task counts
+   * Admin: List all volunteers with availability/status and task counts (V2.1 Search & Filter)
    */
-  async getAllVolunteers() {
+  async getAllVolunteers({ search, skill, status } = {}) {
     const sql = `
       SELECT 
         u.id AS user_id,
@@ -52,7 +52,9 @@ const volunteerModel = {
         COALESCE(vp.skills, 'General Assistance') AS skills,
         COALESCE(vp.availability, 'Available') AS availability,
         COALESCE(vp.status, 'Active') AS status,
-        COUNT(ar.id) AS assigned_tasks_count
+        COUNT(ar.id) AS assigned_tasks_count,
+        SUM(CASE WHEN ar.status != 'Completed' AND ar.id IS NOT NULL THEN 1 ELSE 0 END) AS pending_tasks_count,
+        SUM(CASE WHEN ar.status = 'Completed' THEN 1 ELSE 0 END) AS completed_tasks_count
       FROM users u
       LEFT JOIN volunteer_profiles vp ON u.id = vp.user_id
       LEFT JOIN assistance_requests ar ON u.id = ar.assigned_volunteer_id
@@ -61,13 +63,37 @@ const volunteerModel = {
       ORDER BY u.created_at DESC
     `;
     const [rows] = await query(sql);
-    return rows || [];
+    let results = (rows || []).map(v => ({
+      ...v,
+      assigned_tasks_count: parseInt(v.assigned_tasks_count || 0, 10),
+      pending_tasks_count: parseInt(v.pending_tasks_count || 0, 10),
+      completed_tasks_count: parseInt(v.completed_tasks_count || 0, 10)
+    }));
+
+    if (search && search.trim()) {
+      const term = search.trim().toLowerCase();
+      results = results.filter(v =>
+        (v.name && v.name.toLowerCase().includes(term)) ||
+        (v.email && v.email.toLowerCase().includes(term)) ||
+        (v.phone && v.phone.includes(term))
+      );
+    }
+    if (skill && skill.trim() && skill !== 'All') {
+      const term = skill.trim().toLowerCase();
+      results = results.filter(v => v.skills && v.skills.toLowerCase().includes(term));
+    }
+    if (status && status.trim() && status !== 'All') {
+      results = results.filter(v => v.status === status);
+    }
+
+    return results;
   },
 
   /**
-   * Volunteer: Get assistance requests assigned to this volunteer
+   * Volunteer: Get assistance requests assigned to this volunteer (V2.1 Task Tracking)
+   * Supports filtering by status and sorting by priority / deadline
    */
-  async getAssignedTasks(volunteerUserId) {
+  async getAssignedTasks(volunteerUserId, { status, sort } = {}) {
     const sql = `
       SELECT 
         ar.*,
@@ -81,19 +107,74 @@ const volunteerModel = {
       ORDER BY ar.created_at DESC
     `;
     const [rows] = await query(sql, [parseInt(volunteerUserId, 10)]);
-    return rows || [];
+    let tasks = (rows || []).map(t => ({
+      ...t,
+      priority: t.priority || 'Medium',
+      deadline: t.deadline || null
+    }));
+
+    // Filter by task status:
+    // 'Pending': not completed and not in progress
+    // 'In Progress': In Progress
+    // 'Completed': Completed
+    if (status && status !== 'All') {
+      if (status === 'Pending') {
+        tasks = tasks.filter(t => t.status !== 'Completed' && t.status !== 'In Progress');
+      } else if (status === 'In Progress') {
+        tasks = tasks.filter(t => t.status === 'In Progress');
+      } else if (status === 'Completed') {
+        tasks = tasks.filter(t => t.status === 'Completed');
+      } else {
+        tasks = tasks.filter(t => t.status === status);
+      }
+    }
+
+    // Sort by priority or deadline
+    if (sort === 'priority') {
+      const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+      tasks.sort((a, b) => (priorityOrder[b.priority] || 2) - (priorityOrder[a.priority] || 2));
+    } else if (sort === 'deadline') {
+      tasks.sort((a, b) => {
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline) - new Date(b.deadline);
+      });
+    }
+
+    return tasks;
   },
 
   /**
-   * Volunteer: Mark an assigned request as delivered/completed
+   * Get activity counts for a specific volunteer (V2.1)
    */
-  async markTaskDelivered(requestId, volunteerUserId) {
+  async getVolunteerActivity(volunteerUserId) {
+    const vid = parseInt(volunteerUserId, 10);
+    const tasks = await this.getAssignedTasks(vid);
+    const total_tasks = tasks.length;
+    const pending_tasks = tasks.filter(t => t.status !== 'Completed' && t.status !== 'In Progress').length;
+    const in_progress_tasks = tasks.filter(t => t.status === 'In Progress').length;
+    const completed_tasks = tasks.filter(t => t.status === 'Completed').length;
+    return {
+      total_tasks,
+      pending_tasks,
+      in_progress_tasks,
+      completed_tasks
+    };
+  },
+
+  /**
+   * Volunteer: Update task status (e.g. In Progress or Completed)
+   */
+  async updateTaskStatus(requestId, volunteerUserId, newStatus) {
+    const validStatuses = ['In Progress', 'Completed', 'Volunteer Assigned'];
+    const status = validStatuses.includes(newStatus) ? newStatus : 'Completed';
+
     const sql = `
       UPDATE assistance_requests 
-      SET status = 'Completed'
+      SET status = ?
       WHERE id = ? AND assigned_volunteer_id = ?
     `;
-    const [result] = await query(sql, [parseInt(requestId, 10), parseInt(volunteerUserId, 10)]);
+    const [result] = await query(sql, [status, parseInt(requestId, 10), parseInt(volunteerUserId, 10)]);
     return result.affectedRows > 0;
   }
 };

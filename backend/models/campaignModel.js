@@ -5,7 +5,7 @@ const campaignModel = {
    * List all campaigns with calculated amount collected and donation counts
    * amount_collected only includes 'Completed' money donations
    */
-  async getAll({ status, category } = {}) {
+  async getAll({ status, category, search } = {}) {
     let sql = `
       SELECT c.*, 
         COALESCE(SUM(CASE WHEN d.status = 'Completed' AND d.donation_type = 'Money' THEN d.amount ELSE 0 END), 0) AS amount_collected,
@@ -16,13 +16,18 @@ const campaignModel = {
     const params = [];
     const conditions = [];
 
-    if (status) {
+    if (status && status !== 'All') {
       conditions.push('c.status = ?');
       params.push(status);
     }
-    if (category) {
+    if (category && category !== 'All') {
       conditions.push('c.category = ?');
       params.push(category);
+    }
+    if (search && search.trim()) {
+      conditions.push('(LOWER(c.title) LIKE ? OR LOWER(c.description) LIKE ?)');
+      const term = `%${search.trim().toLowerCase()}%`;
+      params.push(term, term);
     }
 
     if (conditions.length > 0) {
@@ -32,7 +37,16 @@ const campaignModel = {
     sql += ` GROUP BY c.id ORDER BY c.created_at DESC`;
 
     const [rows] = await query(sql, params);
-    return rows || [];
+    let results = rows || [];
+    if (search && search.trim()) {
+      const s = search.trim().toLowerCase();
+      results = results.filter(c => 
+        (c.title && c.title.toLowerCase().includes(s)) || 
+        (c.description && c.description.toLowerCase().includes(s)) ||
+        (c.category && c.category.toLowerCase().includes(s))
+      );
+    }
+    return results;
   },
 
   /**
