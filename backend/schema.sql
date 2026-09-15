@@ -209,6 +209,15 @@ CREATE TABLE IF NOT EXISTS notifications (
   INDEX idx_recipient_read (recipient_id, is_read)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ==========================================================
+-- SevaConnect Database Schema V2.2 (Reports + Analytics)
+-- ==========================================================
+-- Read-optimized performance indexes for temporal and composite reporting aggregations
+ALTER TABLE donations ADD INDEX idx_donations_created_at (created_at);
+ALTER TABLE assistance_requests ADD INDEX idx_requests_created_at (created_at);
+ALTER TABLE resource_allocations ADD INDEX idx_allocations_created_at (created_at);
+
+
 
 
 

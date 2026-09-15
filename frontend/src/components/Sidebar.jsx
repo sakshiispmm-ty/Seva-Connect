@@ -14,7 +14,8 @@ import {
   LogOut,
   X,
   UserCheck,
-  Bell
+  Bell,
+  BarChart3
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
@@ -46,6 +47,7 @@ export default function Sidebar({ isOpen, onClose, role }) {
 
   const adminLinks = [
     { label: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
+    { label: 'Analytics & Reports', path: '/admin/analytics', icon: BarChart3 },
     { label: 'Campaigns', path: '/admin/campaigns', icon: Megaphone },
     { label: 'Donation Desk', path: '/admin/donations', icon: Gift },
     { label: 'Donors', path: '/admin/donors', icon: HeartHandshake },

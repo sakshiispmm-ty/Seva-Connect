@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { adminService, donationService } from '../services/api';
+import { adminService, donationService, reportService } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import Alert from '../components/Alert';
 import DonationStatusBadge from '../components/DonationStatusBadge';
@@ -25,12 +25,14 @@ import {
   UserX,
   Filter,
   Sparkles,
-  Bell
+  Bell,
+  BarChart3
 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState(null);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalDonors: 0,
@@ -51,10 +53,11 @@ export default function AdminDashboard() {
     setLoading(true);
     setError('');
     try {
-      const [statsRes, usersRes, donationsRes] = await Promise.all([
+      const [statsRes, usersRes, donationsRes, analyticsRes] = await Promise.all([
         adminService.getStats(),
         adminService.getUsers(),
-        donationService.getAll()
+        donationService.getAll(),
+        reportService.getDashboardPayload().catch(() => ({ data: { success: false } }))
       ]);
 
       if (statsRes.data?.success) {
@@ -65,6 +68,9 @@ export default function AdminDashboard() {
       }
       if (donationsRes.data?.success) {
         setDonations(donationsRes.data.data || []);
+      }
+      if (analyticsRes.data?.success) {
+        setAnalyticsData(analyticsRes.data.data);
       }
     } catch (err) {
       setError(
@@ -80,10 +86,11 @@ export default function AdminDashboard() {
     let isMounted = true;
     async function loadStats() {
       try {
-        const [statsRes, usersRes, donationsRes] = await Promise.all([
+        const [statsRes, usersRes, donationsRes, analyticsRes] = await Promise.all([
           adminService.getStats(),
           adminService.getUsers(),
-          donationService.getAll()
+          donationService.getAll(),
+          reportService.getDashboardPayload().catch(() => ({ data: { success: false } }))
         ]);
         if (isMounted) {
           if (statsRes.data?.success) {
@@ -94,6 +101,9 @@ export default function AdminDashboard() {
           }
           if (donationsRes.data?.success) {
             setDonations(donationsRes.data.data || []);
+          }
+          if (analyticsRes.data?.success) {
+            setAnalyticsData(analyticsRes.data.data);
           }
         }
       } catch (err) {
@@ -350,6 +360,106 @@ export default function AdminDashboard() {
               </div>
             );
           })()}
+
+          {/* VERSION 2.2 — REPORTS & ANALYTICS EXECUTIVE SUITE */}
+          <div className="rounded-3xl p-6 sm:p-7 bg-white border border-gray-200/80 shadow-xs space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-[#EAF6F3] text-[#087F73] border border-[#087F73]/20 rounded-full text-xs font-extrabold">
+                  <BarChart3 className="w-3.5 h-3.5 text-[#087F73]" />
+                  <span>Version 2.2: Reports & Analytics</span>
+                </div>
+                <h3 className="text-xl font-black text-[#17243A] tracking-tight">
+                  Executive Intelligence & Multi-Dimensional Reporting
+                </h3>
+                <p className="text-xs sm:text-sm text-[#667085]">
+                  Live read-only analytics across financial contributions, campaign progress, volunteer task velocity, and warehouse relief inventory.
+                </p>
+              </div>
+
+              <Link
+                to="/admin/analytics"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#087F73] hover:bg-[#05665D] text-white text-xs font-bold rounded-xl shadow-xs transition-all shrink-0"
+              >
+                <span>Full Analytics Hub</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* Quick Mini-KPIs */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3.5 bg-[#EAF6F3]/50 rounded-2xl border border-[#087F73]/15">
+                <p className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">Total Raised</p>
+                <p className="text-lg font-black text-[#087F73] mt-0.5">
+                  ₹{(analyticsData?.summaryCards?.totalMoneyAmount || 0).toLocaleString('en-IN')}
+                </p>
+                <p className="text-[10px] text-[#667085]">Verified funds</p>
+              </div>
+
+              <div className="p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-200/50">
+                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Total Pledges</p>
+                <p className="text-lg font-black text-[#2EAD62] mt-0.5">
+                  {(analyticsData?.summaryCards?.totalDonations || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-emerald-700">Money & relief items</p>
+              </div>
+
+              <div className="p-3.5 bg-blue-50/50 rounded-2xl border border-blue-200/50">
+                <p className="text-[10px] font-bold text-blue-800 uppercase tracking-wider">Active Volunteers</p>
+                <p className="text-lg font-black text-blue-700 mt-0.5">
+                  {(analyticsData?.summaryCards?.activeVolunteers || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-blue-600">On-call task force</p>
+              </div>
+
+              <div className="p-3.5 bg-amber-50/50 rounded-2xl border border-amber-200/50">
+                <p className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">Low-Stock Alert</p>
+                <p className="text-lg font-black text-amber-700 mt-0.5">
+                  {(analyticsData?.summaryCards?.lowStockCount || 0).toLocaleString()} items
+                </p>
+                <p className="text-[10px] text-amber-600">Below reorder threshold</p>
+              </div>
+            </div>
+
+            {/* 5 Report Quick Links */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-1">
+              <Link
+                to="/admin/reports/donations"
+                className="p-3 rounded-xl bg-gray-50 hover:bg-[#EAF6F3] border border-gray-100 hover:border-[#087F73]/30 transition-all text-left group"
+              >
+                <p className="text-xs font-bold text-[#17243A] group-hover:text-[#087F73]">Donation Trends</p>
+                <p className="text-[10px] text-[#667085] mt-0.5">Periods & Campaigns →</p>
+              </Link>
+              <Link
+                to="/admin/reports/campaigns"
+                className="p-3 rounded-xl bg-gray-50 hover:bg-[#EAF6F3] border border-gray-100 hover:border-[#087F73]/30 transition-all text-left group"
+              >
+                <p className="text-xs font-bold text-[#17243A] group-hover:text-[#087F73]">Campaigns</p>
+                <p className="text-[10px] text-[#667085] mt-0.5">Goal % & Comparison →</p>
+              </Link>
+              <Link
+                to="/admin/reports/volunteers"
+                className="p-3 rounded-xl bg-gray-50 hover:bg-[#EAF6F3] border border-gray-100 hover:border-[#087F73]/30 transition-all text-left group"
+              >
+                <p className="text-xs font-bold text-[#17243A] group-hover:text-[#087F73]">Volunteers</p>
+                <p className="text-[10px] text-[#667085] mt-0.5">Task Velocity & Rate →</p>
+              </Link>
+              <Link
+                to="/admin/reports/beneficiaries"
+                className="p-3 rounded-xl bg-gray-50 hover:bg-[#EAF6F3] border border-gray-100 hover:border-[#087F73]/30 transition-all text-left group"
+              >
+                <p className="text-xs font-bold text-[#17243A] group-hover:text-[#087F73]">Beneficiaries</p>
+                <p className="text-[10px] text-[#667085] mt-0.5">Requests & Urgency →</p>
+              </Link>
+              <Link
+                to="/admin/reports/inventory"
+                className="p-3 rounded-xl bg-gray-50 hover:bg-[#EAF6F3] border border-gray-100 hover:border-[#087F73]/30 transition-all text-left group col-span-2 sm:col-span-1"
+              >
+                <p className="text-xs font-bold text-[#17243A] group-hover:text-[#087F73]">Warehouse</p>
+                <p className="text-[10px] text-[#667085] mt-0.5">Stock & History →</p>
+              </Link>
+            </div>
+          </div>
 
           {/* VERSION 2.1 — SMART OPERATIONS & INTELLIGENCE RADAR */}
           <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#17243A] via-[#0B3A36] to-[#087F73] text-white shadow-lg border border-teal-500/20 relative overflow-hidden">

@@ -18,10 +18,12 @@ const assistanceRequestRoutes = require('./routes/assistanceRequestRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const donorRoutes = require('./routes/donorRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
 
 // Middleware configuration
 app.use(cors({
@@ -37,7 +39,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     app: 'SevaConnect Backend API',
-    version: '2.1.0',
+    version: '2.2.0',
     timestamp: new Date().toISOString()
   });
 });
@@ -54,6 +56,7 @@ app.use('/api/assistance-requests', assistanceRequestRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/donors', donorRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

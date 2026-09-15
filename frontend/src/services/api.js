@@ -132,5 +132,34 @@ export const notificationService = {
   markAllAsRead: () => api.put('/notifications/mark-all-read')
 };
 
+// Report & Analytics Service (V2.2)
+export const reportService = {
+  // Donations
+  getDonationSummary: (params) => api.get('/reports/donations/summary', { params }),
+  getDonationsByPeriod: (params) => api.get('/reports/donations/by-period', { params }),
+  getDonationsByCampaign: (params) => api.get('/reports/donations/by-campaign', { params }),
+
+  // Campaigns
+  getCampaignsSummary: (params) => api.get('/reports/campaigns/summary', { params }),
+  getCampaignPerformance: (id) => api.get(`/reports/campaigns/${id}/performance`),
+
+  // Volunteers
+  getVolunteersSummary: (params) => api.get('/reports/volunteers/summary', { params }),
+  getVolunteerActivity: (id) => api.get(`/reports/volunteers/${id}`),
+
+  // Beneficiaries
+  getBeneficiariesSummary: (params) => api.get('/reports/beneficiaries/summary', { params }),
+  getBeneficiariesByCategory: (params) => api.get('/reports/beneficiaries/by-category', { params }),
+
+  // Inventory
+  getInventorySummary: (params) => api.get('/reports/inventory/summary', { params }),
+  getLowStockReport: () => api.get('/reports/inventory/low-stock'),
+  getItemHistory: (id) => api.get(`/reports/inventory/${id}/history`),
+
+  // Dashboard Aggregated Payload
+  getDashboardPayload: (params) => api.get('/reports/dashboard', { params })
+};
+
 export default api;
+
 

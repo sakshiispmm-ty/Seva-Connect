@@ -34,6 +34,14 @@ import DonationVerification from './pages/admin/DonationVerification';
 import DonorManagement from './pages/admin/DonorManagement';
 import NotificationsPage from './pages/NotificationsPage';
 
+// V2.2 Reports & Analytics Pages
+import AnalyticsDashboard from './pages/admin/AnalyticsDashboard';
+import DonationReports from './pages/admin/reports/DonationReports';
+import CampaignReports from './pages/admin/reports/CampaignReports';
+import VolunteerReports from './pages/admin/reports/VolunteerReports';
+import BeneficiaryReports from './pages/admin/reports/BeneficiaryReports';
+import InventoryReports from './pages/admin/reports/InventoryReports';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -152,6 +160,56 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <VolunteerManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* V2.2 Reports & Analytics Routes */}
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <AnalyticsDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports/donations"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <DonationReports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports/campaigns"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <CampaignReports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports/volunteers"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <VolunteerReports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports/beneficiaries"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <BeneficiaryReports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports/inventory"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <InventoryReports />
               </ProtectedRoute>
             }
           />
