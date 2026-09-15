@@ -1,4 +1,5 @@
 const { query } = require('../config/db');
+const donationStatusHistoryModel = require('./donationStatusHistoryModel');
 
 const donationModel = {
   /**
@@ -49,6 +50,14 @@ const donationModel = {
       donation_type === 'Item' ? (item_quantity || '').trim() : null,
       notes ? notes.trim() : ''
     ]);
+
+    if (result && result.insertId) {
+      try {
+        await donationStatusHistoryModel.logStatusChange(result.insertId, 'Pending Verification', null);
+      } catch (err) {
+        console.error('[DonationModel] Failed to log status history on create:', err);
+      }
+    }
 
     return {
       id: result.insertId,
@@ -188,6 +197,13 @@ const donationModel = {
       WHERE id = ?
     `;
     const [result] = await query(sql, [newStatus, adminUserId, now, donationId]);
+    if (result.affectedRows > 0 || result.changedRows !== undefined) {
+      try {
+        await donationStatusHistoryModel.logStatusChange(donationId, newStatus, adminUserId, now.toISOString());
+      } catch (err) {
+        console.error('[DonationModel] Failed to log status transition history:', err);
+      }
+    }
     return result.affectedRows > 0 || result.changedRows !== undefined;
   },
 

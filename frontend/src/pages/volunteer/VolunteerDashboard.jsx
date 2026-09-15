@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/Sidebar';
 import RequestStatusBadge from '../../components/RequestStatusBadge';
 import Button from '../../components/Button';
 import Alert from '../../components/Alert';
 import NotificationBell from '../../components/NotificationBell';
-import { volunteerService } from '../../services/api';
+import FeedbackForm from '../../components/FeedbackForm';
+import { volunteerService, feedbackService } from '../../services/api';
 import { 
   LayoutDashboard, 
   Truck, 
@@ -18,13 +20,19 @@ import {
   CheckCheck, 
   AlertCircle,
   ExternalLink,
-  Sparkles
+  Sparkles,
+  History,
+  Star,
+  Award,
+  ArrowRight
 } from 'lucide-react';
 
 export default function VolunteerDashboard() {
   const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [contributionSummary, setContributionSummary] = useState(null);
+  const [myFeedbackList, setMyFeedbackList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -36,16 +44,28 @@ export default function VolunteerDashboard() {
   const [selectedTaskToDeliver, setSelectedTaskToDeliver] = useState(null);
   const [confirmingDelivery, setConfirmingDelivery] = useState(false);
 
+  // Feedback Modal state
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [selectedTaskForFeedback, setSelectedTaskForFeedback] = useState(null);
+
   const fetchTasks = async () => {
     setLoading(true);
     setError('');
     try {
-      const response = await volunteerService.getTasks();
-      if (response.data && response.data.success) {
-        setTasks(response.data.tasks || []);
+      const [tasksRes, summaryRes, feedbackRes] = await Promise.all([
+        volunteerService.getTasks(),
+        volunteerService.getContributionSummary().catch(() => ({ data: { data: null } })),
+        feedbackService.getMyFeedback({ target_type: 'VolunteerTask' }).catch(() => ({ data: { data: [] } }))
+      ]);
+
+      if (tasksRes.data && tasksRes.data.success) {
+        setTasks(tasksRes.data.tasks || []);
       } else {
-        setError(response.data?.message || 'Failed to load assigned tasks.');
+        setError(tasksRes.data?.message || 'Failed to load assigned tasks.');
       }
+
+      setContributionSummary(summaryRes.data?.data || null);
+      setMyFeedbackList(feedbackRes.data?.data || []);
     } catch (err) {
       setError(err.response?.data?.message || 'Server error loading volunteer tasks.');
     } finally {
@@ -56,6 +76,14 @@ export default function VolunteerDashboard() {
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  const feedbackByTaskId = useMemo(() => {
+    const map = {};
+    (myFeedbackList || []).forEach((fb) => {
+      map[fb.target_id] = fb;
+    });
+    return map;
+  }, [myFeedbackList]);
 
   const handleStartTask = async (task) => {
     setUpdatingTaskId(task.id);
@@ -173,6 +201,43 @@ export default function VolunteerDashboard() {
               onClose={() => setSuccessMessage('')}
             />
           )}
+
+          {/* Contribution Summary Block (V2.3) */}
+          <div className="bg-gradient-to-r from-[#087F73] to-[#05665D] rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-1 max-w-xl">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/15 text-white backdrop-blur-xs">
+                <Award className="w-3.5 h-3.5" />
+                Volunteer Contribution Impact
+              </div>
+              <h2 className="text-lg font-black">Your Dedicated Service Overview</h2>
+              <p className="text-xs text-emerald-100 leading-relaxed">
+                Every completed delivery and verified relief mission strengthens community resilience across our network.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-6 md:gap-8">
+              <div className="text-center md:text-left">
+                <p className="text-xs uppercase tracking-wider text-emerald-200 font-semibold">Tasks Completed</p>
+                <p className="text-2xl font-black">{contributionSummary?.total_completed_tasks ?? completedTasks}</p>
+              </div>
+              <div className="text-center md:text-left">
+                <p className="text-xs uppercase tracking-wider text-emerald-200 font-semibold">Service Hours</p>
+                <p className="text-2xl font-black">{contributionSummary?.estimated_hours_served ?? (completedTasks * 3)} hrs</p>
+              </div>
+              <div className="text-center md:text-left">
+                <p className="text-xs uppercase tracking-wider text-emerald-200 font-semibold">Beneficiaries</p>
+                <p className="text-2xl font-black">{contributionSummary?.distinct_beneficiaries_served ?? completedTasks}</p>
+              </div>
+              <Link
+                to="/volunteer/history"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#087F73] hover:bg-emerald-50 text-xs font-bold transition-all shadow-sm shrink-0"
+              >
+                <History className="w-4 h-4" />
+                View Full History
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
 
           {/* Activity Metrics Summary (V2.1) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
@@ -379,10 +444,39 @@ export default function VolunteerDashboard() {
                       {/* Action Buttons (V2.1 status progression) */}
                       <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         {isCompleted ? (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-                            <CheckCircle2 className="w-4 h-4" />
-                            Delivered Successfully
-                          </span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                              <CheckCircle2 className="w-4 h-4" />
+                              Delivered Successfully
+                            </span>
+                            {feedbackByTaskId[task.id] ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedTaskForFeedback(task);
+                                  setFeedbackModalOpen(true);
+                                }}
+                                className="text-xs flex items-center gap-1"
+                              >
+                                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                Edit Feedback ({feedbackByTaskId[task.id].rating}★)
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedTaskForFeedback(task);
+                                  setFeedbackModalOpen(true);
+                                }}
+                                className="text-xs flex items-center gap-1 bg-[#087F73] hover:bg-[#05665D]"
+                              >
+                                <Star className="w-3.5 h-3.5" />
+                                Leave Feedback
+                              </Button>
+                            )}
+                          </div>
                         ) : (
                           <>
                             {!isInProgress && (
@@ -464,6 +558,27 @@ export default function VolunteerDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Feedback Form Modal */}
+      {feedbackModalOpen && selectedTaskForFeedback && (
+        <FeedbackForm
+          isOpen={feedbackModalOpen}
+          targetType="VolunteerTask"
+          targetId={selectedTaskForFeedback.id}
+          targetTitle={selectedTaskForFeedback.title || `Task #${selectedTaskForFeedback.id}`}
+          initialFeedback={feedbackByTaskId[selectedTaskForFeedback.id]}
+          onClose={() => {
+            setFeedbackModalOpen(false);
+            setSelectedTaskForFeedback(null);
+          }}
+          onSuccess={() => {
+            setSuccessMessage('Thank you! Your task feedback has been saved.');
+            feedbackService.getMyFeedback({ target_type: 'VolunteerTask' })
+              .then((res) => setMyFeedbackList(res.data?.data || []))
+              .catch(() => {});
+          }}
+        />
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 const donationModel = require('../models/donationModel');
 const campaignModel = require('../models/campaignModel');
 const notificationModel = require('../models/notificationModel');
+const donationStatusHistoryModel = require('../models/donationStatusHistoryModel');
 const { EMAIL_REGEX, PHONE_REGEX } = require('../utils/validationUtils');
 
 /**
@@ -526,6 +527,55 @@ async function getReceipt(req, res) {
   }
 }
 
+/**
+ * GET /api/donations/:id/timeline
+ * Access: Authenticated (Donor owner or Admin)
+ */
+async function getDonationTimeline(req, res) {
+  try {
+    const { id } = req.params;
+    const donation = await donationModel.getById(id);
+
+    if (!donation) {
+      return res.status(404).json({
+        success: false,
+        message: 'Donation record not found.'
+      });
+    }
+
+    const isOwner = (donation.donor_id && donation.donor_id === req.user.id) ||
+                    (donation.donor_email && donation.donor_email.toLowerCase() === req.user.email.toLowerCase());
+    const isAdmin = req.user.role === 'Admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to view this donation timeline.'
+      });
+    }
+
+    const rawTimeline = await donationStatusHistoryModel.getByDonationId(id);
+    const timeline = (rawTimeline || []).map(entry => ({
+      ...entry,
+      new_status: entry.new_status || entry.status,
+      status: entry.status || entry.new_status
+    }));
+
+    return res.status(200).json({
+      success: true,
+      donation,
+      timeline,
+      data: timeline
+    });
+  } catch (error) {
+    console.error('[Donation Controller] getDonationTimeline error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve donation timeline.'
+    });
+  }
+}
+
 module.exports = {
   registerDonation,
   getMyDonations,
@@ -534,5 +584,6 @@ module.exports = {
   verifyDonation,
   rejectDonation,
   completeDonation,
-  getReceipt
+  getReceipt,
+  getDonationTimeline
 };

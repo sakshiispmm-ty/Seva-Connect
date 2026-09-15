@@ -68,7 +68,7 @@ export const campaignService = {
   update: (id, data) => api.put(`/campaigns/${id}`, data)
 };
 
-// Donation Service (V1.2)
+// Donation Service (V1.2 & V2.3)
 export const donationService = {
   register: (data) => api.post('/donations', data),
   getMyDonations: () => api.get('/donations/my'),
@@ -78,10 +78,11 @@ export const donationService = {
   verify: (id) => api.put(`/donations/${id}/verify`),
   reject: (id, data) => api.put(`/donations/${id}/reject`, data),
   complete: (id) => api.put(`/donations/${id}/complete`),
-  getReceipt: (id) => api.get(`/donations/${id}/receipt`)
+  getReceipt: (id) => api.get(`/donations/${id}/receipt`),
+  getTimeline: (id) => api.get(`/donations/${id}/timeline`)
 };
 
-// Volunteer Service (V1.3 & V2.1)
+// Volunteer Service (V1.3 & V2.1 & V2.3)
 export const volunteerService = {
   getProfile: () => api.get('/volunteers/profile'),
   updateProfile: (data) => api.put('/volunteers/profile', data),
@@ -89,7 +90,9 @@ export const volunteerService = {
   updateTaskStatus: (id, data) => api.put(`/volunteers/tasks/${id}/status`, data),
   deliverTask: (id) => api.put(`/volunteers/tasks/${id}/deliver`),
   getAll: (params) => api.get('/volunteers', { params }),
-  getActivity: (id) => api.get(`/volunteers/${id}/activity`)
+  getActivity: (id) => api.get(`/volunteers/${id}/activity`),
+  getHistory: (params) => api.get('/volunteers/history', { params }),
+  getContributionSummary: () => api.get('/volunteers/contribution-summary')
 };
 
 // Beneficiary Service (V1.3 & V2.1)
@@ -155,9 +158,15 @@ export const reportService = {
   getInventorySummary: (params) => api.get('/reports/inventory/summary', { params }),
   getLowStockReport: () => api.get('/reports/inventory/low-stock'),
   getItemHistory: (id) => api.get(`/reports/inventory/${id}/history`),
-
-  // Dashboard Aggregated Payload
   getDashboardPayload: (params) => api.get('/reports/dashboard', { params })
+};
+
+// Feedback Service (V2.3)
+export const feedbackService = {
+  submit: (data) => api.post('/feedback', data),
+  update: (id, data) => api.put(`/feedback/${id}`, data),
+  getMyFeedback: (params) => api.get('/feedback/my', { params }),
+  getAll: (params) => api.get('/feedback', { params })
 };
 
 export default api;

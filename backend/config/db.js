@@ -28,6 +28,8 @@ const inventoryItemsFilePath = path.join(dataDir, 'inventory_items.json');
 const inventoryHistoryFilePath = path.join(dataDir, 'inventory_history.json');
 const resourceAllocationsFilePath = path.join(dataDir, 'resource_allocations.json');
 const notificationsFilePath = path.join(dataDir, 'notifications.json');
+const feedbackFilePath = path.join(dataDir, 'feedback.json');
+const donationStatusHistoryFilePath = path.join(dataDir, 'donation_status_history.json');
 
 const INITIAL_CAMPAIGNS = [
   {
@@ -163,6 +165,12 @@ if (!fs.existsSync(resourceAllocationsFilePath)) {
 }
 if (!fs.existsSync(notificationsFilePath)) {
   fs.writeFileSync(notificationsFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(feedbackFilePath)) {
+  fs.writeFileSync(feedbackFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(donationStatusHistoryFilePath)) {
+  fs.writeFileSync(donationStatusHistoryFilePath, JSON.stringify([], null, 2), 'utf8');
 }
 
 
@@ -343,6 +351,83 @@ function writeFallbackNotifications(data) {
     console.error('[Fallback DB] Failed to save notifications data:', err);
   }
 }
+
+function readFallbackFeedback() {
+  try {
+    const raw = fs.readFileSync(feedbackFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackFeedback(data) {
+  try {
+    fs.writeFileSync(feedbackFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save feedback data:', err);
+  }
+}
+
+function readFallbackDonationStatusHistory() {
+  try {
+    const raw = fs.readFileSync(donationStatusHistoryFilePath, 'utf8');
+    let history = JSON.parse(raw) || [];
+    if (history.length === 0) {
+      const donations = readFallbackDonations();
+      let nextId = 1;
+      donations.forEach(d => {
+        history.push({
+          id: nextId++,
+          donation_id: d.id,
+          status: 'Pending Verification',
+          changed_by: null,
+          created_at: d.created_at || '2026-08-01T10:00:00.000Z'
+        });
+        if (d.status === 'Verified' || d.status === 'Completed') {
+          history.push({
+            id: nextId++,
+            donation_id: d.id,
+            status: 'Verified',
+            changed_by: d.verified_by || 2,
+            created_at: d.verified_at || d.created_at || '2026-08-01T11:00:00.000Z'
+          });
+        }
+        if (d.status === 'Rejected') {
+          history.push({
+            id: nextId++,
+            donation_id: d.id,
+            status: 'Rejected',
+            changed_by: d.verified_by || 2,
+            created_at: d.verified_at || d.updated_at || d.created_at || '2026-08-01T11:00:00.000Z'
+          });
+        }
+        if (d.status === 'Completed') {
+          history.push({
+            id: nextId++,
+            donation_id: d.id,
+            status: 'Completed',
+            changed_by: d.verified_by || 2,
+            created_at: d.updated_at || d.verified_at || d.created_at || '2026-08-01T12:00:00.000Z'
+          });
+        }
+      });
+      writeFallbackDonationStatusHistory(history);
+    }
+    return history;
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackDonationStatusHistory(data) {
+  try {
+    fs.writeFileSync(donationStatusHistoryFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save donation status history:', err);
+  }
+}
+
 
 
 async function initDb() {
@@ -589,8 +674,47 @@ async function initDb() {
       (5, 'Primary School Remedial Study Kit', 'Education', 'Sets', 60.00, 35.00, 15.00)
     `);
 
+    // Create feedback table if not exists (V2.3)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS feedback (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        feedback_type ENUM('Donation', 'VolunteerTask', 'Campaign') NOT NULL,
+        reference_id INT NOT NULL,
+        rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+        comment TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        UNIQUE KEY unique_feedback_per_target (user_id, feedback_type, reference_id),
+        INDEX idx_type_reference (feedback_type, reference_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Create donation_status_history table if not exists (V2.3)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS donation_status_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        donation_id INT NOT NULL,
+        status ENUM('Pending Verification', 'Verified', 'Rejected', 'Completed') NOT NULL,
+        changed_by INT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (donation_id) REFERENCES donations(id),
+        FOREIGN KEY (changed_by) REFERENCES users(id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Backfill donation_status_history in MySQL if empty
+    try {
+      await pool.query(`
+        INSERT INTO donation_status_history (donation_id, status, changed_by, created_at)
+        SELECT id, 'Pending Verification', NULL, created_at FROM donations
+        WHERE NOT EXISTS (SELECT 1 FROM donation_status_history WHERE donation_status_history.donation_id = donations.id)
+      `);
+    } catch (e) { /* ignore if already seeded */ }
+
     isUsingMySQL = true;
-    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". All V1.1/V1.2/V1.3 tables ready.`);
+    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". All V1.1/V1.2/V1.3/V2.1/V2.2/V2.3 tables ready.`);
     return true;
   } catch (error) {
     isUsingMySQL = false;
@@ -633,6 +757,8 @@ async function query(sql, params = []) {
   const inventoryHistory = readFallbackInventoryHistory();
   const resourceAllocations = readFallbackResourceAllocations();
   const notifications = readFallbackNotifications();
+  const feedback = readFallbackFeedback();
+  const donationStatusHistory = readFallbackDonationStatusHistory();
 
   // 1. SELECT id FROM users WHERE email = ?
   if (normalizedSql.startsWith('SELECT id FROM users WHERE email = ?')) {
@@ -1647,6 +1773,165 @@ async function query(sql, params = []) {
     return [donorsList];
   }
 
+  // ==========================================================
+  // V2.3 DONATION STATUS HISTORY FALLBACK HANDLERS
+  // ==========================================================
+  if (normalizedSql.startsWith('INSERT INTO donation_status_history')) {
+    const nextId = donationStatusHistory.length > 0 ? Math.max(...donationStatusHistory.map(h => h.id || 0)) + 1 : 1;
+    const newRecord = {
+      id: nextId,
+      donation_id: parseInt(params[0], 10),
+      status: params[1],
+      changed_by: params[2] ? parseInt(params[2], 10) : null,
+      created_at: params[3] || getAugustTimestamp()
+    };
+    donationStatusHistory.push(newRecord);
+    writeFallbackDonationStatusHistory(donationStatusHistory);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  if (normalizedSql.includes('FROM donation_status_history') || normalizedSql.includes('FROM donation_status_history h')) {
+    const donationId = parseInt(params[0], 10);
+    const records = donationStatusHistory
+      .filter(h => h.donation_id === donationId)
+      .sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0))
+      .map(h => {
+        const changer = h.changed_by ? users.find(u => u.id === h.changed_by) : null;
+        return {
+          ...h,
+          changed_by_name: changer ? changer.name : (h.changed_by ? 'Administrator' : 'System / Online Pledge')
+        };
+      });
+    return [records];
+  }
+
+  // ==========================================================
+  // V2.3 FEEDBACK FALLBACK HANDLERS
+  // ==========================================================
+  if (normalizedSql.startsWith('INSERT INTO feedback')) {
+    const userId = parseInt(params[0], 10);
+    const feedbackType = params[1];
+    const referenceId = parseInt(params[2], 10);
+    const rating = parseInt(params[3], 10);
+    const comment = params[4] || '';
+
+    // Check unique constraint: (user_id, feedback_type, reference_id)
+    const existing = feedback.find(f => f.user_id === userId && f.feedback_type === feedbackType && f.reference_id === referenceId);
+    if (existing) {
+      const err = new Error("Duplicate entry: Feedback already submitted for this target.");
+      err.code = 'ER_DUP_ENTRY';
+      throw err;
+    }
+
+    const nextId = feedback.length > 0 ? Math.max(...feedback.map(f => f.id || 0)) + 1 : 1;
+    const now = getAugustTimestamp();
+    const newFeedback = {
+      id: nextId,
+      user_id: userId,
+      feedback_type: feedbackType,
+      reference_id: referenceId,
+      rating,
+      comment,
+      created_at: now,
+      updated_at: now
+    };
+    feedback.push(newFeedback);
+    writeFallbackFeedback(feedback);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  if (normalizedSql.startsWith('UPDATE feedback SET rating = ?, comment = ?') || normalizedSql.startsWith('UPDATE feedback')) {
+    const rating = parseInt(params[0], 10);
+    const comment = params[1];
+    const feedbackId = parseInt(params[3] !== undefined ? params[3] : params[2], 10);
+    const userId = params[4] !== undefined ? parseInt(params[4], 10) : null;
+
+    const idx = feedback.findIndex(f => f.id === feedbackId && (!userId || f.user_id === userId));
+    if (idx !== -1) {
+      feedback[idx].rating = rating;
+      feedback[idx].comment = comment;
+      feedback[idx].updated_at = getAugustTimestamp();
+      writeFallbackFeedback(feedback);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  if (normalizedSql.includes('FROM feedback') || normalizedSql.includes('FROM feedback f')) {
+    // Check if target lookup: WHERE user_id = ? AND feedback_type = ? AND reference_id = ?
+    if (normalizedSql.includes('WHERE f.user_id = ? AND f.feedback_type = ? AND f.reference_id = ?') ||
+        normalizedSql.includes('WHERE user_id = ? AND feedback_type = ? AND reference_id = ?')) {
+      const uId = parseInt(params[0], 10);
+      const fType = params[1];
+      const rId = parseInt(params[2], 10);
+      const match = feedback.filter(f => f.user_id === uId && f.feedback_type === fType && f.reference_id === rId);
+      return [match];
+    }
+
+    // Check if specific ID lookup: WHERE id = ?
+    if (normalizedSql.includes('WHERE f.id = ?') || normalizedSql.includes('WHERE id = ?')) {
+      const fId = parseInt(params[0], 10);
+      const match = feedback.filter(f => f.id === fId);
+      return [match];
+    }
+
+    // Check if mine lookup: WHERE f.user_id = ?
+    if (normalizedSql.includes('WHERE f.user_id = ?') || normalizedSql.includes('WHERE user_id = ?')) {
+      const uId = parseInt(params[0], 10);
+      const mine = feedback
+        .filter(f => f.user_id === uId)
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+        .map(f => {
+          const userObj = users.find(u => u.id === f.user_id);
+          let targetTitle = '';
+          if (f.feedback_type === 'Campaign') {
+            const camp = campaigns.find(c => c.id === f.reference_id);
+            targetTitle = camp ? camp.title : `Campaign #${f.reference_id}`;
+          } else if (f.feedback_type === 'Donation') {
+            const don = donations.find(d => d.id === f.reference_id);
+            targetTitle = don ? `Donation ${don.token} (${don.donation_type})` : `Donation #${f.reference_id}`;
+          } else if (f.feedback_type === 'VolunteerTask') {
+            const req = assistanceRequests.find(r => r.id === f.reference_id);
+            targetTitle = req ? `Task: ${req.assistance_type || req.category || 'Relief Aid'}` : `Task #${f.reference_id}`;
+          }
+          return {
+            ...f,
+            user_name: userObj ? userObj.name : 'Unknown',
+            user_email: userObj ? userObj.email : '',
+            user_role: userObj ? userObj.role : 'Donor',
+            target_title: targetTitle
+          };
+        });
+      return [mine];
+    }
+
+    // Otherwise Admin all feedback list with filters:
+    let list = feedback
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .map(f => {
+        const userObj = users.find(u => u.id === f.user_id);
+        let targetTitle = '';
+        if (f.feedback_type === 'Campaign') {
+          const camp = campaigns.find(c => c.id === f.reference_id);
+          targetTitle = camp ? camp.title : `Campaign #${f.reference_id}`;
+        } else if (f.feedback_type === 'Donation') {
+          const don = donations.find(d => d.id === f.reference_id);
+          targetTitle = don ? `Donation ${don.token} (${don.donation_type})` : `Donation #${f.reference_id}`;
+        } else if (f.feedback_type === 'VolunteerTask') {
+          const req = assistanceRequests.find(r => r.id === f.reference_id);
+          targetTitle = req ? `Task: ${req.assistance_type || req.category || 'Relief Aid'}` : `Task #${f.reference_id}`;
+        }
+        return {
+          ...f,
+          user_name: userObj ? userObj.name : 'Unknown',
+          user_email: userObj ? userObj.email : '',
+          user_role: userObj ? userObj.role : 'Donor',
+          target_title: targetTitle
+        };
+      });
+    return [list];
+  }
+
   console.warn('[Database] Unhandled query in fallback mode:', sql);
   return [[]];
 }
@@ -1682,7 +1967,11 @@ module.exports = {
   readFallbackResourceAllocations,
   writeFallbackResourceAllocations,
   readFallbackNotifications,
-  writeFallbackNotifications
+  writeFallbackNotifications,
+  readFallbackFeedback,
+  writeFallbackFeedback,
+  readFallbackDonationStatusHistory,
+  writeFallbackDonationStatusHistory
 };
 
 

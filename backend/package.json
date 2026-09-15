@@ -1,7 +1,7 @@
 {
   "name": "sevaconnect-backend",
-  "version": "2.2.0",
-  "description": "SevaConnect NGO Donation & Resource Management System - Backend API V2.2",
+  "version": "2.3.0",
+  "description": "SevaConnect NGO Donation & Resource Management System - Backend API V2.3",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

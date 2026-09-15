@@ -213,5 +213,45 @@
     "reference_id": 7,
     "is_read": true,
     "created_at": "2026-08-15T16:06:17.000Z"
+  },
+  {
+    "id": 22,
+    "recipient_id": 2,
+    "type": "NewDonation",
+    "message": "Jia Patel registered a Money donation (SC-DON-000013).",
+    "reference_type": "Donation",
+    "reference_id": 13,
+    "is_read": false,
+    "created_at": "2026-08-16T01:51:55.000Z"
+  },
+  {
+    "id": 23,
+    "recipient_id": 27,
+    "type": "NewDonation",
+    "message": "Jia Patel registered a Money donation (SC-DON-000013).",
+    "reference_type": "Donation",
+    "reference_id": 13,
+    "is_read": false,
+    "created_at": "2026-08-16T01:51:55.000Z"
+  },
+  {
+    "id": 24,
+    "recipient_id": 28,
+    "type": "NewDonation",
+    "message": "Jia Patel registered a Money donation (SC-DON-000013).",
+    "reference_type": "Donation",
+    "reference_id": 13,
+    "is_read": false,
+    "created_at": "2026-08-16T01:51:55.000Z"
+  },
+  {
+    "id": 25,
+    "recipient_id": 29,
+    "type": "NewDonation",
+    "message": "Jia Patel registered a Money donation (SC-DON-000013).",
+    "reference_type": "Donation",
+    "reference_id": 13,
+    "is_read": false,
+    "created_at": "2026-08-16T01:51:55.000Z"
   }
 ]

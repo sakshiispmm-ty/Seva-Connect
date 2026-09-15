@@ -4,6 +4,7 @@ import { donationService } from '../../services/api';
 import Sidebar from '../../components/Sidebar';
 import DonationStatusBadge from '../../components/DonationStatusBadge';
 import ReceiptView from '../../components/ReceiptView';
+import DonationTimelineModal from '../../components/DonationTimelineModal';
 import SearchFilterBar from '../../components/SearchFilterBar';
 import Button from '../../components/Button';
 import {
@@ -30,6 +31,9 @@ export default function DonationVerification() {
 
   // Receipt Modal State
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+
+  // Timeline Modal State
+  const [timelineDonation, setTimelineDonation] = useState(null);
 
   // Verify Modal State
   const [verifyModalOpen, setVerifyModalOpen] = useState(false);
@@ -145,7 +149,7 @@ export default function DonationVerification() {
         setSelectedReceipt(res.data.data);
       }
     } catch (err) {
-      alert('Unable to load receipt for this donation.');
+      setFeedbackMessage({ type: 'error', text: 'Unable to load receipt for this donation.' });
     }
   };
 
@@ -442,6 +446,15 @@ export default function DonationVerification() {
                                   Declined
                                 </span>
                               )}
+
+                              {/* Status History Timeline Action */}
+                              <button
+                                onClick={() => setTimelineDonation(d)}
+                                title="View status timeline history"
+                                className="p-1.5 text-gray-400 hover:text-[#087F73] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                              >
+                                <Clock className="w-4 h-4" />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -650,6 +663,16 @@ export default function DonationVerification() {
         <ReceiptView
           receipt={selectedReceipt}
           onClose={() => setSelectedReceipt(null)}
+        />
+      )}
+
+      {/* Visual Status Timeline Modal */}
+      {timelineDonation && (
+        <DonationTimelineModal
+          isOpen={!!timelineDonation}
+          donationId={timelineDonation.id}
+          donationToken={timelineDonation.token}
+          onClose={() => setTimelineDonation(null)}
         />
       )}
     </div>

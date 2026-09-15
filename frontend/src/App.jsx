@@ -42,6 +42,10 @@ import VolunteerReports from './pages/admin/reports/VolunteerReports';
 import BeneficiaryReports from './pages/admin/reports/BeneficiaryReports';
 import InventoryReports from './pages/admin/reports/InventoryReports';
 
+// V2.3 Feedback & Volunteer Activity Pages
+import FeedbackManagement from './pages/admin/FeedbackManagement';
+import VolunteerHistoryPage from './pages/volunteer/VolunteerHistoryPage';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -94,6 +98,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['Volunteer', 'Admin']}>
                 <VolunteerProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/volunteer/history"
+            element={
+              <ProtectedRoute allowedRoles={['Volunteer', 'Admin']}>
+                <VolunteerHistoryPage />
               </ProtectedRoute>
             }
           />
@@ -160,6 +172,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <VolunteerManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/feedback"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <FeedbackManagement />
               </ProtectedRoute>
             }
           />

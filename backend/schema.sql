@@ -217,6 +217,37 @@ ALTER TABLE donations ADD INDEX idx_donations_created_at (created_at);
 ALTER TABLE assistance_requests ADD INDEX idx_requests_created_at (created_at);
 ALTER TABLE resource_allocations ADD INDEX idx_allocations_created_at (created_at);
 
+-- ==========================================================
+-- SevaConnect Database Schema V2.3 (Feedback, Reviews & Timeline)
+-- ==========================================================
+
+-- 1. Internal Feedback and Reviews Table
+CREATE TABLE IF NOT EXISTS feedback (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  feedback_type ENUM('Donation', 'VolunteerTask', 'Campaign') NOT NULL,
+  reference_id INT NOT NULL,
+  rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  UNIQUE KEY unique_feedback_per_target (user_id, feedback_type, reference_id),
+  INDEX idx_type_reference (feedback_type, reference_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. Granular Donation Status Transitions Audit Log
+CREATE TABLE IF NOT EXISTS donation_status_history (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  donation_id INT NOT NULL,
+  status ENUM('Pending Verification', 'Verified', 'Rejected', 'Completed') NOT NULL,
+  changed_by INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (donation_id) REFERENCES donations(id),
+  FOREIGN KEY (changed_by) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 
 
 

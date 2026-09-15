@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Bell, 
@@ -11,7 +11,8 @@ import {
   CheckCircle2, 
   XCircle, 
   ExternalLink,
-  Clock
+  Clock,
+  MessageSquare
 } from 'lucide-react';
 import { notificationService } from '../services/api';
 
@@ -161,10 +162,36 @@ export default function NotificationBell({ className = '', align = 'auto' }) {
       case 'RequestSubmitted':
       case 'RequestDecision':
         return <FileText className="w-4 h-4 text-purple-500" />;
+      case 'FeedbackReceived':
+      case 'NewFeedback':
+        return <MessageSquare className="w-4 h-4 text-[#087F73]" />;
       default:
-        return <Bell className="w-4 h-4 text-[#0B4F6C]" />;
+        return <Bell className="w-4 h-4 text-[#087F73]" />;
     }
   };
+
+  // Date Grouping (Today, Yesterday, Earlier)
+  const groupedNotifications = useMemo(() => {
+    const groups = { Today: [], Yesterday: [], Earlier: [] };
+    const now = new Date();
+    const todayStr = now.toDateString();
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+
+    (notifications || []).forEach(notif => {
+      const notifDate = new Date(notif.created_at).toDateString();
+      if (notifDate === todayStr) {
+        groups.Today.push(notif);
+      } else if (notifDate === yesterdayStr) {
+        groups.Yesterday.push(notif);
+      } else {
+        groups.Earlier.push(notif);
+      }
+    });
+
+    return Object.entries(groups).filter(([_, items]) => items.length > 0);
+  }, [notifications]);
 
   const formatTimestamp = (dateStr) => {
     if (!dateStr) return '';
@@ -231,7 +258,7 @@ export default function NotificationBell({ className = '', align = 'auto' }) {
           </div>
 
           {/* List */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-slate-100">
+          <div className="max-h-[380px] overflow-y-auto">
             {loading ? (
               <div className="py-8 text-center text-xs text-slate-400">Loading alerts...</div>
             ) : notifications.length === 0 ? (
@@ -243,43 +270,50 @@ export default function NotificationBell({ className = '', align = 'auto' }) {
                 <p className="text-xs text-slate-400 mt-0.5">No notifications at the moment.</p>
               </div>
             ) : (
-              notifications.map((notif) => (
-                <div
-                  key={notif.id}
-                  onClick={() => handleNotificationClick(notif)}
-                  className={`p-3.5 flex items-start gap-3 cursor-pointer transition-colors group ${
-                    notif.is_read ? 'bg-white hover:bg-slate-50' : 'bg-blue-50/40 hover:bg-blue-50/70'
-                  }`}
-                >
-                  <div className="mt-0.5 p-2 rounded-xl bg-white border border-slate-200/70 shadow-2xs group-hover:scale-105 transition-transform shrink-0">
-                    {getNotificationIcon(notif.type)}
+              groupedNotifications.map(([groupLabel, items]) => (
+                <div key={groupLabel} className="divide-y divide-slate-100">
+                  <div className="px-3.5 py-1.5 bg-slate-100/70 border-y border-slate-200/60 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    {groupLabel}
                   </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <h4 className={`text-xs font-semibold truncate ${notif.is_read ? 'text-slate-700' : 'text-slate-900 font-bold'}`}>
-                        {notif.title}
-                      </h4>
-                      <span className="text-[10px] text-slate-400 flex items-center gap-1 shrink-0">
-                        <Clock className="w-2.5 h-2.5" />
-                        {formatTimestamp(notif.created_at)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                      {notif.message}
-                    </p>
-                  </div>
-
-                  {!notif.is_read && (
-                    <button
-                      type="button"
-                      onClick={(e) => handleMarkAsRead(notif.id, e)}
-                      className="p-1 rounded-md text-slate-400 hover:text-[#0B4F6C] hover:bg-white transition-colors"
-                      title="Mark as read"
+                  {items.map((notif) => (
+                    <div
+                      key={notif.id}
+                      onClick={() => handleNotificationClick(notif)}
+                      className={`p-3.5 flex items-start gap-3 cursor-pointer transition-colors group ${
+                        notif.is_read ? 'bg-white hover:bg-slate-50' : 'bg-emerald-50/30 hover:bg-emerald-50/60'
+                      }`}
                     >
-                      <Check className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                      <div className="mt-0.5 p-2 rounded-xl bg-white border border-slate-200/70 shadow-2xs group-hover:scale-105 transition-transform shrink-0">
+                        {getNotificationIcon(notif.type)}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1 mb-0.5">
+                          <h4 className={`text-xs font-semibold truncate ${notif.is_read ? 'text-slate-700' : 'text-slate-900 font-bold'}`}>
+                            {notif.title}
+                          </h4>
+                          <span className="text-[10px] text-slate-400 flex items-center gap-1 shrink-0">
+                            <Clock className="w-2.5 h-2.5" />
+                            {formatTimestamp(notif.created_at)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                          {notif.message}
+                        </p>
+                      </div>
+
+                      {!notif.is_read && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleMarkAsRead(notif.id, e)}
+                          className="p-1 rounded-md text-slate-400 hover:text-[#087F73] hover:bg-white transition-colors"
+                          title="Mark as read"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
               ))
             )}

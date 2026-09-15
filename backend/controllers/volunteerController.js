@@ -222,6 +222,52 @@ async function getAllVolunteers(req, res) {
   }
 }
 
+/**
+ * GET /api/volunteers/history
+ * Access: Volunteer (Full task history + attached feedback)
+ */
+async function getVolunteerHistory(req, res) {
+  try {
+    const userId = req.user.id;
+    const history = await volunteerModel.getVolunteerHistory(userId);
+    return res.status(200).json({
+      success: true,
+      count: history.length,
+      history,
+      tasks: history,
+      data: history
+    });
+  } catch (error) {
+    console.error('[Volunteer Controller] getVolunteerHistory error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch volunteer task history.'
+    });
+  }
+}
+
+/**
+ * GET /api/volunteers/contribution-summary
+ * Access: Volunteer (Dashboard participation summary)
+ */
+async function getContributionSummary(req, res) {
+  try {
+    const userId = req.user.id;
+    const summary = await volunteerModel.getContributionSummary(userId);
+    return res.status(200).json({
+      success: true,
+      summary,
+      data: summary
+    });
+  } catch (error) {
+    console.error('[Volunteer Controller] getContributionSummary error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch contribution summary.'
+    });
+  }
+}
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -229,5 +275,7 @@ module.exports = {
   updateTaskStatus,
   deliverTask,
   getVolunteerActivity,
-  getAllVolunteers
+  getAllVolunteers,
+  getVolunteerHistory,
+  getContributionSummary
 };

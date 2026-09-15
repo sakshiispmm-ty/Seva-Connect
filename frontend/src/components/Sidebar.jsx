@@ -15,7 +15,8 @@ import {
   X,
   UserCheck,
   Bell,
-  BarChart3
+  BarChart3,
+  MessageSquare
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
@@ -40,6 +41,7 @@ export default function Sidebar({ isOpen, onClose, role }) {
 
   const volunteerLinks = [
     { label: 'Assigned Tasks', path: '/volunteer', icon: LayoutDashboard },
+    { label: 'Task History', path: '/volunteer/history', icon: History },
     { label: 'Volunteer Profile', path: '/volunteer/profile', icon: User },
     { label: 'Active Campaigns', path: '/campaigns', icon: Megaphone },
     { label: 'Notifications', path: '/notifications', icon: Bell },
@@ -55,6 +57,7 @@ export default function Sidebar({ isOpen, onClose, role }) {
     { label: 'Beneficiaries', path: '/admin/beneficiaries', icon: Users },
     { label: 'Inventory', path: '/admin/inventory', icon: Package },
     { label: 'Volunteers', path: '/admin/volunteers', icon: UserCheck },
+    { label: 'Feedback & Reviews', path: '/admin/feedback', icon: MessageSquare },
     { label: 'Notifications', path: '/notifications', icon: Bell },
     { label: 'My Profile', path: '/profile', icon: User },
   ];

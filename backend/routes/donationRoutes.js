@@ -8,7 +8,8 @@ const {
   verifyDonation,
   rejectDonation,
   completeDonation,
-  getReceipt
+  getReceipt,
+  getDonationTimeline
 } = require('../controllers/donationController');
 const { verifyToken, requireRole } = require('../middleware/authMiddleware');
 const { verifyToken: decodeJwt } = require('../utils/jwtUtils');
@@ -40,9 +41,10 @@ async function optionalAuth(req, res, next) {
 router.post('/', optionalAuth, registerDonation);
 router.get('/token/:token', getDonationByToken);
 
-// Authenticated Donor routes
+// Authenticated Donor / Admin routes
 router.get('/my', verifyToken, getMyDonations);
 router.get('/:id/receipt', verifyToken, getReceipt);
+router.get('/:id/timeline', verifyToken, getDonationTimeline);
 
 // Admin-only management routes
 router.get('/', verifyToken, requireRole('Admin'), getDonations);

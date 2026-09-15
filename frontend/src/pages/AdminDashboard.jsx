@@ -152,7 +152,7 @@ export default function AdminDashboard() {
 
   const handleDeleteUser = async (targetUser) => {
     if (targetUser.id === user?.id) {
-      alert('You cannot deactivate your own administrative account.');
+      setError('You cannot deactivate your own administrative account.');
       return;
     }
     if (!window.confirm(`Are you sure you want to deactivate and remove account #${targetUser.id} (${targetUser.name})?`)) {
@@ -163,7 +163,7 @@ export default function AdminDashboard() {
       await adminService.deleteUser(targetUser.id);
       await fetchStats();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete user account.');
+      setError(err.response?.data?.message || 'Failed to delete user account.');
     } finally {
       setActionLoading(false);
     }
@@ -257,6 +257,14 @@ export default function AdminDashboard() {
 
         {/* Dashboard Body */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8">
+          {error && (
+            <Alert
+              type="error"
+              message={error}
+              onClose={() => setError('')}
+            />
+          )}
+
           {/* Welcome Banner */}
           <div className="bg-gradient-to-r from-[#17243A] via-[#05665D] to-[#087F73] rounded-3xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
             <div className="relative z-10 max-w-2xl space-y-3">

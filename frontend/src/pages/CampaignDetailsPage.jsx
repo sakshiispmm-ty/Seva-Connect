@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { campaignService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { campaignService, donationService, feedbackService } from '../services/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
+import Alert from '../components/Alert';
 import QRCodeCard from '../components/QRCodeCard';
+import FeedbackForm from '../components/FeedbackForm';
 import { getCampaignImage } from '../utils/imageUtils';
 import {
   ArrowLeft,
@@ -12,12 +15,19 @@ import {
   Target,
   Heart,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Star,
+  MessageSquare
 } from 'lucide-react';
 
 export default function CampaignDetailsPage() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [campaign, setCampaign] = useState(null);
+  const [hasDonated, setHasDonated] = useState(false);
+  const [existingFeedback, setExistingFeedback] = useState(null);
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [feedbackSuccessMsg, setFeedbackSuccessMsg] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -31,6 +41,26 @@ export default function CampaignDetailsPage() {
       } else {
         setError('Campaign not found.');
       }
+
+      // If user is logged in, check donation history & feedback
+      if (user) {
+        try {
+          const [donationsRes, feedbackRes] = await Promise.all([
+            donationService.getMyDonations().catch(() => ({ data: { data: [] } })),
+            feedbackService.getMyFeedback({ target_type: 'Campaign' }).catch(() => ({ data: { data: [] } }))
+          ]);
+
+          const userDonations = donationsRes.data?.data || [];
+          const donated = userDonations.some((d) => Number(d.campaign_id) === Number(id));
+          setHasDonated(donated);
+
+          const myCampaignFeedbacks = feedbackRes.data?.data || [];
+          const matchedFeedback = myCampaignFeedbacks.find((f) => Number(f.target_id) === Number(id));
+          setExistingFeedback(matchedFeedback || null);
+        } catch (subErr) {
+          console.error('Error checking donation status for campaign feedback:', subErr);
+        }
+      }
     } catch (err) {
       console.error('Failed to load campaign details:', err);
       setError(err.response?.data?.message || 'Failed to load campaign details.');
@@ -41,7 +71,7 @@ export default function CampaignDetailsPage() {
 
   useEffect(() => {
     fetchCampaignDetails();
-  }, [id]);
+  }, [id, user]);
 
   if (loading) {
     return (
@@ -230,6 +260,62 @@ export default function CampaignDetailsPage() {
               </Link>
             </div>
 
+            {/* Internal Campaign Review Card (For Contributing Donors - V2.3) */}
+            {user && hasDonated && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-xs space-y-3">
+                <div className="flex items-center gap-2 text-[#087F73]">
+                  <MessageSquare className="w-5 h-5" />
+                  <h4 className="text-sm font-bold text-[#17243A]">Donor Internal Review</h4>
+                </div>
+                <p className="text-xs text-[#667085] leading-relaxed">
+                  As a verified contributor to this campaign, your review directly guides NGO administration and project operations.
+                </p>
+
+                {feedbackSuccessMsg && (
+                  <Alert
+                    type="success"
+                    message={feedbackSuccessMsg}
+                    onClose={() => setFeedbackSuccessMsg('')}
+                  />
+                )}
+
+                {existingFeedback ? (
+                  <div className="space-y-3 pt-1">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 font-semibold">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        <span>Your Rating: {existingFeedback.rating}/5</span>
+                      </div>
+                      <span className="text-[11px] text-amber-600 font-normal">Submitted</span>
+                    </div>
+                    {existingFeedback.comment && (
+                      <p className="text-xs text-gray-600 italic bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                        "{existingFeedback.comment}"
+                      </p>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFeedbackModalOpen(true)}
+                      className="w-full justify-center text-xs"
+                    >
+                      Edit Your Review
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFeedbackModalOpen(true)}
+                    className="w-full justify-center text-xs border-[#087F73] text-[#087F73] hover:bg-[#EAF6F3] flex items-center gap-1.5"
+                  >
+                    <Star className="w-4 h-4" />
+                    Leave Campaign Review
+                  </Button>
+                )}
+              </div>
+            )}
+
             {/* Interactive QR Code Card */}
             <QRCodeCard
               url={donationUrl}
@@ -239,6 +325,23 @@ export default function CampaignDetailsPage() {
           </div>
         </div>
       </main>
+
+      {/* Internal Feedback Modal */}
+      {feedbackModalOpen && (
+        <FeedbackForm
+          isOpen={feedbackModalOpen}
+          targetType="Campaign"
+          targetId={campaign.id}
+          targetTitle={campaign.title}
+          initialFeedback={existingFeedback}
+          onClose={() => setFeedbackModalOpen(false)}
+          onSuccess={(saved) => {
+            setExistingFeedback(saved);
+            setFeedbackSuccessMsg('Thank you! Your campaign feedback has been submitted for NGO review.');
+            setFeedbackModalOpen(false);
+          }}
+        />
+      )}
 
       <Footer />
     </div>

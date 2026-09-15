@@ -9,6 +9,8 @@ router.put('/profile', verifyToken, requireRole('Volunteer', 'Admin'), volunteer
 router.get('/tasks', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getTasks);
 router.put('/tasks/:id/status', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.updateTaskStatus);
 router.put('/tasks/:id/deliver', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.deliverTask);
+router.get('/history', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getVolunteerHistory);
+router.get('/contribution-summary', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getContributionSummary);
 
 // Admin Routes (Admin Role)
 router.get('/', verifyToken, requireRole('Admin'), volunteerController.getAllVolunteers);
