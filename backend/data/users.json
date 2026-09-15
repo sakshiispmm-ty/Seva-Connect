@@ -148,5 +148,25 @@
     "role": "Admin",
     "created_at": "2026-08-01T09:45:00.000Z",
     "updated_at": "2026-08-01T09:45:00.000Z"
+  },
+  {
+    "id": 30,
+    "name": "Nikita Purohit",
+    "email": "nikita@gmail.com",
+    "phone": "9057753420",
+    "password": "$2a$10$KICer/qYwvMZEy5m3OcMbuvjqm0X8reF2p.WZj/PpkSuMNz6yJx06",
+    "role": "Donor",
+    "created_at": "2026-08-15T15:26:51.000Z",
+    "updated_at": "2026-08-15T15:26:51.000Z"
+  },
+  {
+    "id": 31,
+    "name": "Manisha Shah",
+    "email": "manisha@gmail.com",
+    "phone": "9603471202",
+    "password": "$2a$10$4qhxKaLNHIx8HRUd0lvVNeD1XXyHOWs2gkiBpT1virJvaJF3dvL/u",
+    "role": "Donor",
+    "created_at": "2026-08-15T15:59:09.000Z",
+    "updated_at": "2026-08-15T15:59:09.000Z"
   }
 ]

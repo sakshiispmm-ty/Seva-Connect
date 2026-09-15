@@ -104,12 +104,12 @@
     "urgency": "High",
     "priority": "High",
     "deadline": "2026-09-25",
-    "status": "Volunteer Assigned",
+    "status": "Completed",
     "reviewed_by": 2,
     "assigned_volunteer_id": 22,
     "admin_notes": "Dispatched to Kavya Nair. Ready for pickup and transit.",
     "created_at": "2026-09-10T08:00:00.000Z",
-    "updated_at": "2026-09-13T15:31:00.772Z"
+    "updated_at": "2026-09-15T10:44:01.899Z"
   },
   {
     "id": 8,
@@ -120,11 +120,11 @@
     "urgency": "Medium",
     "priority": "Medium",
     "deadline": "2026-09-24",
-    "status": "In Progress",
+    "status": "Completed",
     "reviewed_by": 2,
     "assigned_volunteer_id": 22,
     "admin_notes": "Volunteer on site conducting field distribution.",
     "created_at": "2026-09-11T09:00:00.000Z",
-    "updated_at": "2026-09-13T09:00:00.000Z"
+    "updated_at": "2026-09-15T10:42:55.970Z"
   }
 ]

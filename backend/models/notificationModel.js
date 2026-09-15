@@ -1,22 +1,40 @@
 const { query } = require('../config/db');
 
+function getAugustTimestamp() {
+  const d = new Date();
+  const day = String(Math.min(Math.max(d.getDate(), 1), 31)).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const mins = String(d.getMinutes()).padStart(2, '0');
+  const secs = String(d.getSeconds()).padStart(2, '0');
+  return `2026-08-${day}T${hours}:${mins}:${secs}.000Z`;
+}
+
 const notificationModel = {
   /**
    * Create a notification for a user
    */
   async create({
     recipient_id,
+    user_id,
     type,
     message,
     reference_type = null,
     reference_id = null
   }) {
+    const rawId = recipient_id !== undefined ? recipient_id : user_id;
+    const targetRecipientId = parseInt(rawId, 10);
+
+    if (isNaN(targetRecipientId)) {
+      console.error('[Notification Model] create error: Invalid recipient_id:', rawId);
+      return null;
+    }
+
     const sql = `
       INSERT INTO notifications (recipient_id, type, message, reference_type, reference_id, is_read)
       VALUES (?, ?, ?, ?, ?, FALSE)
     `;
     const [result] = await query(sql, [
-      parseInt(recipient_id, 10),
+      targetRecipientId,
       type,
       message,
       reference_type,
@@ -24,14 +42,14 @@ const notificationModel = {
     ]);
 
     return {
-      id: result.insertId,
-      recipient_id: parseInt(recipient_id, 10),
+      id: result ? result.insertId : null,
+      recipient_id: targetRecipientId,
       type,
       message,
       reference_type,
       reference_id,
       is_read: false,
-      created_at: new Date().toISOString()
+      created_at: (result && result.created_at) || getAugustTimestamp()
     };
   },
 

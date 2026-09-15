@@ -8,7 +8,7 @@
     "reference_id": 1,
     "reference_type": "assistance_request",
     "is_read": true,
-    "created_at": "2026-09-13T10:30:00.000Z"
+    "created_at": "2026-08-13T10:30:00.000Z"
   },
   {
     "id": 2,
@@ -19,7 +19,7 @@
     "reference_id": 1,
     "reference_type": "inventory",
     "is_read": true,
-    "created_at": "2026-09-13T11:15:00.000Z"
+    "created_at": "2026-08-13T11:15:00.000Z"
   },
   {
     "id": 3,
@@ -30,18 +30,18 @@
     "reference_id": 5,
     "reference_type": "donation",
     "is_read": true,
-    "created_at": "2026-09-13T12:00:00.000Z"
+    "created_at": "2026-08-13T12:00:00.000Z"
   },
   {
     "id": 4,
     "recipient_id": 22,
     "type": "TASK_ASSIGNED",
     "title": "New Relief Task Assigned",
-    "message": "You have been assigned to deliver Medical First Aid Kits to North District Health Camp (Due: 2026-09-25).",
+    "message": "You have been assigned to deliver Medical First Aid Kits to North District Health Camp (Due: 2026-08-25).",
     "reference_id": 7,
     "reference_type": "task",
-    "is_read": false,
-    "created_at": "2026-09-13T12:30:00.000Z"
+    "is_read": true,
+    "created_at": "2026-08-13T12:30:00.000Z"
   },
   {
     "id": 5,
@@ -52,7 +52,7 @@
     "reference_id": 1,
     "reference_type": "donation",
     "is_read": false,
-    "created_at": "2026-09-13T13:00:00.000Z"
+    "created_at": "2026-08-13T13:00:00.000Z"
   },
   {
     "id": 6,
@@ -61,7 +61,157 @@
     "message": "You have been assigned to a relief delivery task: Request #REQ-008 (Education).",
     "reference_type": "AssistanceRequest",
     "reference_id": 8,
-    "is_read": false,
+    "is_read": true,
     "created_at": "2026-08-13T22:26:51.000Z"
+  },
+  {
+    "id": 7,
+    "recipient_id": 2,
+    "type": "NewDonation",
+    "message": "Nikita Purohit registered a Money donation (SC-DON-000010).",
+    "reference_type": "Donation",
+    "reference_id": 10,
+    "is_read": true,
+    "created_at": "2026-08-15T15:27:53.000Z"
+  },
+  {
+    "id": 8,
+    "recipient_id": 2,
+    "type": "NewDonation",
+    "message": "Test Donor registered a Money donation (SC-DON-000011).",
+    "reference_type": "Donation",
+    "reference_id": 11,
+    "is_read": true,
+    "created_at": "2026-08-15T15:51:40.000Z"
+  },
+  {
+    "id": 9,
+    "recipient_id": 27,
+    "type": "NewDonation",
+    "message": "Test Donor registered a Money donation (SC-DON-000011).",
+    "reference_type": "Donation",
+    "reference_id": 11,
+    "is_read": false,
+    "created_at": "2026-08-15T15:51:40.000Z"
+  },
+  {
+    "id": 10,
+    "recipient_id": 28,
+    "type": "NewDonation",
+    "message": "Test Donor registered a Money donation (SC-DON-000011).",
+    "reference_type": "Donation",
+    "reference_id": 11,
+    "is_read": false,
+    "created_at": "2026-08-15T15:51:40.000Z"
+  },
+  {
+    "id": 11,
+    "recipient_id": 29,
+    "type": "NewDonation",
+    "message": "Test Donor registered a Money donation (SC-DON-000011).",
+    "reference_type": "Donation",
+    "reference_id": 11,
+    "is_read": false,
+    "created_at": "2026-08-15T15:51:40.000Z"
+  },
+  {
+    "id": 12,
+    "recipient_id": 2,
+    "type": "NewDonation",
+    "message": "Manisha Shah registered a Money donation (SC-DON-000012).",
+    "reference_type": "Donation",
+    "reference_id": 12,
+    "is_read": true,
+    "created_at": "2026-08-15T16:00:12.000Z"
+  },
+  {
+    "id": 13,
+    "recipient_id": 27,
+    "type": "NewDonation",
+    "message": "Manisha Shah registered a Money donation (SC-DON-000012).",
+    "reference_type": "Donation",
+    "reference_id": 12,
+    "is_read": false,
+    "created_at": "2026-08-15T16:00:12.000Z"
+  },
+  {
+    "id": 14,
+    "recipient_id": 28,
+    "type": "NewDonation",
+    "message": "Manisha Shah registered a Money donation (SC-DON-000012).",
+    "reference_type": "Donation",
+    "reference_id": 12,
+    "is_read": false,
+    "created_at": "2026-08-15T16:00:12.000Z"
+  },
+  {
+    "id": 15,
+    "recipient_id": 29,
+    "type": "NewDonation",
+    "message": "Manisha Shah registered a Money donation (SC-DON-000012).",
+    "reference_type": "Donation",
+    "reference_id": 12,
+    "is_read": false,
+    "created_at": "2026-08-15T16:00:12.000Z"
+  },
+  {
+    "id": 16,
+    "recipient_id": 31,
+    "type": "DonationVerified",
+    "message": "Your donation (SC-DON-000012) has been verified. Thank you for your support!",
+    "reference_type": "Donation",
+    "reference_id": 12,
+    "is_read": false,
+    "created_at": "2026-08-15T16:02:56.000Z"
+  },
+  {
+    "id": 17,
+    "recipient_id": 2,
+    "type": "LowInventory",
+    "message": "Low Stock Alert: \"Sanitary Hygiene & Soap Packs\" has dropped to 17 Packs (Threshold: 20).",
+    "reference_type": "Inventory",
+    "reference_id": 4,
+    "is_read": false,
+    "created_at": "2026-08-15T16:06:17.000Z"
+  },
+  {
+    "id": 18,
+    "recipient_id": 27,
+    "type": "LowInventory",
+    "message": "Low Stock Alert: \"Sanitary Hygiene & Soap Packs\" has dropped to 17 Packs (Threshold: 20).",
+    "reference_type": "Inventory",
+    "reference_id": 4,
+    "is_read": false,
+    "created_at": "2026-08-15T16:06:17.000Z"
+  },
+  {
+    "id": 19,
+    "recipient_id": 28,
+    "type": "LowInventory",
+    "message": "Low Stock Alert: \"Sanitary Hygiene & Soap Packs\" has dropped to 17 Packs (Threshold: 20).",
+    "reference_type": "Inventory",
+    "reference_id": 4,
+    "is_read": false,
+    "created_at": "2026-08-15T16:06:17.000Z"
+  },
+  {
+    "id": 20,
+    "recipient_id": 29,
+    "type": "LowInventory",
+    "message": "Low Stock Alert: \"Sanitary Hygiene & Soap Packs\" has dropped to 17 Packs (Threshold: 20).",
+    "reference_type": "Inventory",
+    "reference_id": 4,
+    "is_read": false,
+    "created_at": "2026-08-15T16:06:17.000Z"
+  },
+  {
+    "id": 21,
+    "recipient_id": 22,
+    "type": "TaskAssigned",
+    "message": "You have been assigned to a relief delivery task: Request #REQ-007 (Health & Medical).",
+    "reference_type": "AssistanceRequest",
+    "reference_id": 7,
+    "is_read": true,
+    "created_at": "2026-08-15T16:06:17.000Z"
   }
 ]

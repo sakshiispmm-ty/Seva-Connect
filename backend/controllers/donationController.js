@@ -283,7 +283,7 @@ async function verifyDonation(req, res) {
     if (updated.donor_id) {
       try {
         await notificationModel.create({
-          user_id: updated.donor_id,
+          recipient_id: updated.donor_id,
           type: 'DonationVerified',
           title: 'Donation Verified',
           message: `Your donation (${updated.token}) has been verified. Thank you for your support!`,
@@ -340,7 +340,7 @@ async function rejectDonation(req, res) {
     if (updated.donor_id) {
       try {
         await notificationModel.create({
-          user_id: updated.donor_id,
+          recipient_id: updated.donor_id,
           type: 'DonationRejected',
           title: 'Donation Update',
           message: `Your donation (${updated.token}) could not be verified and was rejected. Please contact support.`,

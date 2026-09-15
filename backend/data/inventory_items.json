@@ -4,11 +4,11 @@
     "name": "Family Emergency Grain & Ration Kit (15kg)",
     "category": "Food & Nutrition",
     "unit": "Kits",
-    "quantity_available": 133,
-    "quantity_distributed": 61,
-    "low_stock_threshold": 30,
+    "quantity_available": 142,
+    "quantity_distributed": 63,
+    "low_stock_threshold": 35,
     "created_at": "2026-08-01T10:00:00.000Z",
-    "updated_at": "2026-08-13T22:26:50.000Z"
+    "updated_at": "2026-09-15T10:44:01.903Z"
   },
   {
     "id": 2,
@@ -37,11 +37,11 @@
     "name": "Sanitary Hygiene & Soap Packs",
     "category": "Hygiene & Water",
     "unit": "Packs",
-    "quantity_available": 18,
-    "quantity_distributed": 95,
+    "quantity_available": 17,
+    "quantity_distributed": 96,
     "low_stock_threshold": 20,
     "created_at": "2026-08-01T10:00:00.000Z",
-    "updated_at": "2026-08-01T10:00:00.000Z"
+    "updated_at": "2026-09-15T10:44:01.904Z"
   },
   {
     "id": 5,
@@ -49,9 +49,9 @@
     "category": "Education",
     "unit": "Sets",
     "quantity_available": 59,
-    "quantity_distributed": 35,
+    "quantity_distributed": 36,
     "low_stock_threshold": 15,
     "created_at": "2026-08-01T10:00:00.000Z",
-    "updated_at": "2026-08-13T22:26:51.000Z"
+    "updated_at": "2026-09-15T10:42:56.060Z"
   }
 ]
