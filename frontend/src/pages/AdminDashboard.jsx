@@ -184,17 +184,21 @@ export default function AdminDashboard() {
   const activeModules = [
     { title: 'Campaigns', icon: Megaphone, description: 'Manage fundraising drives & targets', path: '/admin/campaigns' },
     { title: 'Donation Desk', icon: Gift, description: 'Verify intents & issue tax receipts', path: '/admin/donations' },
+    { title: 'Volunteers', icon: Users, description: 'Rosters, task dispatch & tracking', path: '/admin/volunteers' },
+    { title: 'Beneficiaries', icon: HeartHandshake, description: 'Aid requests & verification desk', path: '/admin/beneficiaries' },
+    { title: 'Relief Inventory', icon: Package, description: 'Warehouse stock & distributions', path: '/admin/inventory' },
+    { title: 'Reports & Analytics', icon: BarChart3, description: 'Executive KPIs & data exports', path: '/admin/analytics' }
   ];
 
-  const futureModules = [
-    { title: 'Volunteers', icon: Users, description: 'Rosters & field teams' },
-    { title: 'Beneficiaries', icon: HeartHandshake, description: 'Aid & verification' },
-    { title: 'Inventory', icon: Package, description: 'Rations & supplies' },
-    { title: 'Reports', icon: FileText, description: 'Impact summaries' }
+  const quickShortcuts = [
+    { title: 'Volunteers', icon: Users, description: 'Rosters & field teams', path: '/admin/volunteers' },
+    { title: 'Beneficiaries', icon: HeartHandshake, description: 'Aid & verification', path: '/admin/beneficiaries' },
+    { title: 'Inventory', icon: Package, description: 'Rations & supplies', path: '/admin/inventory' },
+    { title: 'Reports', icon: FileText, description: 'Impact summaries', path: '/admin/analytics' }
   ];
 
   return (
-    <div className="min-h-screen bg-[#EAF6F3] flex">
+    <div className="min-h-screen bg-[#EAF6F3] flex overflow-x-hidden w-full">
       {/* Responsive Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -203,7 +207,7 @@ export default function AdminDashboard() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:pl-72">
+      <div className="flex-1 flex flex-col min-w-0 w-full lg:pl-72">
         {/* Top Header */}
         <header className="h-20 bg-white border-b border-gray-200 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
           <div className="flex items-center gap-4">
@@ -890,23 +894,29 @@ export default function AdminDashboard() {
 
             <div className="space-y-3 pt-2">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold text-[#17243A]">Future Roadmap Modules</h4>
-                <span className="text-[11px] text-gray-400">Planned for V2</span>
+                <h4 className="text-sm font-bold text-[#17243A]">Quick Module Navigation</h4>
+                <span className="text-[11px] font-semibold text-[#087F73] bg-[#EAF6F3] px-2.5 py-0.5 rounded-full border border-[#087F73]/20">
+                  Active Modules
+                </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {futureModules.map((item, idx) => {
+                {quickShortcuts.map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div
+                    <Link
                       key={idx}
-                      className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex flex-col items-center text-center opacity-75"
+                      to={item.path}
+                      className="bg-white p-4 rounded-xl border border-gray-200 shadow-2xs hover:border-[#087F73] hover:shadow-md transition-all flex flex-col items-center text-center group cursor-pointer"
                     >
-                      <div className="p-2 rounded-lg bg-gray-100 text-gray-600 mb-1.5">
-                        <Icon className="w-4 h-4" />
+                      <div className="p-2.5 rounded-xl bg-[#EAF6F3] text-[#087F73] group-hover:bg-[#087F73] group-hover:text-white transition-colors mb-2">
+                        <Icon className="w-5 h-5" />
                       </div>
-                      <p className="text-xs font-bold text-[#17243A]">{item.title}</p>
-                      <p className="text-[10px] text-[#667085] mt-0.5">{item.description}</p>
-                    </div>
+                      <p className="text-xs font-bold text-[#17243A] group-hover:text-[#087F73] transition-colors">{item.title}</p>
+                      <p className="text-[10px] text-[#667085] mt-0.5 leading-snug">{item.description}</p>
+                      <span className="text-[10px] font-bold text-[#087F73] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Open →
+                      </span>
+                    </Link>
                   );
                 })}
               </div>
