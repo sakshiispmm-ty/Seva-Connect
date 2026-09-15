@@ -728,13 +728,13 @@ async function query(sql, params = []) {
   }
 
   // 7. SELECT COUNT(*) AS totalDonors FROM users WHERE role = 'Donor'
-  if (normalizedSql.includes('COUNT(') && normalizedSql.includes("role = 'Donor'")) {
+  if (normalizedSql.includes('AS totalDonors') || (normalizedSql.startsWith('SELECT COUNT(*)') && normalizedSql.includes("role = 'Donor'"))) {
     const count = users.filter(u => u.role === 'Donor').length;
     return [[{ totalDonors: count }]];
   }
 
   // 8. SELECT COUNT(*) AS totalAdmins FROM users WHERE role = 'Admin'
-  if (normalizedSql.includes('COUNT(') && normalizedSql.includes("role = 'Admin'")) {
+  if (normalizedSql.includes('AS totalAdmins') || (normalizedSql.startsWith('SELECT COUNT(*)') && normalizedSql.includes("role = 'Admin'"))) {
     const count = users.filter(u => u.role === 'Admin').length;
     return [[{ totalAdmins: count }]];
   }
