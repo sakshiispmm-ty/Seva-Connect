@@ -257,6 +257,86 @@ CREATE TABLE IF NOT EXISTS chatbot_logs (
   FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ==========================================================
+-- SevaConnect Database Schema V3.2 (Advanced Enhancements)
+-- ==========================================================
+
+-- 1. Volunteer Points & Gamification Ledger
+CREATE TABLE IF NOT EXISTS volunteer_points (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE,
+  total_points INT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS point_transactions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  points INT NOT NULL,
+  reason VARCHAR(255) NOT NULL,
+  reference_type VARCHAR(50),
+  reference_id INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  INDEX idx_points_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. Badges & Recognition
+CREATE TABLE IF NOT EXISTS badges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  description VARCHAR(255) NOT NULL,
+  icon VARCHAR(50)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_badges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  badge_id INT NOT NULL,
+  earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (badge_id) REFERENCES badges(id),
+  UNIQUE KEY unique_user_badge (user_id, badge_id),
+  INDEX idx_badge_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed Default Recognition Badges
+INSERT IGNORE INTO badges (id, name, description, icon) VALUES
+(1, 'First Steps', 'Completed your first community assistance delivery task.', 'award'),
+(2, 'Dedicated Helper', 'Successfully fulfilled 5 relief distribution tasks.', 'shield-check'),
+(3, 'Community Champion', 'Completed 10 or more community relief delivery tasks.', 'trophy'),
+(4, 'Priority Hero', 'Completed 3 or more High-priority emergency relief missions.', 'flame'),
+(5, 'Centurion', 'Earned over 250 volunteer service points.', 'zap'),
+(6, 'Legendary Volunteer', 'Reached over 500 volunteer service points.', 'crown');
+
+-- 3. Advanced Notification Preferences
+CREATE TABLE IF NOT EXISTS notification_preferences (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  notification_type VARCHAR(50) NOT NULL,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  UNIQUE KEY unique_user_pref (user_id, notification_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. Immutable Administrative Audit Log
+CREATE TABLE IF NOT EXISTS admin_audit_log (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  admin_id INT NOT NULL,
+  action VARCHAR(100) NOT NULL,
+  target_type VARCHAR(50),
+  target_id INT NULL,
+  details TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (admin_id) REFERENCES users(id),
+  INDEX idx_audit_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. User Account Soft-Disable Status
+ALTER TABLE users ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
+
+
 
 
 

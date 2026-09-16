@@ -53,14 +53,18 @@ export const userService = {
   updateProfile: (profileData) => api.put('/users/profile', profileData)
 };
 
-// Administration Service
+// Administration Service (V1.1, V2.2, V3.2)
 export const adminService = {
-  getUsers: () => api.get('/admin/users'),
+  getUsers: (params) => api.get('/admin/users', { params }),
   getStats: () => api.get('/admin/stats'),
-  deleteUser: (id) => api.delete(`/admin/users/${id}`)
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
+  deactivateUser: (id) => api.put(`/admin/users/${id}/deactivate`),
+  reactivateUser: (id) => api.put(`/admin/users/${id}/reactivate`),
+  updateRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }),
+  getAuditLogs: (params) => api.get('/admin/audit-log', { params })
 };
 
-// Campaign Service (V1.2)
+// Campaign Service (V1.2 & V3.2 pagination)
 export const campaignService = {
   getAll: (params) => api.get('/campaigns', { params }),
   getById: (id) => api.get(`/campaigns/${id}`),
@@ -68,7 +72,7 @@ export const campaignService = {
   update: (id, data) => api.put(`/campaigns/${id}`, data)
 };
 
-// Donation Service (V1.2 & V2.3)
+// Donation Service (V1.2, V2.3 & V3.2 pagination)
 export const donationService = {
   register: (data) => api.post('/donations', data),
   getMyDonations: () => api.get('/donations/my'),
@@ -82,7 +86,7 @@ export const donationService = {
   getTimeline: (id) => api.get(`/donations/${id}/timeline`)
 };
 
-// Volunteer Service (V1.3 & V2.1 & V2.3)
+// Volunteer Service (V1.3, V2.1, V2.3 & V3.2 Gamification)
 export const volunteerService = {
   getProfile: () => api.get('/volunteers/profile'),
   updateProfile: (data) => api.put('/volunteers/profile', data),
@@ -92,7 +96,11 @@ export const volunteerService = {
   getAll: (params) => api.get('/volunteers', { params }),
   getActivity: (id) => api.get(`/volunteers/${id}/activity`),
   getHistory: (params) => api.get('/volunteers/history', { params }),
-  getContributionSummary: () => api.get('/volunteers/contribution-summary')
+  getContributionSummary: () => api.get('/volunteers/contribution-summary'),
+  getLeaderboard: (params) => api.get('/volunteers/leaderboard', { params }),
+  getMyGamification: () => api.get('/volunteers/gamification/me'),
+  getPoints: (id = 'me') => api.get(`/volunteers/${id}/points`),
+  getBadges: (id = 'me') => api.get(`/volunteers/${id}/badges`)
 };
 
 // Beneficiary Service (V1.3 & V2.1)
@@ -127,15 +135,18 @@ export const donorService = {
   getAll: (params) => api.get('/donors', { params })
 };
 
-// Notification Service (V2.1)
+// Notification Service (V2.1 & V3.2 Preferences & Digest)
 export const notificationService = {
   getAll: (params) => api.get('/notifications', { params }),
   getUnreadCount: () => api.get('/notifications/unread-count'),
   markAsRead: (id) => api.put(`/notifications/${id}/read`),
-  markAllAsRead: () => api.put('/notifications/mark-all-read')
+  markAllAsRead: () => api.put('/notifications/mark-all-read'),
+  getPreferences: () => api.get('/notifications/preferences'),
+  updatePreferences: (data) => api.put('/notifications/preferences', data),
+  getDigest: () => api.get('/notifications/digest')
 };
 
-// Report & Analytics Service (V2.2)
+// Report & Analytics Service (V2.2 & V3.2 Deep Analytics)
 export const reportService = {
   // Donations
   getDonationSummary: (params) => api.get('/reports/donations/summary', { params }),
@@ -160,7 +171,10 @@ export const reportService = {
   getItemHistory: (id) => api.get(`/reports/inventory/${id}/history`),
   getDashboardPayload: (params) => api.get('/reports/dashboard', { params }),
   // Version 3.1: Intelligent Analytics Insights
-  getIntelligentInsights: () => api.get('/reports/insights')
+  getIntelligentInsights: () => api.get('/reports/insights'),
+  // Version 3.2: Donor Segmentation & Temporal Trends
+  getDonorSegmentation: () => api.get('/reports/donors/segmentation'),
+  getInventoryTrends: () => api.get('/reports/inventory/temporal-trends')
 };
 
 // Feedback Service (V2.3)

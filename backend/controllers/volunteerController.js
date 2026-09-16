@@ -1,4 +1,5 @@
 const volunteerModel = require('../models/volunteerModel');
+const pointsModel = require('../models/pointsModel');
 
 /**
  * GET /api/volunteers/profile
@@ -268,6 +269,104 @@ async function getContributionSummary(req, res) {
   }
 }
 
+/**
+ * GET /api/volunteers/leaderboard
+ * Public / Authenticated: Ranked volunteer leaderboard
+ */
+async function getLeaderboard(req, res) {
+  try {
+    const { limit = 50, timeRange = 'all' } = req.query;
+    const leaderboard = await pointsModel.getLeaderboard({ limit, timeRange });
+    return res.status(200).json({
+      success: true,
+      count: leaderboard.length,
+      leaderboard
+    });
+  } catch (error) {
+    console.error('[Volunteer Controller] getLeaderboard error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch volunteer leaderboard.'
+    });
+  }
+}
+
+/**
+ * GET /api/volunteers/:id/points
+ * Access: Volunteer (own points) or Admin
+ */
+async function getVolunteerPoints(req, res) {
+  try {
+    const targetUserId = req.params.id === 'me' ? req.user.id : parseInt(req.params.id, 10);
+    // Non-admins can only view their own points
+    if (req.user.role !== 'Admin' && req.user.id !== targetUserId) {
+      return res.status(403).json({ success: false, message: 'Forbidden access to volunteer points.' });
+    }
+
+    const data = await pointsModel.getPoints(targetUserId);
+    return res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('[Volunteer Controller] getVolunteerPoints error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch volunteer points.'
+    });
+  }
+}
+
+/**
+ * GET /api/volunteers/:id/badges
+ * Access: Volunteer (own badges) or Admin
+ */
+async function getVolunteerBadges(req, res) {
+  try {
+    const targetUserId = req.params.id === 'me' ? req.user.id : parseInt(req.params.id, 10);
+    if (req.user.role !== 'Admin' && req.user.id !== targetUserId) {
+      return res.status(403).json({ success: false, message: 'Forbidden access to volunteer badges.' });
+    }
+
+    const badges = await pointsModel.getBadges(targetUserId);
+    return res.status(200).json({
+      success: true,
+      badges
+    });
+  } catch (error) {
+    console.error('[Volunteer Controller] getVolunteerBadges error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch volunteer badges.'
+    });
+  }
+}
+
+/**
+ * GET /api/volunteers/me/gamification
+ * Access: Volunteer
+ */
+async function getMyGamification(req, res) {
+  try {
+    const userId = req.user.id;
+    const [points, badges] = await Promise.all([
+      pointsModel.getPoints(userId),
+      pointsModel.getBadges(userId)
+    ]);
+    return res.status(200).json({
+      success: true,
+      points,
+      badges
+    });
+  } catch (error) {
+    console.error('[Volunteer Controller] getMyGamification error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch gamification profile.'
+    });
+  }
+}
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -277,5 +376,9 @@ module.exports = {
   getVolunteerActivity,
   getAllVolunteers,
   getVolunteerHistory,
-  getContributionSummary
+  getContributionSummary,
+  getLeaderboard,
+  getVolunteerPoints,
+  getVolunteerBadges,
+  getMyGamification
 };

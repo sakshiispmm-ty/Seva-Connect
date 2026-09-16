@@ -12,6 +12,14 @@ router.put('/tasks/:id/deliver', verifyToken, requireRole('Volunteer', 'Admin'),
 router.get('/history', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getVolunteerHistory);
 router.get('/contribution-summary', verifyToken, requireRole('Volunteer', 'Admin'), volunteerController.getContributionSummary);
 
+// Volunteer Leaderboard (Public / All logged in users)
+router.get('/leaderboard', volunteerController.getLeaderboard);
+
+// Gamification routes
+router.get('/gamification/me', verifyToken, volunteerController.getMyGamification);
+router.get('/:id/points', verifyToken, volunteerController.getVolunteerPoints);
+router.get('/:id/badges', verifyToken, volunteerController.getVolunteerBadges);
+
 // Admin Routes (Admin Role)
 router.get('/', verifyToken, requireRole('Admin'), volunteerController.getAllVolunteers);
 router.get('/:id/activity', verifyToken, requireRole('Admin'), volunteerController.getVolunteerActivity);

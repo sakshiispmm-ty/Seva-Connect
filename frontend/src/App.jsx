@@ -49,6 +49,12 @@ import VolunteerHistoryPage from './pages/volunteer/VolunteerHistoryPage';
 // V3.1 AI Chatbot Widget (App-wide)
 import ChatbotWidget from './components/ChatbotWidget';
 
+// V3.2 Advanced Enhancements Pages
+import LeaderboardPage from './pages/LeaderboardPage';
+import NotificationSettingsPage from './pages/NotificationSettingsPage';
+import UserManagement from './pages/admin/UserManagement';
+import AuditLogPage from './pages/admin/AuditLogPage';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -68,6 +74,7 @@ export default function App() {
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/donation-success" element={<DonationSuccessPage />} />
           <Route path="/request-assistance" element={<RequestAssistancePage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
 
           {/* Protected Donor Routes */}
           <Route
@@ -237,6 +244,24 @@ export default function App() {
             }
           />
 
+          {/* V3.2 Advanced Admin Controls */}
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <UserManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/audit-log"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <AuditLogPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Protected Profile Route (Accessible by Donor, Admin, and Volunteer) */}
           <Route
             path="/profile"
@@ -247,12 +272,20 @@ export default function App() {
             }
           />
 
-          {/* Dedicated Notifications Feed Route (V2.1) */}
+          {/* Dedicated Notifications Feed Route (V2.1) & Preferences (V3.2) */}
           <Route
             path="/notifications"
             element={
               <ProtectedRoute allowedRoles={['Donor', 'Admin', 'Volunteer']}>
                 <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications/settings"
+            element={
+              <ProtectedRoute allowedRoles={['Donor', 'Admin', 'Volunteer']}>
+                <NotificationSettingsPage />
               </ProtectedRoute>
             }
           />

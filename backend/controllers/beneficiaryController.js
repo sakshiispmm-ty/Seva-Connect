@@ -46,11 +46,34 @@ async function createBeneficiary(req, res) {
  */
 async function getAllBeneficiaries(req, res) {
   try {
-    const { search, category } = req.query;
+    const { search, category, page, pageSize } = req.query;
     const beneficiaries = await beneficiaryModel.getAll({ search, category });
+    const total = beneficiaries.length;
+
+    if (page || pageSize) {
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(pageSize, 10) || 10));
+      const offset = (pageNum - 1) * limit;
+      const paginated = beneficiaries.slice(offset, offset + limit);
+
+      return res.status(200).json({
+        success: true,
+        total,
+        page: pageNum,
+        pageSize: limit,
+        totalPages: Math.ceil(total / limit),
+        count: paginated.length,
+        beneficiaries: paginated,
+        data: paginated
+      });
+    }
+
     return res.status(200).json({
       success: true,
-      beneficiaries
+      count: beneficiaries.length,
+      total,
+      beneficiaries,
+      data: beneficiaries
     });
   } catch (error) {
     console.error('[Beneficiary Controller] getAllBeneficiaries error:', error);

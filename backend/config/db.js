@@ -31,6 +31,21 @@ const notificationsFilePath = path.join(dataDir, 'notifications.json');
 const feedbackFilePath = path.join(dataDir, 'feedback.json');
 const donationStatusHistoryFilePath = path.join(dataDir, 'donation_status_history.json');
 const chatbotLogsFilePath = path.join(dataDir, 'chatbot_logs.json');
+const volunteerPointsFilePath = path.join(dataDir, 'volunteer_points.json');
+const pointTransactionsFilePath = path.join(dataDir, 'point_transactions.json');
+const badgesFilePath = path.join(dataDir, 'badges.json');
+const userBadgesFilePath = path.join(dataDir, 'user_badges.json');
+const notificationPreferencesFilePath = path.join(dataDir, 'notification_preferences.json');
+const adminAuditLogFilePath = path.join(dataDir, 'admin_audit_log.json');
+
+const INITIAL_BADGES = [
+  { id: 1, name: 'First Steps', description: 'Completed your first community assistance delivery task.', icon: 'award' },
+  { id: 2, name: 'Dedicated Helper', description: 'Successfully fulfilled 5 relief distribution tasks.', icon: 'shield-check' },
+  { id: 3, name: 'Community Champion', description: 'Completed 10 or more community relief delivery tasks.', icon: 'trophy' },
+  { id: 4, name: 'Priority Hero', description: 'Completed 3 or more High-priority emergency relief missions.', icon: 'flame' },
+  { id: 5, name: 'Centurion', description: 'Earned over 250 volunteer service points.', icon: 'zap' },
+  { id: 6, name: 'Legendary Volunteer', description: 'Reached over 500 volunteer service points.', icon: 'crown' }
+];
 
 const INITIAL_CAMPAIGNS = [
   {
@@ -176,12 +191,34 @@ if (!fs.existsSync(donationStatusHistoryFilePath)) {
 if (!fs.existsSync(chatbotLogsFilePath)) {
   fs.writeFileSync(chatbotLogsFilePath, JSON.stringify([], null, 2), 'utf8');
 }
+if (!fs.existsSync(volunteerPointsFilePath)) {
+  fs.writeFileSync(volunteerPointsFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(pointTransactionsFilePath)) {
+  fs.writeFileSync(pointTransactionsFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(badgesFilePath)) {
+  fs.writeFileSync(badgesFilePath, JSON.stringify(INITIAL_BADGES, null, 2), 'utf8');
+}
+if (!fs.existsSync(userBadgesFilePath)) {
+  fs.writeFileSync(userBadgesFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(notificationPreferencesFilePath)) {
+  fs.writeFileSync(notificationPreferencesFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(adminAuditLogFilePath)) {
+  fs.writeFileSync(adminAuditLogFilePath, JSON.stringify([], null, 2), 'utf8');
+}
 
 
 function readFallbackData() {
   try {
     const raw = fs.readFileSync(dataFilePath, 'utf8');
-    return JSON.parse(raw) || [];
+    const parsed = JSON.parse(raw) || [];
+    return parsed.map(u => ({
+      ...u,
+      is_active: u.is_active !== undefined ? Boolean(u.is_active) : true
+    }));
   } catch (err) {
     return [];
   }
@@ -446,6 +483,113 @@ function writeFallbackChatbotLogs(data) {
     fs.writeFileSync(chatbotLogsFilePath, JSON.stringify(data, null, 2), 'utf8');
   } catch (err) {
     console.error('[Fallback DB] Failed to save chatbot logs:', err);
+  }
+}
+
+function readFallbackVolunteerPoints() {
+  try {
+    const raw = fs.readFileSync(volunteerPointsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackVolunteerPoints(data) {
+  try {
+    fs.writeFileSync(volunteerPointsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save volunteer points:', err);
+  }
+}
+
+function readFallbackPointTransactions() {
+  try {
+    const raw = fs.readFileSync(pointTransactionsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackPointTransactions(data) {
+  try {
+    fs.writeFileSync(pointTransactionsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save point transactions:', err);
+  }
+}
+
+function readFallbackBadges() {
+  try {
+    if (!fs.existsSync(badgesFilePath)) {
+      fs.writeFileSync(badgesFilePath, JSON.stringify(INITIAL_BADGES, null, 2), 'utf8');
+      return INITIAL_BADGES;
+    }
+    const raw = fs.readFileSync(badgesFilePath, 'utf8');
+    const list = JSON.parse(raw);
+    return Array.isArray(list) && list.length > 0 ? list : INITIAL_BADGES;
+  } catch (err) {
+    return INITIAL_BADGES;
+  }
+}
+
+function writeFallbackBadges(data) {
+  try {
+    fs.writeFileSync(badgesFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save badges:', err);
+  }
+}
+
+function readFallbackUserBadges() {
+  try {
+    const raw = fs.readFileSync(userBadgesFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackUserBadges(data) {
+  try {
+    fs.writeFileSync(userBadgesFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save user badges:', err);
+  }
+}
+
+function readFallbackNotificationPreferences() {
+  try {
+    const raw = fs.readFileSync(notificationPreferencesFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackNotificationPreferences(data) {
+  try {
+    fs.writeFileSync(notificationPreferencesFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save notification preferences:', err);
+  }
+}
+
+function readFallbackAdminAuditLog() {
+  try {
+    const raw = fs.readFileSync(adminAuditLogFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeFallbackAdminAuditLog(data) {
+  try {
+    fs.writeFileSync(adminAuditLogFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save admin audit log:', err);
   }
 }
 
@@ -735,6 +879,102 @@ async function initDb() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
+    // ==========================================================
+    // V3.2 ADVANCED ENHANCEMENTS TABLES (MySQL)
+    // ==========================================================
+    // 1. Volunteer Points & Gamification
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS volunteer_points (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL UNIQUE,
+        total_points INT NOT NULL DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS point_transactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        points INT NOT NULL,
+        reason VARCHAR(255) NOT NULL,
+        reference_type VARCHAR(50),
+        reference_id INT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        INDEX idx_points_user (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // 2. Badges & Recognition
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS badges (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        description VARCHAR(255) NOT NULL,
+        icon VARCHAR(50)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_badges (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        badge_id INT NOT NULL,
+        earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (badge_id) REFERENCES badges(id),
+        UNIQUE KEY unique_user_badge (user_id, badge_id),
+        INDEX idx_badge_user (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Seed Badges in MySQL
+    try {
+      await pool.query(`
+        INSERT IGNORE INTO badges (id, name, description, icon) VALUES
+        (1, 'First Steps', 'Completed your first community assistance delivery task.', 'award'),
+        (2, 'Dedicated Helper', 'Successfully fulfilled 5 relief distribution tasks.', 'shield-check'),
+        (3, 'Community Champion', 'Completed 10 or more community relief delivery tasks.', 'trophy'),
+        (4, 'Priority Hero', 'Completed 3 or more High-priority emergency relief missions.', 'flame'),
+        (5, 'Centurion', 'Earned over 250 volunteer service points.', 'zap'),
+        (6, 'Legendary Volunteer', 'Reached over 500 volunteer service points.', 'crown');
+      `);
+    } catch (e) { /* ignore if already seeded */ }
+
+    // 3. Notification Preferences
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notification_preferences (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        notification_type VARCHAR(50) NOT NULL,
+        enabled BOOLEAN NOT NULL DEFAULT TRUE,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        UNIQUE KEY unique_user_pref (user_id, notification_type)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // 4. Admin Audit Log (Write-Only)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_audit_log (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        admin_id INT NOT NULL,
+        action VARCHAR(100) NOT NULL,
+        target_type VARCHAR(50),
+        target_id INT NULL,
+        details TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (admin_id) REFERENCES users(id),
+        INDEX idx_audit_created_at (created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // 5. Add is_active column to users if missing
+    try {
+      await pool.query("ALTER TABLE users ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE");
+    } catch (e) { /* column may already exist */ }
+
     // Backfill donation_status_history in MySQL if empty
     try {
       await pool.query(`
@@ -745,7 +985,7 @@ async function initDb() {
     } catch (e) { /* ignore if already seeded */ }
 
     isUsingMySQL = true;
-    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". All V1.1/V1.2/V1.3/V2.1/V2.2/V2.3/V3.1 tables ready.`);
+    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". All V1.1–V3.2 tables ready.`);
     return true;
   } catch (error) {
     isUsingMySQL = false;
@@ -1986,6 +2226,231 @@ async function query(sql, params = []) {
     return [chatbotLogs];
   }
 
+  // ==========================================================
+  // V3.2 VOLUNTEER POINTS & GAMIFICATION FALLBACK HANDLERS
+  // ==========================================================
+  if (normalizedSql.includes('FROM volunteer_points')) {
+    const vpList = readFallbackVolunteerPoints();
+    if (normalizedSql.includes('WHERE user_id = ?')) {
+      const uId = parseInt(params[0], 10);
+      const found = vpList.find(p => p.user_id === uId);
+      return [found ? [found] : []];
+    }
+    return [vpList];
+  }
+
+  if (normalizedSql.startsWith('INSERT INTO volunteer_points') || normalizedSql.includes('INTO volunteer_points')) {
+    const vpList = readFallbackVolunteerPoints();
+    const uId = parseInt(params[0], 10);
+    const pts = parseInt(params[1], 10);
+    const now = getAugustTimestamp();
+    const existingIdx = vpList.findIndex(p => p.user_id === uId);
+    if (existingIdx !== -1) {
+      if (normalizedSql.includes('ON DUPLICATE KEY UPDATE') || normalizedSql.includes('UPDATE')) {
+        vpList[existingIdx].total_points = parseInt(params[2] !== undefined ? params[2] : pts, 10);
+        vpList[existingIdx].updated_at = now;
+      }
+      writeFallbackVolunteerPoints(vpList);
+      return [{ affectedRows: 1, insertId: vpList[existingIdx].id }];
+    } else {
+      const nextId = vpList.length > 0 ? Math.max(...vpList.map(p => p.id || 0)) + 1 : 1;
+      const newRec = { id: nextId, user_id: uId, total_points: pts, updated_at: now };
+      vpList.push(newRec);
+      writeFallbackVolunteerPoints(vpList);
+      return [{ insertId: nextId, affectedRows: 1 }];
+    }
+  }
+
+  if (normalizedSql.startsWith('UPDATE volunteer_points SET total_points = ? WHERE user_id = ?')) {
+    const vpList = readFallbackVolunteerPoints();
+    const pts = parseInt(params[0], 10);
+    const uId = parseInt(params[1], 10);
+    const idx = vpList.findIndex(p => p.user_id === uId);
+    if (idx !== -1) {
+      vpList[idx].total_points = pts;
+      vpList[idx].updated_at = getAugustTimestamp();
+      writeFallbackVolunteerPoints(vpList);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // Point Transactions
+  if (normalizedSql.startsWith('INSERT INTO point_transactions')) {
+    const ptList = readFallbackPointTransactions();
+    const nextId = ptList.length > 0 ? Math.max(...ptList.map(t => t.id || 0)) + 1 : 1;
+    const newTx = {
+      id: nextId,
+      user_id: parseInt(params[0], 10),
+      points: parseInt(params[1], 10),
+      reason: params[2] || '',
+      reference_type: params[3] || null,
+      reference_id: params[4] ? parseInt(params[4], 10) : null,
+      created_at: getAugustTimestamp()
+    };
+    ptList.push(newTx);
+    writeFallbackPointTransactions(ptList);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  if (normalizedSql.includes('FROM point_transactions')) {
+    const ptList = readFallbackPointTransactions();
+    if (normalizedSql.includes('WHERE user_id = ?')) {
+      const uId = parseInt(params[0], 10);
+      const list = ptList.filter(t => t.user_id === uId).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      return [list];
+    }
+    return [ptList];
+  }
+
+  // Badges & User Badges
+  if (normalizedSql.includes('FROM badges')) {
+    const badges = readFallbackBadges();
+    return [badges];
+  }
+
+  if (normalizedSql.startsWith('INSERT INTO user_badges') || normalizedSql.startsWith('INSERT IGNORE INTO user_badges')) {
+    const ubList = readFallbackUserBadges();
+    const uId = parseInt(params[0], 10);
+    const bId = parseInt(params[1], 10);
+    const existing = ubList.find(b => b.user_id === uId && b.badge_id === bId);
+    if (existing) {
+      return [{ affectedRows: 0 }];
+    }
+    const nextId = ubList.length > 0 ? Math.max(...ubList.map(b => b.id || 0)) + 1 : 1;
+    const newUb = {
+      id: nextId,
+      user_id: uId,
+      badge_id: bId,
+      earned_at: params[2] || getAugustTimestamp()
+    };
+    ubList.push(newUb);
+    writeFallbackUserBadges(ubList);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  if (normalizedSql.includes('FROM user_badges')) {
+    const ubList = readFallbackUserBadges();
+    if (normalizedSql.includes('WHERE user_id = ?')) {
+      const uId = parseInt(params[0], 10);
+      const list = ubList.filter(b => b.user_id === uId);
+      return [list];
+    }
+    return [ubList];
+  }
+
+  // Notification Preferences
+  if (normalizedSql.includes('FROM notification_preferences')) {
+    const npList = readFallbackNotificationPreferences();
+    if (normalizedSql.includes('WHERE user_id = ?')) {
+      const uId = parseInt(params[0], 10);
+      const list = npList.filter(p => p.user_id === uId);
+      return [list];
+    }
+    return [npList];
+  }
+
+  if (normalizedSql.startsWith('INSERT INTO notification_preferences')) {
+    const npList = readFallbackNotificationPreferences();
+    const uId = parseInt(params[0], 10);
+    const type = params[1];
+    const enabled = params[2] !== undefined ? Boolean(params[2]) : true;
+    const existingIdx = npList.findIndex(p => p.user_id === uId && p.notification_type === type);
+    if (existingIdx !== -1) {
+      npList[existingIdx].enabled = enabled;
+      writeFallbackNotificationPreferences(npList);
+      return [{ affectedRows: 1 }];
+    } else {
+      const nextId = npList.length > 0 ? Math.max(...npList.map(p => p.id || 0)) + 1 : 1;
+      npList.push({ id: nextId, user_id: uId, notification_type: type, enabled });
+      writeFallbackNotificationPreferences(npList);
+      return [{ insertId: nextId, affectedRows: 1 }];
+    }
+  }
+
+  // Admin Audit Log
+  if (normalizedSql.startsWith('INSERT INTO admin_audit_log')) {
+    const auditLogs = readFallbackAdminAuditLog();
+    const nextId = auditLogs.length > 0 ? Math.max(...auditLogs.map(l => l.id || 0)) + 1 : 1;
+    const newEntry = {
+      id: nextId,
+      admin_id: parseInt(params[0], 10),
+      action: params[1] || '',
+      target_type: params[2] || null,
+      target_id: params[3] ? parseInt(params[3], 10) : null,
+      details: params[4] || '',
+      created_at: getAugustTimestamp()
+    };
+    auditLogs.push(newEntry);
+    writeFallbackAdminAuditLog(auditLogs);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  if (normalizedSql.includes('FROM admin_audit_log')) {
+    const auditLogs = readFallbackAdminAuditLog();
+    const sorted = auditLogs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(log => {
+      const adminUser = users.find(u => u.id === log.admin_id);
+      return {
+        ...log,
+        admin_name: adminUser ? adminUser.name : `Admin #${log.admin_id}`,
+        admin_email: adminUser ? adminUser.email : ''
+      };
+    });
+    return [sorted];
+  }
+
+  // User Management Updates (Soft-disable & Role updates)
+  if (normalizedSql.startsWith('UPDATE users SET is_active = ? WHERE id = ?')) {
+    const isActive = Boolean(params[0]);
+    const uId = parseInt(params[1], 10);
+    const idx = users.findIndex(u => u.id === uId);
+    if (idx !== -1) {
+      users[idx].is_active = isActive;
+      users[idx].updated_at = getAugustTimestamp();
+      writeFallbackData(users);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  if (normalizedSql.startsWith('UPDATE users SET role = ? WHERE id = ?')) {
+    const newRole = params[0];
+    const uId = parseInt(params[1], 10);
+    const idx = users.findIndex(u => u.id === uId);
+    if (idx !== -1) {
+      users[idx].role = newRole;
+      users[idx].updated_at = getAugustTimestamp();
+      writeFallbackData(users);
+      return [{ affectedRows: 1 }];
+    }
+    return [{ affectedRows: 0 }];
+  }
+
+  // Volunteer Leaderboard: list active volunteers
+  if (normalizedSql.includes('FROM users') && normalizedSql.includes("role = 'Volunteer'") && normalizedSql.includes('is_active = TRUE')) {
+    const activeVolunteers = users.filter(u => u.role === 'Volunteer' && u.is_active !== false && u.is_active !== 0);
+    return [activeVolunteers];
+  }
+
+  // Leaderboard: completed tasks
+  if (normalizedSql.includes('FROM assistance_requests') && normalizedSql.includes("status = 'Completed'")) {
+    const completedReqs = readFallbackAssistanceRequests().filter(r => r.status === 'Completed');
+    return [completedReqs];
+  }
+
+  // Admin User Management: paginated/filtered list of users
+  if (normalizedSql.includes('FROM users WHERE 1=1') || normalizedSql.includes('FROM users ORDER BY created_at DESC')) {
+    let filtered = [...users];
+    
+    // Check if count query
+    if (normalizedSql.startsWith('SELECT COUNT(*)')) {
+      return [[{ total: filtered.length }]];
+    }
+
+    filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    return [filtered];
+  }
+
   console.warn('[Database] Unhandled query in fallback mode:', sql);
   return [[]];
 }
@@ -2027,7 +2492,20 @@ module.exports = {
   readFallbackDonationStatusHistory,
   writeFallbackDonationStatusHistory,
   readFallbackChatbotLogs,
-  writeFallbackChatbotLogs
+  writeFallbackChatbotLogs,
+  readFallbackVolunteerPoints,
+  writeFallbackVolunteerPoints,
+  readFallbackPointTransactions,
+  writeFallbackPointTransactions,
+  readFallbackBadges,
+  writeFallbackBadges,
+  readFallbackUserBadges,
+  writeFallbackUserBadges,
+  readFallbackNotificationPreferences,
+  writeFallbackNotificationPreferences,
+  readFallbackAdminAuditLog,
+  writeFallbackAdminAuditLog
 };
+
 
 

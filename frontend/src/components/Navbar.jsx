@@ -69,6 +69,14 @@ export default function Navbar() {
             >
               How It Works
             </a>
+            <Link
+              to="/leaderboard"
+              className={`text-sm font-semibold transition-colors hover:text-[#087F73] ${
+                location.pathname === '/leaderboard' ? 'text-[#087F73]' : 'text-[#17243A]'
+              }`}
+            >
+              Leaderboard
+            </Link>
             <a
               href="/#features"
               className="text-sm font-semibold text-[#17243A] hover:text-[#087F73] transition-colors"
@@ -241,6 +249,13 @@ export default function Navbar() {
           >
             How It Works
           </a>
+          <Link
+            to="/leaderboard"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-md text-base font-semibold text-[#17243A] hover:bg-[#EAF6F3] hover:text-[#087F73]"
+          >
+            Leaderboard
+          </Link>
           <a
             href="/#features"
             onClick={() => setMobileMenuOpen(false)}

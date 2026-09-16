@@ -99,9 +99,76 @@ async function markAllAsRead(req, res) {
   }
 }
 
+/**
+ * GET /api/notifications/preferences
+ * Access: Authenticated
+ */
+async function getPreferences(req, res) {
+  try {
+    const userId = req.user.id;
+    const preferences = await notificationModel.getPreferences(userId);
+    return res.status(200).json({
+      success: true,
+      preferences
+    });
+  } catch (error) {
+    console.error('[Notification Controller] getPreferences error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch notification preferences.'
+    });
+  }
+}
+
+/**
+ * PUT /api/notifications/preferences
+ * Access: Authenticated
+ */
+async function updatePreferences(req, res) {
+  try {
+    const userId = req.user.id;
+    const updated = await notificationModel.updatePreferences(userId, req.body || {});
+    return res.status(200).json({
+      success: true,
+      message: 'Notification preferences updated.',
+      preferences: updated
+    });
+  } catch (error) {
+    console.error('[Notification Controller] updatePreferences error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update notification preferences.'
+    });
+  }
+}
+
+/**
+ * GET /api/notifications/digest
+ * Access: Authenticated
+ */
+async function getDigest(req, res) {
+  try {
+    const userId = req.user.id;
+    const digest = await notificationModel.getDigest(userId);
+    return res.status(200).json({
+      success: true,
+      digest
+    });
+  } catch (error) {
+    console.error('[Notification Controller] getDigest error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch notification activity digest.'
+    });
+  }
+}
+
 module.exports = {
   getNotifications,
   getUnreadCount,
   markAsRead,
-  markAllAsRead
+  markAllAsRead,
+  getPreferences,
+  updatePreferences,
+  getDigest
 };

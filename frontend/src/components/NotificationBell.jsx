@@ -321,9 +321,16 @@ export default function NotificationBell({ className = '', align = 'auto' }) {
 
           {/* Footer */}
           <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-[11px] text-slate-400">
-              Live operational alerts (V2.1)
-            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/notifications/settings');
+              }}
+              className="text-[11px] font-semibold text-slate-500 hover:text-[#087F73] transition"
+            >
+              Preferences & Digest
+            </button>
             <button
               type="button"
               onClick={() => {

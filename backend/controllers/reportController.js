@@ -280,6 +280,40 @@ async function getIntelligentInsights(req, res) {
   }
 }
 
+// 8. Version 3.2: Donor Segmentation Analysis
+async function getDonorSegmentation(req, res) {
+  try {
+    const segmentation = await reportModel.getDonorSegmentation();
+    return res.status(200).json({
+      success: true,
+      data: segmentation
+    });
+  } catch (error) {
+    console.error('[Report Controller] getDonorSegmentation error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to generate donor segmentation analysis.'
+    });
+  }
+}
+
+// 9. Version 3.2: Inventory Temporal Trends
+async function getInventoryTrends(req, res) {
+  try {
+    const trends = await reportModel.getInventoryTrends();
+    return res.status(200).json({
+      success: true,
+      data: trends
+    });
+  } catch (error) {
+    console.error('[Report Controller] getInventoryTrends error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to generate inventory temporal trends.'
+    });
+  }
+}
+
 module.exports = {
   getDonationSummary,
   getDonationsByPeriod,
@@ -294,6 +328,8 @@ module.exports = {
   getLowStockReport,
   getItemHistory,
   getDashboardPayload,
-  getIntelligentInsights
+  getIntelligentInsights,
+  getDonorSegmentation,
+  getInventoryTrends
 };
 

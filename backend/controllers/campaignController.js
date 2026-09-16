@@ -6,7 +6,7 @@ const campaignModel = require('../models/campaignModel');
  */
 async function getCampaigns(req, res) {
   try {
-    const { status, category, search } = req.query;
+    const { status, category, search, page, pageSize } = req.query;
     const campaignsRaw = await campaignModel.getAll({ status, category, search });
 
     const campaigns = campaignsRaw.map(c => ({
@@ -18,9 +18,30 @@ async function getCampaigns(req, res) {
       deadline: c.deadline || c.end_date
     }));
 
+    const total = campaigns.length;
+
+    if (page || pageSize) {
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(pageSize, 10) || 10));
+      const offset = (pageNum - 1) * limit;
+      const paginated = campaigns.slice(offset, offset + limit);
+
+      return res.status(200).json({
+        success: true,
+        total,
+        page: pageNum,
+        pageSize: limit,
+        totalPages: Math.ceil(total / limit),
+        count: paginated.length,
+        campaigns: paginated,
+        data: paginated
+      });
+    }
+
     return res.status(200).json({
       success: true,
       count: campaigns.length,
+      total,
       campaigns,
       data: campaigns
     });

@@ -207,7 +207,7 @@ async function getDonationByToken(req, res) {
  */
 async function getDonations(req, res) {
   try {
-    const { status, campaign_id, campaign, donation_type, type, search, searchToken } = req.query;
+    const { status, campaign_id, campaign, donation_type, type, search, searchToken, page, pageSize } = req.query;
     const donations = await donationModel.getAll({
       status,
       campaign_id,
@@ -219,10 +219,31 @@ async function getDonations(req, res) {
     });
 
     const stats = await donationModel.getStats();
+    const total = donations.length;
+
+    if (page || pageSize) {
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(pageSize, 10) || 10));
+      const offset = (pageNum - 1) * limit;
+      const paginated = donations.slice(offset, offset + limit);
+
+      return res.status(200).json({
+        success: true,
+        total,
+        page: pageNum,
+        pageSize: limit,
+        totalPages: Math.ceil(total / limit),
+        count: paginated.length,
+        stats,
+        donations: paginated,
+        data: paginated
+      });
+    }
 
     return res.status(200).json({
       success: true,
       count: donations.length,
+      total,
       stats,
       donations,
       data: donations

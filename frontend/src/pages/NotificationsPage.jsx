@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
@@ -20,7 +20,8 @@ import {
   Clock,
   ExternalLink,
   Search,
-  Filter
+  Filter,
+  Sliders
 } from 'lucide-react';
 
 export default function NotificationsPage() {
@@ -122,6 +123,15 @@ export default function NotificationsPage() {
 
     if (filterType === 'unread') return !n.is_read;
     if (filterType === 'alerts') return n.type?.includes('STOCK') || n.type?.includes('URGENT');
+    if (filterType === 'donations') return String(n.type || '').toLowerCase().includes('donation');
+    if (filterType === 'tasks') {
+      const t = String(n.type || '').toLowerCase();
+      return t.includes('volunteer') || t.includes('task') || t.includes('badge') || t.includes('point');
+    }
+    if (filterType === 'system') {
+      const t = String(n.type || '').toLowerCase();
+      return !t.includes('donation') && !t.includes('volunteer') && !t.includes('task') && !t.includes('badge') && !t.includes('point');
+    }
     return true;
   });
 
@@ -157,17 +167,27 @@ export default function NotificationsPage() {
             </div>
           </div>
 
-          {unreadCount > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleMarkAllRead}
-              className="flex items-center gap-1.5"
+          <div className="flex items-center gap-2">
+            <Link
+              to="/notifications/settings"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-semibold text-slate-700 transition"
             >
-              <CheckCheck className="w-4 h-4 text-[#087F73]" />
-              <span>Mark All Read</span>
-            </Button>
-          )}
+              <Sliders className="w-3.5 h-3.5 text-[#087F73]" />
+              <span>Preferences & Digest</span>
+            </Link>
+
+            {unreadCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleMarkAllRead}
+                className="flex items-center gap-1.5"
+              >
+                <CheckCheck className="w-4 h-4 text-[#087F73]" />
+                <span>Mark All Read</span>
+              </Button>
+            )}
+          </div>
         </header>
 
         {/* Content */}
@@ -183,11 +203,11 @@ export default function NotificationsPage() {
 
           {/* Filter and Search Bar */}
           <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl">
+            <div className="flex items-center gap-1 p-1 bg-gray-100/80 rounded-xl overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setFilterType('all')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
                   filterType === 'all'
                     ? 'bg-white text-[#17243A] shadow-xs'
                     : 'text-[#667085] hover:text-[#17243A]'
@@ -197,24 +217,41 @@ export default function NotificationsPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setFilterType('unread')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                  filterType === 'unread'
-                    ? 'bg-white text-rose-700 shadow-xs'
+                onClick={() => setFilterType('donations')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
+                  filterType === 'donations'
+                    ? 'bg-white text-[#087F73] shadow-xs'
                     : 'text-[#667085] hover:text-[#17243A]'
                 }`}
               >
-                <span>Unread</span>
-                {unreadCount > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-100 text-rose-700">
-                    {unreadCount}
-                  </span>
-                )}
+                Donations
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterType('tasks')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
+                  filterType === 'tasks'
+                    ? 'bg-white text-[#087F73] shadow-xs'
+                    : 'text-[#667085] hover:text-[#17243A]'
+                }`}
+              >
+                Tasks & Badges
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterType('system')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
+                  filterType === 'system'
+                    ? 'bg-white text-[#087F73] shadow-xs'
+                    : 'text-[#667085] hover:text-[#17243A]'
+                }`}
+              >
+                System
               </button>
               <button
                 type="button"
                 onClick={() => setFilterType('alerts')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
                   filterType === 'alerts'
                     ? 'bg-white text-amber-700 shadow-xs'
                     : 'text-[#667085] hover:text-[#17243A]'

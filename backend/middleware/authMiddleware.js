@@ -40,7 +40,14 @@ async function verifyToken(req, res, next) {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'User account not found or deactivated.'
+        message: 'User account not found or removed.'
+      });
+    }
+
+    if (user.is_active === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deactivated. Please contact support.'
       });
     }
 

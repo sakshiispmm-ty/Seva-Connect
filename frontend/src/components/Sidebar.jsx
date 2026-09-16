@@ -16,7 +16,9 @@ import {
   UserCheck,
   Bell,
   BarChart3,
-  MessageSquare
+  MessageSquare,
+  Trophy,
+  Shield
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
@@ -35,6 +37,7 @@ export default function Sidebar({ isOpen, onClose, role }) {
     { label: 'Active Campaigns', path: '/campaigns', icon: Megaphone },
     { label: 'Pledge Donation', path: '/donate', icon: HeartHandshake },
     { label: 'My Donations', path: '/donor/history', icon: Gift },
+    { label: 'Leaderboard', path: '/leaderboard', icon: Trophy },
     { label: 'Notifications', path: '/notifications', icon: Bell },
     { label: 'My Profile', path: '/profile', icon: User },
   ];
@@ -42,6 +45,7 @@ export default function Sidebar({ isOpen, onClose, role }) {
   const volunteerLinks = [
     { label: 'Assigned Tasks', path: '/volunteer', icon: LayoutDashboard },
     { label: 'Task History', path: '/volunteer/history', icon: History },
+    { label: 'Volunteer Leaderboard', path: '/leaderboard', icon: Trophy },
     { label: 'Volunteer Profile', path: '/volunteer/profile', icon: User },
     { label: 'Active Campaigns', path: '/campaigns', icon: Megaphone },
     { label: 'Notifications', path: '/notifications', icon: Bell },
@@ -50,6 +54,8 @@ export default function Sidebar({ isOpen, onClose, role }) {
   const adminLinks = [
     { label: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
     { label: 'Analytics & Reports', path: '/admin/analytics', icon: BarChart3 },
+    { label: 'User Directory', path: '/admin/users', icon: Shield },
+    { label: 'Audit Log', path: '/admin/audit-log', icon: History },
     { label: 'Campaigns', path: '/admin/campaigns', icon: Megaphone },
     { label: 'Donation Desk', path: '/admin/donations', icon: Gift },
     { label: 'Donors', path: '/admin/donors', icon: HeartHandshake },
@@ -57,6 +63,7 @@ export default function Sidebar({ isOpen, onClose, role }) {
     { label: 'Beneficiaries', path: '/admin/beneficiaries', icon: Users },
     { label: 'Inventory', path: '/admin/inventory', icon: Package },
     { label: 'Volunteers', path: '/admin/volunteers', icon: UserCheck },
+    { label: 'Volunteer Leaderboard', path: '/leaderboard', icon: Trophy },
     { label: 'Feedback & Reviews', path: '/admin/feedback', icon: MessageSquare },
     { label: 'Notifications', path: '/notifications', icon: Bell },
     { label: 'My Profile', path: '/profile', icon: User },
@@ -115,14 +122,16 @@ export default function Sidebar({ isOpen, onClose, role }) {
             <span className="text-[11px] text-[#087F73] font-semibold">Portal Role</span>
             <span
               className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
-                role === 'Admin'
+                user?.role === 'Admin' && role === 'Volunteer'
+                  ? 'bg-purple-100 text-purple-800 border border-purple-300'
+                  : role === 'Admin'
                   ? 'bg-[#F7BA3E]/20 text-[#17243A] border border-[#F7BA3E]'
                   : role === 'Volunteer'
                   ? 'bg-[#087F73]/15 text-[#087F73] border border-[#087F73]/40'
                   : 'bg-[#2EAD62]/20 text-[#05665D] border border-[#2EAD62]'
               }`}
             >
-              {role}
+              {user?.role === 'Admin' && role === 'Volunteer' ? 'Admin (Volunteer View)' : role}
             </span>
           </div>
         </div>

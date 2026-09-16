@@ -29,6 +29,24 @@ const notificationModel = {
       return null;
     }
 
+    // Check user notification preferences before inserting
+    try {
+      const [prefRows] = await query("SELECT * FROM notification_preferences WHERE user_id = ?", [targetRecipientId]);
+      const prefs = prefRows && prefRows[0] ? prefRows[0] : { donations: true, tasks: true, system: true };
+      
+      const cleanType = String(type || '').toLowerCase();
+      let category = 'system';
+      if (cleanType.includes('donation')) category = 'donations';
+      else if (cleanType.includes('volunteer') || cleanType.includes('task') || cleanType.includes('badge') || cleanType.includes('point')) category = 'tasks';
+
+      if (prefs[category] === false) {
+        // Notification muted by user preference
+        return null;
+      }
+    } catch (prefErr) {
+      console.warn('[Notification Model] could not check preferences:', prefErr.message);
+    }
+
     const sql = `
       INSERT INTO notifications (recipient_id, type, message, reference_type, reference_id, is_read)
       VALUES (?, ?, ?, ?, ?, FALSE)
@@ -127,6 +145,104 @@ const notificationModel = {
     `;
     const [result] = await query(sql, [parseInt(recipientId, 10)]);
     return result.affectedRows;
+  },
+
+  /**
+   * Get notification preferences for a user
+   */
+  async getPreferences(userId) {
+    const uId = parseInt(userId, 10);
+    const [rows] = await query("SELECT * FROM notification_preferences WHERE user_id = ?", [uId]);
+    if (rows && rows.length > 0) {
+      const p = rows[0];
+      return {
+        user_id: uId,
+        donations: Boolean(p.donations !== false && p.donations !== 0),
+        tasks: Boolean(p.tasks !== false && p.tasks !== 0),
+        system: Boolean(p.system !== false && p.system !== 0),
+        email_digest: Boolean(p.email_digest === true || p.email_digest === 1)
+      };
+    }
+    return {
+      user_id: uId,
+      donations: true,
+      tasks: true,
+      system: true,
+      email_digest: false
+    };
+  },
+
+  /**
+   * Update or upsert notification preferences for a user
+   */
+  async updatePreferences(userId, prefs) {
+    const uId = parseInt(userId, 10);
+    const donations = prefs.donations !== false && prefs.donations !== 0 ? 1 : 0;
+    const tasks = prefs.tasks !== false && prefs.tasks !== 0 ? 1 : 0;
+    const system = prefs.system !== false && prefs.system !== 0 ? 1 : 0;
+    const email_digest = prefs.email_digest === true || prefs.email_digest === 1 ? 1 : 0;
+
+    const [existing] = await query("SELECT id FROM notification_preferences WHERE user_id = ?", [uId]);
+    if (existing && existing.length > 0) {
+      await query(
+        "UPDATE notification_preferences SET donations = ?, tasks = ?, system = ?, email_digest = ? WHERE user_id = ?",
+        [donations, tasks, system, email_digest, uId]
+      );
+    } else {
+      await query(
+        "INSERT INTO notification_preferences (user_id, donations, tasks, system, email_digest) VALUES (?, ?, ?, ?, ?)",
+        [uId, donations, tasks, system, email_digest]
+      );
+    }
+
+    return this.getPreferences(uId);
+  },
+
+  /**
+   * Get notification activity digest
+   */
+  async getDigest(userId) {
+    const uId = parseInt(userId, 10);
+    const allNotifs = await this.getByRecipient(uId);
+    
+    // Group into categories
+    const categories = {
+      donations: [],
+      tasks: [],
+      system: []
+    };
+
+    allNotifs.forEach(n => {
+      const cleanType = String(n.type || '').toLowerCase();
+      if (cleanType.includes('donation')) {
+        categories.donations.push(n);
+      } else if (cleanType.includes('volunteer') || cleanType.includes('task') || cleanType.includes('badge') || cleanType.includes('point')) {
+        categories.tasks.push(n);
+      } else {
+        categories.system.push(n);
+      }
+    });
+
+    const unreadCount = allNotifs.filter(n => !n.is_read).length;
+    const unreadDonations = categories.donations.filter(n => !n.is_read).length;
+    const unreadTasks = categories.tasks.filter(n => !n.is_read).length;
+    const unreadSystem = categories.system.filter(n => !n.is_read).length;
+
+    // Recent top highlights (last 5)
+    const recentHighlights = allNotifs.slice(0, 5);
+
+    return {
+      userId: uId,
+      totalCount: allNotifs.length,
+      unreadCount,
+      categoryCounts: {
+        donations: { total: categories.donations.length, unread: unreadDonations },
+        tasks: { total: categories.tasks.length, unread: unreadTasks },
+        system: { total: categories.system.length, unread: unreadSystem }
+      },
+      recentHighlights,
+      categories
+    };
   }
 };
 

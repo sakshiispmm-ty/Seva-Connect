@@ -164,18 +164,37 @@ const volunteerModel = {
 
   /**
    * Volunteer: Update task status (e.g. In Progress or Completed)
+   * V3.2 Gamification Hook: Automatically awards points and evaluates badges upon completion
    */
   async updateTaskStatus(requestId, volunteerUserId, newStatus) {
     const validStatuses = ['In Progress', 'Completed', 'Volunteer Assigned'];
     const status = validStatuses.includes(newStatus) ? newStatus : 'Completed';
+    const reqId = parseInt(requestId, 10);
+    const vId = parseInt(volunteerUserId, 10);
+
+    // Fetch task before update to get priority
+    const [existingRows] = await query("SELECT priority FROM assistance_requests WHERE id = ? AND assigned_volunteer_id = ?", [reqId, vId]);
+    const taskPriority = existingRows?.[0]?.priority || 'Medium';
 
     const sql = `
       UPDATE assistance_requests 
       SET status = ?
       WHERE id = ? AND assigned_volunteer_id = ?
     `;
-    const [result] = await query(sql, [status, parseInt(requestId, 10), parseInt(volunteerUserId, 10)]);
-    return result.affectedRows > 0;
+    const [result] = await query(sql, [status, reqId, vId]);
+    const isUpdated = result.affectedRows > 0;
+
+    // V3.2: If marked Completed, award points and evaluate badge eligibility
+    if (isUpdated && status === 'Completed') {
+      try {
+        const pointsModel = require('./pointsModel');
+        await pointsModel.awardTaskPoints(vId, reqId, taskPriority);
+      } catch (err) {
+        console.warn('[Volunteer Model] Failed to award task points:', err.message);
+      }
+    }
+
+    return isUpdated;
   },
 
   /**

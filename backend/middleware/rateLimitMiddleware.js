@@ -47,8 +47,40 @@ function resetLoginAttempts(req) {
   loginAttempts.delete(ip);
 }
 
+function createEndpointRateLimiter({
+  windowMs = 60 * 1000,
+  maxRequests = 30,
+  message = 'Too many requests. Please slow down and try again.'
+} = {}) {
+  const requestCounts = new Map();
+
+  return (req, res, next) => {
+    const ip = getClientIp(req);
+    const now = Date.now();
+    let record = requestCounts.get(ip);
+
+    if (!record) {
+      record = { timestamps: [] };
+      requestCounts.set(ip, record);
+    }
+
+    record.timestamps = record.timestamps.filter(ts => now - ts < windowMs);
+
+    if (record.timestamps.length >= maxRequests) {
+      return res.status(429).json({
+        success: false,
+        message
+      });
+    }
+
+    record.timestamps.push(now);
+    next();
+  };
+}
+
 module.exports = {
   loginRateLimiter,
   recordFailedLogin,
-  resetLoginAttempts
+  resetLoginAttempts,
+  createEndpointRateLimiter
 };

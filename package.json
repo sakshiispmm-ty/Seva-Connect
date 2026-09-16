@@ -1,7 +1,7 @@
 {
   "name": "sevaconnect",
-  "version": "3.1.0",
-  "description": "SevaConnect NGO Donation & Resource Management System - Version 3.1 AI + Intelligent Features",
+  "version": "3.2.0",
+  "description": "SevaConnect NGO Donation & Resource Management System - Version 3.2 Advanced Enhancements",
   "scripts": {
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"teal,yellow\" \"npm run server\" \"npm run client\"",
     "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"teal,yellow\" \"npm run server\" \"npm run client\"",

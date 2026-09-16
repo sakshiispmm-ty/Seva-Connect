@@ -529,14 +529,115 @@ export default function AnalyticsDashboard() {
             />
           </div>
 
-          {/* Deep-Dive Reports Portal Grid */}
-          <div className="space-y-3 pt-2">
+          {/* Version 3.2: Donor Segmentation Analysis */}
+          {dashboardData.donorSegmentation && (
+            <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3.5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-[#17243A]">Donor Base Segmentation (V3.2)</h3>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2 py-0.5 rounded-full border border-[#087F73]/20">
+                      Behavioral Tiers
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#667085] mt-0.5">
+                    Categorized by contribution size, giving frequency, and in-kind material donations
+                  </p>
+                </div>
+                <span className="text-xs font-bold text-slate-500">
+                  {dashboardData.donorSegmentation.totalDonors} Unique Donors Analyzed
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {dashboardData.donorSegmentation.breakdown?.map((seg) => {
+                  let badgeBg = 'bg-blue-50 text-blue-700 border-blue-200';
+                  if (seg.tier === 'Major Donors') badgeBg = 'bg-amber-50 text-amber-700 border-amber-200';
+                  if (seg.tier === 'Regular Donors') badgeBg = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                  if (seg.tier === 'In-Kind Donors') badgeBg = 'bg-purple-50 text-purple-700 border-purple-200';
+
+                  return (
+                    <div
+                      key={seg.tier}
+                      className="p-4 rounded-xl border border-gray-100 bg-slate-50/50 hover:bg-white hover:shadow-xs transition space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${badgeBg}`}>
+                          {seg.tier}
+                        </span>
+                        <span className="text-xs font-extrabold text-[#17243A]">
+                          {seg.percentage}% of base
+                        </span>
+                      </div>
+
+                      <div className="pt-1">
+                        <span className="text-2xl font-black text-[#17243A] block">
+                          {seg.count} <span className="text-xs font-normal text-slate-500">donors</span>
+                        </span>
+                        {seg.totalValue > 0 && (
+                          <span className="text-xs font-semibold text-[#087F73] block mt-0.5">
+                            ₹{seg.totalValue.toLocaleString('en-IN')} contributed
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-[11px] text-slate-500 leading-tight">
+                        {seg.criteria}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Version 3.2: Inventory Temporal Trends */}
+          {dashboardData.inventoryTrends && (
+            <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3.5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-[#17243A]">Resource Consumption Trends (V3.2)</h3>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2 py-0.5 rounded-full border border-[#087F73]/20">
+                      Temporal Demand
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#667085] mt-0.5">
+                    Historical warehouse throughput across essential community relief goods
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                {dashboardData.inventoryTrends.categoryConsumption?.map((cat) => (
+                  <div
+                    key={cat.category}
+                    className="p-3.5 rounded-xl border border-gray-100 bg-slate-50/60 text-xs space-y-1"
+                  >
+                    <p className="font-semibold text-[#17243A] truncate">{cat.category}</p>
+                    <p className="text-lg font-black text-[#087F73]">
+                      {cat.distributedUnits.toLocaleString('en-IN')} <span className="text-[10px] font-normal text-slate-500">units</span>
+                    </p>
+                    <span className="text-[10px] text-slate-400 block">Total Distributed</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Detailed Sub-Report Navigation */}
+          <div className="space-y-4 pt-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#17243A]">
-                Comprehensive Dedicated Reports Suite
-              </h3>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#EAF6F3] text-[#087F73]">
-                5 Granular Views
+              <div>
+                <h3 className="text-base font-bold text-[#17243A]">
+                  Detailed Analytical Reports
+                </h3>
+                <p className="text-xs text-[#667085] mt-0.5">
+                  Deep-dive views dedicated to individual module performance
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-[#087F73]">
+                5 Dedicated Portals
               </span>
             </div>
 

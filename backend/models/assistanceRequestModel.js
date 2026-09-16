@@ -256,19 +256,28 @@ const assistanceRequestModel = {
       .filter(w => w.length > 2 && !['and', 'for', 'the', 'with', 'from', 'need', 'needed', 'please', 'urgent'].includes(w));
     const tokens = Array.from(new Set(rawTokens));
 
+    // Parse requested numerical quantity if present
+    const numericMatch = (request.quantity_needed || '').match(/(\d+(\.\d+)?)/);
+    const neededNumber = numericMatch ? parseFloat(numericMatch[1]) : 1;
+
+    // Calculate days pending
+    const createdDate = request.created_at ? new Date(request.created_at) : new Date();
+    const daysPending = Math.max(0, Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)));
+
     const scoredItems = items.map(item => {
       let score = 0;
       const reasons = [];
       const itemCat = (item.category || '').toLowerCase().trim();
       const itemName = (item.name || '').toLowerCase().trim();
+      const qtyAvail = parseFloat(item.quantity_available) || 0;
 
-      // 1. Category match (+50 exact, +30 partial)
+      // 1. Category Exactness (+50 exact, +30 related)
       if (itemCat === reqCategory) {
         score += 50;
-        reasons.push(`Category: ${item.category}`);
+        reasons.push(`Exact Category Match: ${item.category}`);
       } else if (itemCat.includes(reqCategory) || reqCategory.includes(itemCat)) {
         score += 30;
-        reasons.push(`Category: ${item.category}`);
+        reasons.push(`Related Category: ${item.category}`);
       }
 
       // 2. Keyword matches in item name (+20 each)
@@ -280,32 +289,55 @@ const assistanceRequestModel = {
         }
       }
       if (matchedKeywords.length > 0) {
-        reasons.push(`Keywords: ${matchedKeywords.slice(0, 3).join(', ')}`);
+        reasons.push(`Keyword Match: ${matchedKeywords.slice(0, 3).join(', ')}`);
       }
 
       // 3. Category cross-mapping bonuses
-      if (reqCategory.includes('food') && (itemName.includes('grain') || itemName.includes('ration') || itemName.includes('meal'))) {
+      if (reqCategory.includes('food') && (itemName.includes('grain') || itemName.includes('ration') || itemName.includes('meal') || itemName.includes('rice') || itemName.includes('wheat'))) {
         score += 25;
-        if (!reasons.some(r => r.includes('Food'))) reasons.push('Food Relief Good');
+        if (!reasons.some(r => r.includes('Food'))) reasons.push('Essential Food Supply');
       }
-      if (reqCategory.includes('education') && (itemName.includes('school') || itemName.includes('study') || itemName.includes('kit'))) {
+      if (reqCategory.includes('education') && (itemName.includes('school') || itemName.includes('study') || itemName.includes('kit') || itemName.includes('book'))) {
         score += 25;
-        if (!reasons.some(r => r.includes('Education'))) reasons.push('Education Supply');
+        if (!reasons.some(r => r.includes('Education'))) reasons.push('Educational Material');
       }
-      if ((reqCategory.includes('health') || reqCategory.includes('medical')) && (itemName.includes('medical') || itemName.includes('first-aid') || itemName.includes('hygiene'))) {
+      if ((reqCategory.includes('health') || reqCategory.includes('medical')) && (itemName.includes('medical') || itemName.includes('first-aid') || itemName.includes('hygiene') || itemName.includes('sanitizer'))) {
         score += 25;
-        if (!reasons.some(r => r.includes('Medical'))) reasons.push('Medical & Health Supply');
+        if (!reasons.some(r => r.includes('Medical') || r.includes('Health'))) reasons.push('Healthcare & Hygiene Kit');
       }
+
+      // 4. Quantity Sufficiency (+20 full sufficiency, +10 partial)
+      let sufficiency = 'Partial';
+      if (qtyAvail >= neededNumber) {
+        score += 20;
+        sufficiency = 'Sufficient';
+        reasons.push(`Stock Sufficient (${qtyAvail} ${item.unit} >= ${neededNumber})`);
+      } else if (qtyAvail > 0) {
+        score += 10;
+        sufficiency = 'Partial';
+        reasons.push(`Partial Stock (${qtyAvail} ${item.unit} available)`);
+      }
+
+      // 5. Urgency & Pending Duration bonus (+15 if request pending > 2 days)
+      if (daysPending >= 2) {
+        score += 15;
+        reasons.push(`Pending Duration Priority (${daysPending} days awaiting relief)`);
+      }
+
+      const matchPercentage = Math.min(100, Math.round((score / 120) * 100));
 
       return {
         id: item.id,
         name: item.name,
         category: item.category,
         unit: item.unit,
-        quantity_available: parseFloat(item.quantity_available) || 0,
+        quantity_available: qtyAvail,
         low_stock_threshold: parseFloat(item.low_stock_threshold) || 0,
-        is_low_stock: (parseFloat(item.quantity_available) || 0) <= (parseFloat(item.low_stock_threshold) || 0),
+        is_low_stock: qtyAvail <= (parseFloat(item.low_stock_threshold) || 0),
         score,
+        matchPercentage,
+        sufficiency,
+        neededNumber,
         match_reasons: reasons
       };
     });
@@ -317,6 +349,7 @@ const assistanceRequestModel = {
     if (matches.length === 0) {
       matches = scoredItems.map(i => ({
         ...i,
+        matchPercentage: 40,
         match_reasons: ['Available Warehouse Supply']
       }));
     }

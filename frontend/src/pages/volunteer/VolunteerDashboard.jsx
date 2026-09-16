@@ -7,6 +7,8 @@ import Button from '../../components/Button';
 import Alert from '../../components/Alert';
 import NotificationBell from '../../components/NotificationBell';
 import FeedbackForm from '../../components/FeedbackForm';
+import PointsSummary from '../../components/PointsSummary';
+import BadgeDisplay from '../../components/BadgeDisplay';
 import { volunteerService, feedbackService, recommendationService } from '../../services/api';
 import { 
   LayoutDashboard, 
@@ -24,16 +26,19 @@ import {
   History,
   Star,
   Award,
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  Users
 } from 'lucide-react';
 
 export default function VolunteerDashboard() {
-  const { user } = useAuth();
+  const { user, login, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [suggestedTasks, setSuggestedTasks] = useState([]);
   const [volunteerSkills, setVolunteerSkills] = useState('');
   const [contributionSummary, setContributionSummary] = useState(null);
+  const [gamification, setGamification] = useState({ points: { totalPoints: 0, transactions: [] }, badges: [] });
   const [myFeedbackList, setMyFeedbackList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -54,11 +59,12 @@ export default function VolunteerDashboard() {
     setLoading(true);
     setError('');
     try {
-      const [tasksRes, summaryRes, feedbackRes, suggestionsRes] = await Promise.all([
+      const [tasksRes, summaryRes, feedbackRes, suggestionsRes, gamificationRes] = await Promise.all([
         volunteerService.getTasks(),
         volunteerService.getContributionSummary().catch(() => ({ data: { data: null } })),
         feedbackService.getMyFeedback({ target_type: 'VolunteerTask' }).catch(() => ({ data: { data: [] } })),
-        recommendationService.getSuggestedTasks().catch(() => ({ data: { tasks: [] } }))
+        recommendationService.getSuggestedTasks().catch(() => ({ data: { tasks: [] } })),
+        volunteerService.getMyGamification().catch(() => ({ data: { points: null, badges: [] } }))
       ]);
 
       if (tasksRes.data && tasksRes.data.success) {
@@ -69,6 +75,13 @@ export default function VolunteerDashboard() {
 
       setContributionSummary(summaryRes.data?.data || null);
       setMyFeedbackList(feedbackRes.data?.data || []);
+
+      if (gamificationRes.data && gamificationRes.data.success) {
+        setGamification({
+          points: gamificationRes.data.points || { totalPoints: 0, transactions: [] },
+          badges: gamificationRes.data.badges || []
+        });
+      }
 
       if (suggestionsRes.data && suggestionsRes.data.success) {
         setSuggestedTasks(suggestionsRes.data.tasks || []);
@@ -160,6 +173,20 @@ export default function VolunteerDashboard() {
     return new Date(b.created_at || 0) - new Date(a.created_at || 0);
   });
 
+  const handleSwitchToVolunteer = async () => {
+    try {
+      setLoading(true);
+      await logout();
+      const res = await login('volunteer@gmail.com', 'Password123');
+      if (res && res.success) {
+        window.location.reload();
+      }
+    } catch (e) {
+      console.error('Failed switching to volunteer:', e);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FAFAF9] flex">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} role="Volunteer" />
@@ -192,6 +219,34 @@ export default function VolunteerDashboard() {
 
         {/* Main Content */}
         <main className="p-4 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
+          {/* Admin Preview Mode Banner */}
+          {user?.role === 'Admin' && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/90 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-xl bg-amber-100 text-amber-800 shrink-0 mt-0.5">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-amber-950 text-sm flex items-center gap-2">
+                    Admin Preview Mode ({user?.name || 'Jia Patel'})
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900 font-extrabold">System Admin</span>
+                  </h4>
+                  <p className="text-amber-800 mt-1 leading-relaxed">
+                    You are currently previewing the volunteer workspace as an Admin. Active field deliveries, verified mission points, and unlocked milestone badges are linked to registered volunteers (such as <strong>Kavya Nair</strong>).
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleSwitchToVolunteer}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold transition shadow-xs shrink-0 cursor-pointer text-xs"
+              >
+                <Users className="w-4 h-4" />
+                Switch to Volunteer (Kavya Nair)
+              </button>
+            </div>
+          )}
+
           {error && (
             <Alert
               type="error"
@@ -246,6 +301,16 @@ export default function VolunteerDashboard() {
               </Link>
             </div>
           </div>
+
+          {/* Gamification: Points Ledger & Service Milestones (V3.2) */}
+          <PointsSummary
+            pointsData={gamification.points}
+            onOpenLeaderboard={() => window.location.href = '/leaderboard'}
+          />
+
+          {gamification.badges && gamification.badges.length > 0 && (
+            <BadgeDisplay badges={gamification.badges} />
+          )}
 
           {/* Activity Metrics Summary (V2.1) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">

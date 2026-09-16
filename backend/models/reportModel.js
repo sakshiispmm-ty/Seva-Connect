@@ -54,7 +54,205 @@ function formatDateKey(dateObj, groupBy = 'day') {
   }
 }
 
+// Short-TTL cache for dashboard overview aggregate
+let dashboardCache = {
+  data: null,
+  timestamp: 0,
+  key: ''
+};
+
+function clearDashboardCache() {
+  dashboardCache = { data: null, timestamp: 0, key: '' };
+}
+
 const reportModel = {
+  clearDashboardCache,
+
+  /**
+   * 8. Version 3.2: Donor Segmentation Analysis
+   */
+  async getDonorSegmentation() {
+    const isMySQL = getIsUsingMySQL();
+    let donations = [];
+    let users = [];
+
+    if (isMySQL) {
+      const [dRows] = await query("SELECT * FROM donations WHERE status IN ('Verified', 'Completed')");
+      const [uRows] = await query("SELECT id, name, email, role, created_at FROM users WHERE role = 'Donor'");
+      donations = dRows || [];
+      users = uRows || [];
+    } else {
+      donations = (readFallbackDonations() || []).filter(d => d.status === 'Verified' || d.status === 'Completed');
+      users = ((require('../config/db').readFallbackData && require('../config/db').readFallbackData()) || []).filter(u => u.role === 'Donor');
+    }
+
+    // Group donation records by donor_id or donor_email
+    const donorStats = new Map();
+
+    donations.forEach(d => {
+      const key = d.donor_id || d.donor_email || 'anonymous';
+      if (!donorStats.has(key)) {
+        donorStats.set(key, {
+          donorId: d.donor_id,
+          name: d.donor_name || 'Supporter',
+          email: d.donor_email,
+          totalAmount: 0,
+          donationCount: 0,
+          itemCount: 0,
+          types: new Set()
+        });
+      }
+      const st = donorStats.get(key);
+      st.donationCount += 1;
+      st.types.add(d.donation_type);
+      if (d.donation_type === 'Money') {
+        st.totalAmount += (parseFloat(d.amount) || 0);
+      } else {
+        st.itemCount += 1;
+      }
+    });
+
+    // Classify each donor
+    const segments = {
+      majorDonors: { label: 'Major Donors', criteria: '₹10,000+ Total Contributed', count: 0, totalValue: 0, donors: [] },
+      regularDonors: { label: 'Recurring / Regular Donors', criteria: '3+ Contributions', count: 0, totalValue: 0, donors: [] },
+      oneTimeDonors: { label: 'One-Time Donors', criteria: '1-2 Contributions (< ₹10,000)', count: 0, totalValue: 0, donors: [] },
+      itemDonors: { label: 'In-Kind Item Donors', criteria: 'Physical Goods & Relief Kits', count: 0, totalValue: 0, donors: [] }
+    };
+
+    donorStats.forEach(st => {
+      if (st.totalAmount >= 10000) {
+        segments.majorDonors.count += 1;
+        segments.majorDonors.totalValue += st.totalAmount;
+        segments.majorDonors.donors.push(st);
+      } else if (st.donationCount >= 3) {
+        segments.regularDonors.count += 1;
+        segments.regularDonors.totalValue += st.totalAmount;
+        segments.regularDonors.donors.push(st);
+      } else if (st.itemCount > 0 && st.totalAmount === 0) {
+        segments.itemDonors.count += 1;
+        segments.itemDonors.donors.push(st);
+      } else {
+        segments.oneTimeDonors.count += 1;
+        segments.oneTimeDonors.totalValue += st.totalAmount;
+        segments.oneTimeDonors.donors.push(st);
+      }
+    });
+
+    const totalTrackedDonors = donorStats.size || 1;
+    const breakdown = [
+      {
+        tier: 'Major Donors',
+        count: segments.majorDonors.count,
+        percentage: Math.round((segments.majorDonors.count / totalTrackedDonors) * 100),
+        totalValue: segments.majorDonors.totalValue,
+        criteria: 'Contributions exceeding ₹10,000'
+      },
+      {
+        tier: 'Regular Donors',
+        count: segments.regularDonors.count,
+        percentage: Math.round((segments.regularDonors.count / totalTrackedDonors) * 100),
+        totalValue: segments.regularDonors.totalValue,
+        criteria: '3 or more completed contributions'
+      },
+      {
+        tier: 'One-Time Donors',
+        count: segments.oneTimeDonors.count,
+        percentage: Math.round((segments.oneTimeDonors.count / totalTrackedDonors) * 100),
+        totalValue: segments.oneTimeDonors.totalValue,
+        criteria: '1 to 2 community contributions'
+      },
+      {
+        tier: 'In-Kind Donors',
+        count: segments.itemDonors.count,
+        percentage: Math.round((segments.itemDonors.count / totalTrackedDonors) * 100),
+        totalValue: 0,
+        criteria: 'Material relief goods & supply kits'
+      }
+    ];
+
+    return {
+      totalDonors: totalTrackedDonors,
+      breakdown,
+      segments: {
+        major: segments.majorDonors.count,
+        regular: segments.regularDonors.count,
+        oneTime: segments.oneTimeDonors.count,
+        inKind: segments.itemDonors.count
+      }
+    };
+  },
+
+  /**
+   * 9. Version 3.2: Inventory Temporal Trends
+   */
+  async getInventoryTrends() {
+    const isMySQL = getIsUsingMySQL();
+    let history = [];
+    let items = [];
+
+    if (isMySQL) {
+      const [hRows] = await query("SELECT * FROM inventory_history ORDER BY created_at ASC");
+      const [iRows] = await query("SELECT id, name, category, unit FROM inventory_items");
+      history = hRows || [];
+      items = iRows || [];
+    } else {
+      history = readFallbackInventoryHistory() || [];
+      items = readFallbackInventoryItems() || [];
+    }
+
+    const itemMap = new Map(items.map(i => [i.id, i]));
+
+    // Group distributions by month or week
+    const trendsByMonth = {};
+    const categoryTotals = {
+      'Food & Nutrition': 0,
+      'Medical & Healthcare': 0,
+      'Education': 0,
+      'Clothing & Shelter': 0,
+      'General Relief': 0
+    };
+
+    history.forEach(h => {
+      const dStr = h.created_at || '2026-08-01';
+      const monthKey = dStr.substring(0, 7); // YYYY-MM
+      if (!trendsByMonth[monthKey]) {
+        trendsByMonth[monthKey] = {
+          month: monthKey,
+          distributed: 0,
+          added: 0,
+          adjustments: 0
+        };
+      }
+
+      const item = itemMap.get(h.inventory_item_id);
+      const cat = item?.category || 'General Relief';
+      const qty = Math.abs(parseFloat(h.quantity_change) || 0);
+
+      if (h.change_type === 'Distributed' || h.change_type === 'Allocated') {
+        trendsByMonth[monthKey].distributed += qty;
+        if (categoryTotals[cat] !== undefined) {
+          categoryTotals[cat] += qty;
+        } else {
+          categoryTotals['General Relief'] += qty;
+        }
+      } else if (h.change_type === 'Added') {
+        trendsByMonth[monthKey].added += qty;
+      } else {
+        trendsByMonth[monthKey].adjustments += qty;
+      }
+    });
+
+    const monthlySeries = Object.values(trendsByMonth).sort((a, b) => a.month.localeCompare(b.month));
+
+    return {
+      monthlySeries,
+      categoryConsumption: Object.entries(categoryTotals).map(([cat, total]) => ({
+        category: cat,
+        distributedUnits: total
+      }))
+    };
+  },
   /**
    * 1. Donation Reports: Summary
    */
@@ -741,26 +939,41 @@ const reportModel = {
   },
 
   /**
-   * 6. Executive Dashboard Payload (combined overview)
+   * 6. Executive Dashboard Payload (combined overview with 30s TTL cache)
    */
   async getDashboardPayload({ startDate, endDate } = {}) {
+    const isDefaultQuery = !startDate && !endDate;
+    const now = Date.now();
+
+    if (isDefaultQuery && dashboardCache.data && (now - dashboardCache.timestamp < 30000)) {
+      return {
+        ...dashboardCache.data,
+        cached: true,
+        cacheAgeMs: now - dashboardCache.timestamp
+      };
+    }
+
     const [
       donationSummary,
       donationTrend,
       campaignsSummary,
       volunteersSummary,
       beneficiariesSummary,
-      inventorySummary
+      inventorySummary,
+      donorSegmentation,
+      inventoryTrends
     ] = await Promise.all([
       this.getDonationSummary({ startDate, endDate }),
       this.getDonationsByPeriod({ startDate, endDate, groupBy: 'day' }),
       this.getCampaignsSummary({ startDate, endDate }),
       this.getVolunteersSummary({ startDate, endDate }),
       this.getBeneficiariesSummary({ startDate, endDate }),
-      this.getInventorySummary()
+      this.getInventorySummary(),
+      this.getDonorSegmentation(),
+      this.getInventoryTrends()
     ]);
 
-    return {
+    const result = {
       summaryCards: {
         totalDonations: donationSummary.totalDonations,
         totalMoneyAmount: donationSummary.totalMoneyAmount,
@@ -773,6 +986,8 @@ const reportModel = {
       },
       donationTrend,
       donationTypeSplit: donationSummary.moneyVsItemSplit,
+      donorSegmentation,
+      inventoryTrends,
       campaignComparison: campaignsSummary.topByAmount.map(c => ({
         name: c.title.length > 20 ? c.title.substring(0, 18) + '...' : c.title,
         fullTitle: c.title,
@@ -793,6 +1008,13 @@ const reportModel = {
         distributed: cat.distributedStock
       }))
     };
+
+    if (isDefaultQuery) {
+      dashboardCache.data = result;
+      dashboardCache.timestamp = now;
+    }
+
+    return result;
   },
 
   /**
