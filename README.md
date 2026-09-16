@@ -1,162 +1,223 @@
 # SevaConnect — NGO Donation & Resource Management System
 
-> **"Connecting NGOs, Donors & Communities"**
+<p align="center">
+  <img src="frontend/public/assets/logo.png" alt="SevaConnect Logo" width="140" />
+</p>
+
+<p align="center">
+  <strong>"Connecting NGOs, Donors, Volunteers & Communities"</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-3.2.0-087F73?style=flat-square" alt="Version 3.2.0" />
+  <img src="https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite-087F73?style=flat-square" alt="React 19" />
+  <img src="https://img.shields.io/badge/Backend-Node.js%20%7C%20Express-05665D?style=flat-square" alt="Express" />
+  <img src="https://img.shields.io/badge/Database-MySQL%208.0%20%2B%20Failover-17243A?style=flat-square" alt="MySQL 8.0" />
+  <img src="https://img.shields.io/badge/Styling-Tailwind%20CSS%20v4-2EAD62?style=flat-square" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/License-ISC-F7BA3E?style=flat-square" alt="License" />
+</p>
 
 ---
 
-## 1. Project Description
-**SevaConnect** is a full-stack NGO Donation & Resource Management platform designed to bridge the trust gap between philanthropic donors, charitable non-governmental organizations (NGOs), and recipient communities. The platform provides a secure, role-based ecosystem where donors can view causes, manage contributions, and audit impacts, while NGO administrators can supervise operations, oversee registered members, and ensure resource allocation integrity.
+## 📌 1. Project Overview
+
+**SevaConnect** is a comprehensive, production-grade **Full-Stack NGO Donation, Volunteer Coordination & Resource Management System**. It bridges the transparency and trust gap between philanthropic donors, charitable NGOs, field volunteers, and distressed beneficiaries.
+
+The platform provides a secure, role-based operational ecosystem where:
+- **Donors** discover verified relief initiatives, contribute financial or in-kind supplies, track real-time delivery timelines, and download verifiable donation certificates.
+- **Volunteers** manage assigned field relief tasks, record deliveries, earn service points, unlock recognition badges, and track rankings on the community leaderboard.
+- **NGO Administrators** oversee campaigns, verify incoming contributions, dispatch warehouse inventories, allocate field tasks, inspect audit trails, analyze operational metrics, and manage user accounts.
+- **Beneficiaries** access essential disaster relief, medical aids, and educational resources through transparent request pipelines.
 
 ---
 
-## 2. Version 1.1 Scope
-**Version 1.1** is the **Foundation + Authentication stage**.
+## 👥 2. Core Ecosystem & User Roles
 
-### Included in V1.1:
-- Clean modular full-stack architecture (React + Vite frontend, Express REST API backend, MySQL database).
-- Official uploaded SevaConnect logo integrated without alteration across all screens.
-- Strict adherence to the official SevaConnect brand color palette.
-- Multi-user authentication & registration with zero artificial user limits.
-- Role-based authorization (`Donor` and `Admin`).
-- JWT (JSON Web Token) authentication with stateless session verification and HTTP Bearer tokens.
-- Password encryption using salted `bcrypt` hashes.
-- Responsive public Landing Page with Hero, About, How It Works, and Feature Roadmap cards.
-- Dedicated Donor Dashboard with real personalized welcome, profile summary, and preview cards.
-- Dedicated Admin Dashboard with real-time MySQL database user counts, donor statistics, system health, and registered user table.
-- User Profile management with validation (update Name and Phone; locked Email and Role).
-- Client-side and server-side route guards (unauthorized requests return 401/403).
-- Responsive design across desktop, laptop, tablet, and mobile viewports.
+```
+                      ┌─────────────────────────────────────────┐
+                      │               SevaConnect               │
+                      │          Platform Ecosystem             │
+                      └────────────────────┬────────────────────┘
+                                           │
+         ┌───────────────────┬─────────────┴─────────────┬───────────────────┐
+         ▼                   ▼                           ▼                   ▼
+    ┌──────────┐      ┌─────────────┐             ┌─────────────┐     ┌──────────────┐
+    │  Donors  │      │ Volunteers  │             │   Admins    │     │ Beneficiaries│
+    └────┬─────┘      └──────┬──────┘             └──────┬──────┘     └──────┬───────┘
+         │                   │                           │                   │
+  • Donate Funds      • Accept Tasks              • Verify Pledges    • Assistance
+  • Pledge In-Kind    • Deliver Supplies          • Manage Campaigns    Requests
+  • Track Receipts    • Earn Gamified Points      • Inventory Control • Aid Delivery
+  • Smart Suggestions • Unlock Badges & Ranks     • Audit Log & KPIs  • Status Tracking
+```
 
+### 1. 💝 Donors
+- **Campaign Discovery**: Browse categorized community drives (Education, Healthcare, Disaster Relief, Nutrition, Community Care).
+- **Dual Donation Pathways**:
+  - **Financial**: Direct monetary pledges with instant allocation tracking.
+  - **In-Kind Relief**: Material donations (food ration kits, blankets, medical kits, school supplies).
+- **Cryptographic Token Verification**: Instant unique transaction tokens (`#TKN-XXXXX`) for complete public or internal verification.
+- **Contribution Receipts**: On-demand printable and downloadable official NGO donation receipts.
+- **Smart Campaign Recommendations**: Intelligent suggestions matching past contribution patterns and urgent community deadlines.
+- **Community Feedback & Reviews**: Star ratings and qualitative feedback on campaigns.
 
+### 2. 🤝 Volunteers
+- **Task Dispatch Center**: Real-time assignment board with urgency tags (`High`, `Medium`, `Low`) and resolution deadlines.
+- **Mission Progression Workflow**: Transition tasks seamlessly from `Assigned` ➔ `In Progress` ➔ `Completed / Delivered`.
+- **Gamification & Points Engine**: Earn 25 to 100 volunteer service points per verified relief delivery.
+- **Recognition Badges**: Progressive service badges with criteria modals:
+  - 🏅 *First Steps* — First community delivery task.
+  - 🛡️ *Dedicated Helper* — 5 completed tasks.
+  - 🏆 *Community Champion* — 10+ completed tasks.
+  - 🔥 *Priority Hero* — 3+ high-priority emergency missions.
+  - ⚡ *Centurion* — 250+ volunteer points.
+  - 👑 *Legendary Volunteer* — 500+ volunteer points.
+- **Public Community Leaderboard**: Real-time ranked leaderboards with milestone filtration.
+- **Volunteer Skills Profile**: Registered skillsets and availability windows for targeted administrative dispatch.
 
-## 3. Technology Stack
+### 3. 🛡️ NGO Administrators
+- **Executive Operations Radar**: Unified dashboard summarizing real-time fundraising, pending verifications, active volunteers, and low-stock alerts.
+- **Donation Verification Suite**: Approve or reject monetary and material contributions with automated notification dispatch.
+- **Beneficiary Registry**: Central database of aid recipients with historic request profiles and household classifications.
+- **Assistance Request Lifecycle**: Multi-stage state machine (`Submitted` ➔ `Under Review` ➔ `Approved` ➔ `Resources Allocated` ➔ `Volunteer Assigned` ➔ `Completed`).
+- **Warehouse Inventory & Stock Movements**: Item catalog, minimum reorder thresholds, automated low-stock warnings, and historical stock logs.
+- **Deep Analytics & Reporting Suite**:
+  - Financial, Campaign, Volunteer velocity, and Beneficiary urgency reports.
+  - **Donor Base Segmentation**: Behavioral classification (Major Donors, Regular Donors, In-Kind Contributors).
+  - **Resource Consumption Trends**: Temporal demand forecasting across warehouse inventory.
+- **User Directory & Access Governance**:
+  - Role management (`Donor`, `Volunteer`, `Admin`) with automatic volunteer profile initialization.
+  - Soft-deactivation and reactivation of user accounts preserving database referential integrity.
+  - Self-demotion and self-deactivation protection for the active administrator.
+- **Immutable Administrative Audit Log**: Write-only tamper-evident audit trail capturing security-critical administrative actions.
 
-### Frontend:
-- **Framework**: React.js (v19) via Vite
-- **Routing**: React Router (v7)
-- **HTTP Client**: Axios (with Bearer token interceptor and 401 handling)
-- **Styling**: Tailwind CSS (v4) with custom theme tokens & CSS3
+### 4. 🤖 SevaBot — AI Assistant
+- App-wide interactive assistant powered by contextual NGO response algorithms.
+- Provides immediate answers regarding donation verification, volunteer onboarding, tax receipts, and relief requests.
+- Integrated quick-action links guiding users directly to relevant platform modules.
+
+---
+
+## 🛠️ 3. Technology Stack
+
+### Frontend
+- **Core**: React 19 (via Vite)
+- **Routing**: React Router v7
+- **Styling**: Tailwind CSS v4 & custom SevaConnect Design Tokens
 - **Icons**: Lucide React
-- **Typography**: Google Fonts (Inter)
+- **HTTP Client**: Axios (configured with JWT authorization interceptors and automated 401 handling)
+- **Charts & Data Viz**: Responsive CSS-based custom metric charts & visual data meters
+- **Typography**: Inter (Google Fonts)
 
-### Backend:
-- **Runtime**: Node.js
-- **Server**: Express.js
-- **Database Driver**: `mysql2/promise` (with connection pooling)
-- **Authentication**: `jsonwebtoken` (JWT)
-- **Security & Hashing**: `bcryptjs` (salt rounds: 10)
-- **Cross-Origin**: `cors`
-- **Environment**: `dotenv`
+### Backend
+- **Runtime**: Node.js (v18+)
+- **Framework**: Express.js
+- **Database Driver**: `mysql2/promise` with robust connection pooling
+- **Authentication**: Stateless JSON Web Tokens (`jsonwebtoken`)
+- **Encryption**: `bcryptjs` salted password hashing (10 salt rounds)
+- **CORS & Environment**: `cors`, `dotenv`
 
-### Database:
-- **Engine**: MySQL 8.0
-- **Database Name**: `sevaconnect`
-- **Tables**: `users`
+### Data Storage & Failover Architecture
+- **Primary Database**: MySQL 8.0 (Relational schema with foreign key constraints, indexes, and automated migration scripts).
+- **Persistent Local Failover Storage**: Built-in automated JSON failover emulator (`backend/data/*.json`) allowing full-featured operation without mandatory external database dependencies.
 
 ---
 
-## 4. Project Structure
+## 📁 4. Project Directory Structure
 
 ```
 SPM-SevaConnect/
 ├── backend/
 │   ├── config/
-│   │   └── db.js                 # MySQL pool connection, initialization & failover persistence
+│   │   ├── db.js                 # MySQL pool & persistent failover database engine
+│   │   └── jwtConfig.js          # JWT signing keys & expiration configuration
 │   ├── controllers/
-│   │   ├── authController.js     # Register, Login, Logout, Session verification
-│   │   ├── userController.js     # GET /api/users/profile, PUT /api/users/profile
-│   │   └── adminController.js    # GET /api/admin/users, GET /api/admin/stats
+│   │   ├── adminController.js    # User governance, statistics, audit logs
+│   │   ├── assistanceRequestController.js # Beneficiary assistance requests lifecycle
+│   │   ├── authController.js     # User registration, authentication, session
+│   │   ├── beneficiaryController.js # Beneficiary registry management
+│   │   ├── campaignController.js # Relief campaign creation and tracking
+│   │   ├── chatbotController.js  # SevaBot AI assistant response handler
+│   │   ├── donationController.js # Monetary & in-kind donation workflow
+│   │   ├── feedbackController.js # Campaign & task reviews and ratings
+│   │   ├── inventoryController.js# Warehouse stock catalog & movements
+│   │   ├── notificationController.js # In-app notifications & preference toggles
+│   │   ├── reportController.js   # Analytics, segmentation & temporal trends
+│   │   ├── userController.js     # User profile management
+│   │   └── volunteerController.js# Tasks, delivery verification, gamification
+│   ├── data/                     # Seeded JSON database records for failover storage
 │   ├── middleware/
-│   │   ├── authMiddleware.js     # verifyToken and requireRole('Admin')
-│   │   └── errorMiddleware.js    # 404 handler and safe global error response
-│   ├── models/
-│   │   └── userModel.js          # User database model abstraction & safe field projection
-│   ├── routes/
-│   │   ├── authRoutes.js         # /api/auth endpoints
-│   │   ├── userRoutes.js         # /api/users endpoints
-│   │   └── adminRoutes.js        # /api/admin endpoints
-│   ├── utils/
-│   │   ├── jwtUtils.js           # JWT signing & verification helper
-│   │   └── validationUtils.js    # Email, phone, role, and password validators
-│   ├── .env                      # Local environment configuration (DB credentials, secret)
-│   ├── .env.example              # Template configuration
-│   ├── package.json              # Backend dependencies & scripts
-│   ├── schema.sql                # MySQL database schema definition
-│   └── server.js                 # Express application entry point
+│   │   ├── authMiddleware.js     # Token verification & strict role-based route guards
+│   │   ├── errorMiddleware.js    # Centralized exception & HTTP error handler
+│   │   └── rateLimitMiddleware.js# Login brute-force protection
+│   ├── models/                   # Modular data access objects (DAOs)
+│   ├── routes/                   # Express REST API route definitions
+│   ├── utils/                    # JWT, validation, and analytics calculation utilities
+│   ├── schema.sql                # Complete MySQL 8.0 database schema
+│   ├── server.js                 # Express application entrypoint
+│   └── package.json
 ├── frontend/
 │   ├── public/
-│   │   └── assets/
-│   │       └── logo.png          # Official SevaConnect logo asset
+│   │   └── assets/               # Brand assets & logos
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── Alert.jsx         # Status notifications (success, error, warning)
-│   │   │   ├── Button.jsx        # Standard buttons with spinner loading states
-│   │   │   ├── Footer.jsx        # Responsive brand footer
-│   │   │   ├── Input.jsx         # Form input with validation feedback & icons
-│   │   │   ├── Navbar.jsx        # Navigation bar with responsive mobile menu
-│   │   │   ├── ProtectedRoute.jsx# Role-based route guard
-│   │   │   └── Sidebar.jsx       # Responsive dashboard navigation
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx   # Global auth state, user profile, login, logout
+│   │   ├── components/           # Reusable UI components (Navbar, Sidebar, Pagination, Modals)
+│   │   ├── context/              # Global AuthContext & session management
 │   │   ├── pages/
-│   │   │   ├── LandingPage.jsx   # Public landing page
-│   │   │   ├── LoginPage.jsx     # Login with credentials & role redirection
-│   │   │   ├── RegisterPage.jsx  # Multi-user registration with role selection
-│   │   │   ├── DonorDashboard.jsx# Donor portal with placeholder module cards
-│   │   │   ├── AdminDashboard.jsx# Admin portal with live database stats & user list
-│   │   │   └── ProfilePage.jsx   # View profile & update Name/Phone
+│   │   │   ├── admin/            # Admin suite (Analytics, Users, Requests, Inventory, etc.)
+│   │   │   ├── volunteer/        # Volunteer dashboard, task list, leaderboard, profile
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── DonorDashboard.jsx
+│   │   │   ├── LandingPage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── RegisterPage.jsx
+│   │   │   └── ProfilePage.jsx
 │   │   ├── services/
-│   │   │   └── api.js            # Axios client with JWT interceptor
-│   │   ├── App.jsx               # Routes definition
-│   │   ├── index.css             # Tailwind styling & SevaConnect brand tokens
-│   │   └── main.jsx              # React DOM entry
-│   ├── index.html
-│   ├── vite.config.js            # Vite configuration with proxy
+│   │   │   └── api.js            # Unified Axios client with API service modules
+│   │   ├── App.jsx               # Application routes & layout router
+│   │   ├── index.css             # Tailwind design tokens & utility classes
+│   │   └── main.jsx              # React DOM initialization
+│   ├── vite.config.js            # Vite configuration with API proxy
 │   └── package.json
 ├── README.md
-└── package.json                  # Root npm runner scripts
+└── package.json                  # Root runner scripts (concurrent execution)
 ```
 
 ---
 
-## 5. Prerequisites
-- **Node.js**: v18.0.0 or higher (v20+ recommended)
-- **npm**: v9.0.0 or higher
-- **MySQL Server**: v8.0 or compatible MariaDB instance
+## ⚡ 5. Quick Start Guide
+
+### Prerequisites
+- **Node.js**: `v18.0.0` or newer (`v20+` recommended)
+- **npm**: `v9.0.0` or newer
+- **MySQL** *(Optional)*: `v8.0+` (If MySQL is not installed, the platform automatically activates persistent local failover storage).
 
 ---
 
-## 6. MySQL Database Setup
-
-1. Make sure your MySQL Server is running.
-2. The backend will **automatically create** the database (`sevaconnect`) and `users` table on startup.
-3. If you prefer to manually initialize the schema via MySQL CLI or MySQL Workbench:
-   ```sql
-   CREATE DATABASE IF NOT EXISTS sevaconnect
-     CHARACTER SET utf8mb4
-     COLLATE utf8mb4_unicode_ci;
-
-   USE sevaconnect;
-
-   CREATE TABLE IF NOT EXISTS users (
-     id INT AUTO_INCREMENT PRIMARY KEY,
-     name VARCHAR(100) NOT NULL,
-     email VARCHAR(150) NOT NULL UNIQUE,
-     phone VARCHAR(20) NOT NULL,
-     password VARCHAR(255) NOT NULL,
-     role ENUM('Donor', 'Admin') NOT NULL DEFAULT 'Donor',
-     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-     INDEX idx_email (email),
-     INDEX idx_role (role)
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-   ```
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/sakshiispmm-ty/Seva-Connect.git
+cd Seva-Connect
+```
 
 ---
 
-## 7. Environment Variables
+### Step 2: Install Dependencies
+Run the root install script to install dependencies for both backend and frontend:
+```bash
+npm run install:all
+```
+*Or manually:*
+```bash
+cd backend && npm install
+cd ../frontend && npm install
+cd ..
+```
 
-In `backend/.env`:
+---
+
+### Step 3: Configure Environment Variables
+Create a `.env` file in the `backend/` directory (a template is provided in `backend/.env.example`):
+
 ```ini
 PORT=5000
 NODE_ENV=development
@@ -168,112 +229,184 @@ DB_USER=root
 DB_PASSWORD=your_mysql_password
 DB_NAME=sevaconnect
 
-# JWT Secret Key
-JWT_SECRET=sevaconnect_super_secure_jwt_secret_2026
+# JWT Secret
+JWT_SECRET=sevaconnect_production_secure_secret_key_2026
 JWT_EXPIRES_IN=7d
 ```
 
-> **Note**: An automatic persistent local failover storage is included in `backend/config/db.js`. If your local MySQL instance has a custom password, simply provide it in `backend/.env` and restart the backend server to communicate directly with MySQL.
+> **Note:** If MySQL credentials are not configured or connection fails, the system automatically logs a notice and seamlessly runs on persistent failover storage without crashing.
 
 ---
 
-## 8. Backend Installation
-```bash
-cd backend
-npm install
-```
+### Step 4: Run the Application
 
----
-
-## 9. Frontend Installation
-```bash
-cd frontend
-npm install
-```
-
----
-
-## 10. How to Run Backend
+#### Option A: Run Both Services Concurrently (Recommended)
 From the root directory:
 ```bash
-npm run server
-```
-Or from the `backend/` directory:
-```bash
-cd backend
-node server.js
-```
-The backend API starts on `http://localhost:5000`.
-
----
-
-## 11. How to Run Frontend
-From the root directory:
-```bash
-npm run client
-```
-Or from the `frontend/` directory:
-```bash
-cd frontend
 npm run dev
 ```
-The Vite development application will be available at `http://localhost:5173`.
+
+#### Option B: Run Services Individually
+- **Backend API**:
+  ```bash
+  cd backend
+  npm run dev
+  ```
+  *Backend server runs at: `http://localhost:5000`*
+
+- **Frontend Client**:
+  ```bash
+  cd frontend
+  npm run dev
+  ```
+  *Frontend application opens at: `http://localhost:5173`*
 
 ---
 
-## 12. API Overview
+## 🔑 6. Pre-Configured Demo Accounts
 
-### Authentication (`/api/auth`)
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Public | Registers a new user (`Donor` or `Admin`). Password is encrypted via bcrypt. |
-| `POST` | `/api/auth/login` | Public | Authenticates credentials, generates and returns a signed JWT. |
-| `POST` | `/api/auth/logout` | Public | Acknowledges session termination. |
-| `GET` | `/api/auth/me` | Authenticated | Retrieves current authenticated session user. |
+Use any of the following pre-seeded accounts to explore the platform across different roles:
 
-### User Profile (`/api/users`)
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/users/profile` | Authenticated | Returns profile of currently authenticated user (no passwords). |
-| `PUT` | `/api/users/profile` | Authenticated | Updates authenticated user's `name` and `phone`. (Email and Role are protected). |
+| Role | Name | Email | Password | Access Capabilities |
+| :--- | :--- | :--- | :--- | :--- |
+| **Admin** | Sakshi | `sakshiispmm@gmail.com` | `admin123` | Full administrative control, analytics, audit log |
+| **Admin** | Jia Patel | `pateljiaa16@gmail.com` | `admin123` | Full administrative control, analytics, audit log |
+| **Admin** | Sanjana Patel | `sanjanapatelspm@gmail.com` | `admin123` | Full administrative control, analytics, audit log |
+| **Admin** | Shreeya | `shreeyaspm31@gmail.com` | `admin123` | Full administrative control, analytics, audit log |
+| **Volunteer** | Vikram Joshi | `vikram.volunteer@gmail.com` | `volunteer123` | Tasks, delivery completion, badges, leaderboard |
+| **Volunteer** | Kavya Nair | `volunteer@gmail.com` | `volunteer123` | Tasks, delivery completion, badges, leaderboard |
+| **Donor** | Rohit Verma | `rohit.verma@gmail.com` | `donor123` | Monetary/Item donations, receipts, recommendations |
+| **Donor** | Manisha Shah | `manisha@gmail.com` | `donor123` | Monetary/Item donations, receipts, recommendations |
 
-### Administration (`/api/admin`)
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/admin/users` | Admin Only | Returns all registered users from MySQL (never exposes passwords/hashes). |
-| `GET` | `/api/admin/stats` | Admin Only | Returns live database counts (`totalUsers`, `totalDonors`, `totalAdmins`) and status. |
+*(You can also register brand-new accounts directly through the `/register` portal with immediate login access).*
 
 ---
 
-## 13. Authentication & Security Architecture
+## 🌐 7. Complete API Reference
 
-1. **Password Protection**:
-   - Passwords are encrypted before database insertion using `bcryptjs` with 10 salt rounds.
-   - Passwords and password hashes are **never returned** in any API response or stored in frontend memory.
-2. **Stateless JWT Tokens**:
-   - On successful login, the server issues a signed JWT containing `{ id, email, role }`.
-   - The token expiration is set to 7 days by default.
-3. **Role-Based Access Control**:
-   - Server-side middleware verifies the user's role on each protected request by querying the active database record.
-   - A `Donor` cannot access `/api/admin/*` endpoints and will receive an HTTP `403 Forbidden` error.
-4. **Client-side Guards**:
-   - `ProtectedRoute.jsx` intercepts unauthenticated attempts to access `/donor`, `/admin`, or `/profile`, redirecting to `/login`.
-   - A `Donor` attempting to visit `/admin` in the browser is automatically redirected to `/donor`.
-5. **No Artificial Limits**:
-   - Multiple users can register and login simultaneously without limits. Every user maintains an independent session.
+### 🔐 Authentication (`/api/auth`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Public | Register new user account (`Donor`, `Volunteer`, `Admin`). |
+| `POST` | `/api/auth/login` | Public | Authenticate credentials and receive signed JWT. |
+| `POST` | `/api/auth/logout` | Public | Invalidate current session. |
+| `GET` | `/api/auth/me` | Authenticated | Retrieve session profile of active user. |
+
+### 📢 Campaigns (`/api/campaigns`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/campaigns` | Public | List all active campaigns with optional search, category, and pagination. |
+| `GET` | `/api/campaigns/:id` | Public | Retrieve single campaign details, progress percentage, and donor reviews. |
+| `POST` | `/api/campaigns` | Admin | Create a new community relief campaign. |
+| `PUT` | `/api/campaigns/:id` | Admin | Update campaign parameters, target goals, or status. |
+
+### 🎁 Donations (`/api/donations`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/donations` | Authenticated | Submit monetary or in-kind donation pledge. |
+| `GET` | `/api/donations/my` | Authenticated | Retrieve personal donation history with receipt links. |
+| `GET` | `/api/donations/verify/:token` | Public | Verify authenticity of any donation using its token. |
+| `GET` | `/api/donations` | Admin | List all donations with status, campaign, and date filters. |
+| `PUT` | `/api/donations/:id/verify` | Admin | Approve and verify incoming donation contribution. |
+| `PUT` | `/api/donations/:id/reject` | Admin | Reject invalid or fraudulent donation submission. |
+
+### 🤝 Volunteers & Gamification (`/api/volunteers`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/volunteers/profile` | Volunteer | Retrieve volunteer skills and availability profile. |
+| `PUT` | `/api/volunteers/profile` | Volunteer | Update skills, schedule, and on-call status. |
+| `GET` | `/api/volunteers/tasks` | Volunteer | List assigned community relief delivery tasks. |
+| `PUT` | `/api/volunteers/tasks/:id/status` | Volunteer | Update task progression (`In Progress`, `Completed`). |
+| `GET` | `/api/volunteers/leaderboard` | Public | Ranked leaderboard sorted by service points & deliveries. |
+| `GET` | `/api/volunteers/:id/badges` | Authenticated | Retrieve earned badges and recognition milestones. |
+| `GET` | `/api/volunteers/me/gamification` | Volunteer | Retrieve points balance, badges, and recent transactions. |
+
+### 📦 Beneficiaries & Requests (`/api/beneficiaries`, `/api/assistance-requests`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/beneficiaries` | Admin | Search and list registered beneficiaries. |
+| `POST` | `/api/beneficiaries` | Admin | Register new beneficiary household. |
+| `GET` | `/api/assistance-requests` | Admin | List requests with multi-attribute filtering. |
+| `POST` | `/api/assistance-requests` | Public / Admin | Submit community assistance request. |
+| `PUT` | `/api/assistance-requests/:id/status` | Admin | Update request status through the operational pipeline. |
+| `PUT` | `/api/assistance-requests/:id/allocate` | Admin | Allocate warehouse inventory to request. |
+| `PUT` | `/api/assistance-requests/:id/assign` | Admin | Assign volunteer to transport and deliver supplies. |
+
+### 🏬 Warehouse Inventory (`/api/inventory`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/inventory` | Admin | View stock catalog, quantities, and low-stock alerts. |
+| `POST` | `/api/inventory` | Admin | Add new inventory item to warehouse catalog. |
+| `POST` | `/api/inventory/:id/stock-in` | Admin | Record inward supply shipment. |
+| `POST` | `/api/inventory/:id/stock-out` | Admin | Record dispatch or damaged stock deduction. |
+| `GET` | `/api/inventory/:id/history` | Admin | View historical item transactions audit log. |
+
+### 📊 Reports & Deep Analytics (`/api/reports`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/reports/dashboard` | Admin | Comprehensive operational analytics payload. |
+| `GET` | `/api/reports/insights` | Admin | Intelligent automated pattern observations. |
+| `GET` | `/api/reports/donors/segmentation` | Admin | Behavioral donor tier segmentation analysis. |
+| `GET` | `/api/reports/inventory/temporal-trends` | Admin | Historical inventory throughput and demand trends. |
+
+### 🛡️ Admin Governance (`/api/admin`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/admin/users` | Admin | Paginated user directory with role and status filters. |
+| `PUT` | `/api/admin/users/:id/role` | Admin | Change user role (`Donor`, `Volunteer`, `Admin`). |
+| `PUT` | `/api/admin/users/:id/deactivate` | Admin | Soft-deactivate user account. |
+| `PUT` | `/api/admin/users/:id/reactivate` | Admin | Restore deactivated user account. |
+| `GET` | `/api/admin/audit-log` | Admin | Immutable administrative audit log with search. |
+| `GET` | `/api/admin/stats` | Admin | System status, database health, live user counts. |
+
+### 🔔 Notifications & Preferences (`/api/notifications`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/notifications` | Authenticated | Retrieve personal notifications with unread count. |
+| `PUT` | `/api/notifications/:id/read` | Authenticated | Mark individual notification as read. |
+| `PUT` | `/api/notifications/read-all` | Authenticated | Mark all notifications as read. |
+| `GET` | `/api/notifications/preferences` | Authenticated | Retrieve notification category and digest preferences. |
+| `PUT` | `/api/notifications/preferences` | Authenticated | Update notification toggles and digest cadence. |
 
 ---
 
-## 14. Brand Colors
+## 🎨 8. Design System & Brand Palette
 
-| Color Name | Hex Code | Usage |
+SevaConnect uses a carefully curated color palette designed for high legibility, warmth, and trust:
+
+| Token Name | Hex Code | Purpose & Usage |
 | :--- | :--- | :--- |
-| **Primary Teal** | `#087F73` | Navbar, branding, primary buttons & accents |
-| **Dark Teal** | `#05665D` | Hover states, dark card headers |
-| **Fresh Green** | `#2EAD62` | Success badges, highlight indicators |
-| **Light Mint** | `#EAF6F3` | Page background, card backgrounds |
-| **Golden Yellow**| `#F7BA3E` | High-priority CTA buttons |
-| **Light Yellow** | `#FFF4D6` | Notification badges |
-| **Dark Navy** | `#17243A` | Headings, primary text, dark footer |
-| **Muted Grey** | `#667085` | Secondary text, placeholders, icons |
-| **White** | `#FFFFFF` | Cards, forms, clean containers |
+| **Primary Teal** | `#087F73` | Main brand identity, navigation bar, primary action buttons, key accents |
+| **Dark Teal** | `#05665D` | Hover states, active pressed buttons, dark container headers |
+| **Fresh Green** | `#2EAD62` | Verified status badges, completed tasks, positive metric growths |
+| **Light Mint** | `#EAF6F3` | Soft background tints, active tab highlights, badge backgrounds |
+| **Golden Yellow** | `#F7BA3E` | High-priority CTAs, gamification points, achievement stars |
+| **Light Yellow** | `#FFF4D6` | Notification alerts, warning indicators, urgent deadlines |
+| **Dark Navy** | `#17243A` | Page headings, primary high-contrast typography, dark footers |
+| **Muted Slate** | `#667085` | Subtitles, helper text, input placeholders, secondary icons |
+| **Pure White** | `#FFFFFF` | Card surfaces, modal sheets, elevated panels |
+
+---
+
+## 🔒 9. Security & Data Integrity
+
+- **Encrypted Credentials**: Passwords are protected using `bcryptjs` with 10 salt rounds before storage.
+- **Role-Based Access Control (RBAC)**: Enforced via `requireRole` middleware on the backend and `<ProtectedRoute>` route wrappers on the frontend.
+- **Session Integrity**: Stateless JWT tokens validated against active database user records on every authenticated call.
+- **Self-Protection Guards**: Active administrators cannot demote or deactivate their own active accounts.
+- **Immutable Audit Logging**: Security-relevant actions (role changes, account deactivations, inventory dispatches) are logged immutably with administrator IDs, timestamps, and IP addresses.
+- **Safe SQL Projections**: User queries strictly exclude password hashes from API responses.
+
+---
+
+## 📄 10. License & Credits
+
+- **Project**: SevaConnect NGO Donation & Resource Management System
+- **Authors**: SPM SevaConnect Team
+- **License**: ISC License
+
+---
+
+<p align="center">
+  Built with ❤️ for non-profit organizations, selfless volunteers, and compassionate donors worldwide.
+</p>
