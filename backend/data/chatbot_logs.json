@@ -1,0 +1,345 @@
+[
+  {
+    "id": 1,
+    "user_id": null,
+    "message": "How do I donate?",
+    "response": "To make a contribution on SevaConnect:\n\n1. Browse through our active causes on the **Campaigns** page or click **Donate Now** in the navigation bar.\n2. Select whether you'd like to pledge **Monetary Funds** or **Physical Relief Items** (e.g. food rations, blankets, study kits).\n3. Enter the donation amount or item details, provide your contact details, and submit your pledge.\n4. You will receive a unique tracking token (e.g., DON-...). Once verified by our administrators, you can download your official **80G Tax Exemption Receipt** from your Donor Dashboard!\n\n*(Note: SevaConnect is an informational management system; donations are verified by our team rather than processed through an automated payment gateway).* ",
+    "created_at": "2026-09-16T10:04:46.605Z"
+  },
+  {
+    "id": 2,
+    "user_id": null,
+    "message": "What campaigns are currently active?",
+    "response": "Here are the verified grassroots campaigns currently active on SevaConnect:\n\n1. \"Winter Clothes & Blanket Drive for Homeless Families\" (Category: Community Care, Target Goal: ₹50,000, Deadline: 2026-08-31)\n2. \"Rural Mobile Medical Van & Diagnostic Health Camps\" (Category: Healthcare, Target Goal: ₹2,50,000, Deadline: 2026-11-30)\n3. \"Daily Malnutrition Prevention & Midday Meal Drive\" (Category: Nutrition, Target Goal: ₹1,80,000, Deadline: 2026-12-15)\n4. \"Senior Citizen Warmth & Community Care Outreach\" (Category: Community Care, Target Goal: ₹1,20,000, Deadline: 2026-11-20)\n5. \"Emergency Flood Relief & Food Ration Kits\" (Category: Disaster Relief, Target Goal: ₹3,00,000, Deadline: 2026-10-15)\n6. \"Clean Drinking Water & Sanitation Well Project\" (Category: Healthcare, Target Goal: ₹2,20,000, Deadline: 2026-11-30)\n7. \"Slum Child Education & Evening Nutrition Drive\" (Category: Education, Target Goal: ₹1,50,000, Deadline: 2026-12-31)\n\nYou can view full details, progress bars, and make contributions on our **Campaigns** page.",
+    "created_at": "2026-09-16T10:05:27.670Z"
+  },
+  {
+    "id": 3,
+    "user_id": null,
+    "message": "ping 1",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.801Z"
+  },
+  {
+    "id": 4,
+    "user_id": null,
+    "message": "ping 2",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.827Z"
+  },
+  {
+    "id": 5,
+    "user_id": null,
+    "message": "ping 3",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.854Z"
+  },
+  {
+    "id": 6,
+    "user_id": null,
+    "message": "ping 4",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.869Z"
+  },
+  {
+    "id": 7,
+    "user_id": null,
+    "message": "ping 5",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.887Z"
+  },
+  {
+    "id": 8,
+    "user_id": null,
+    "message": "ping 6",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.905Z"
+  },
+  {
+    "id": 9,
+    "user_id": null,
+    "message": "ping 7",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.920Z"
+  },
+  {
+    "id": 10,
+    "user_id": null,
+    "message": "ping 8",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.936Z"
+  },
+  {
+    "id": 11,
+    "user_id": null,
+    "message": "ping 9",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.954Z"
+  },
+  {
+    "id": 12,
+    "user_id": null,
+    "message": "ping 10",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.970Z"
+  },
+  {
+    "id": 13,
+    "user_id": null,
+    "message": "ping 11",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.985Z"
+  },
+  {
+    "id": 14,
+    "user_id": null,
+    "message": "ping 12",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:43.999Z"
+  },
+  {
+    "id": 15,
+    "user_id": null,
+    "message": "ping 13",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:44.019Z"
+  },
+  {
+    "id": 16,
+    "user_id": null,
+    "message": "ping 14",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:44.037Z"
+  },
+  {
+    "id": 17,
+    "user_id": null,
+    "message": "ping 15",
+    "response": "SevaConnect is a community-driven NGO Donation and Resource Management platform connecting donors, volunteers, and grassroots beneficiaries.\n\nHere are common things I can assist you with:\n• **How to Donate**: Explain monetary pledges and relief item donations.\n• **Volunteer Onboarding**: How to set up your profile and receive delivery tasks.\n• **Assistance Requests**: How beneficiaries can submit requests for food, medical, or educational aid.\n• **Active Campaigns**: List currently active verified appeals.\n• **Verification & 80G Receipts**: How donations are audited and receipts issued.\n\nFeel free to ask any specific question!",
+    "created_at": "2026-09-16T10:06:44.052Z"
+  },
+  {
+    "id": 18,
+    "user_id": null,
+    "message": "What is SevaConnect?",
+    "response": "**About SevaConnect:**\n\nSevaConnect is an integrated **NGO Donation & Resource Management System** designed to bridge the trust and logistical gaps between donors, grassroots NGOs, and community beneficiaries.\n\n**Core Capabilities:**\n• **For Donors:** Explore verified relief campaigns, pledge monetary funds or physical relief goods, track donation progress in real-time, and download 80G tax exemption receipts.\n• **For Beneficiaries:** Directly submit assistance requests for essential relief (food, winter clothing, medical aid, study kits).\n• **For Volunteers:** Onboard with verified skill profiles, receive delivery assignments, and confirm doorstep deliveries.\n• **For Administrators:** Verify pledges, allocate warehouse resources, manage campaigns, inspect real-time inventory, and analyze executive reports.",
+    "created_at": "2026-09-16T10:25:12.960Z"
+  },
+  {
+    "id": 19,
+    "user_id": null,
+    "message": "What roles are on this website?",
+    "response": "**SevaConnect User Roles & Access Levels:**\n\n1. **Donor (Portal: `/donor`):**\n   • Can pledge money or relief items to active campaigns.\n   • View donation timeline and audit history (`/donor/history`).\n   • Download official 80G tax receipts for verified contributions.\n   • Submit feedback and ratings on verified contributions.\n   • Receive personalized campaign recommendations.\n\n2. **Volunteer (Portal: `/volunteer`):**\n   • Complete skill and availability profile (`/volunteer/profile`).\n   • View assigned community relief delivery tasks.\n   • Update task statuses ('In Progress', 'Delivered').\n   • View total service hours, completed tasks, and impact summary (`/volunteer/history`).\n\n3. **Administrator (Portal: `/admin`):**\n   • Oversee campaigns, verify/reject donations, and manage users.\n   • Review beneficiary assistance requests and allocate warehouse inventory.\n   • Assign delivery tasks to registered volunteers.\n   • Manage real-time inventory and monitor low-stock thresholds.\n   • Access executive analytics, audit logs, and intelligent pattern insights.",
+    "created_at": "2026-09-16T10:25:13.071Z"
+  },
+  {
+    "id": 20,
+    "user_id": null,
+    "message": "How do I download my 80G tax receipt?",
+    "response": "**80G Tax Exemption Receipts on SevaConnect:**\n\n• **Eligibility:** All verified monetary donations made to registered campaigns are eligible for 50% tax deduction under Section 80G of the Income Tax Act.\n• **How to Download:**\n  1. Log in to your account and go to **My Donations** (`/donor/history`).\n  2. Find any donation marked with the **Verified** or **Completed** badge.\n  3. Click **Download 80G Receipt** to obtain your official printable receipt.\n• **Digital Validation:** Each receipt includes an embedded QR validation code linking to the real-time donation verification audit.",
+    "created_at": "2026-09-16T10:25:13.116Z"
+  },
+  {
+    "id": 21,
+    "user_id": null,
+    "message": "How does the centralized inventory work?",
+    "response": "**Centralized Inventory & Stock Tracking (`/admin/inventory`):**\n\n• **Real-Time Warehouse Stock:** Tracks emergency relief items (e.g. *Family Ration Kits, Thermal Blankets, First-Aid Boxes, Hygiene Packs, Remedial Study Kits*).\n• **Stock Quantities:** Displays available stock, distributed stock, and total inventory.\n• **Low Stock Alerts:** Automatically warns administrators when available stock falls at or below the predefined minimum reorder threshold.\n• **Manual Stock Adjustments:** Admins can record additions (new supplies) or deductions with reason codes and audit tracking.\n• **Transaction History:** Full historical log of all additions, allocations, and manual adjustments.",
+    "created_at": "2026-09-16T10:25:13.161Z"
+  },
+  {
+    "id": 22,
+    "user_id": null,
+    "message": "What are the intelligent analytics insights in version 3.1?",
+    "response": "**Version 3.1 Intelligent Analytics & Executive Reports (`/admin/analytics`):**\n\n• **Donation Momentum:** Month-over-month percentage growth comparisons and fastest-growing campaign categories.\n• **Top Demanded Aid:** Identifies the highest-frequency assistance request categories across grassroots communities.\n• **Inventory Depletion Velocity:** Ranks supplies by allocation-to-availability ratio, flagging fastest-depleting relief items.\n• **Executive Insights Panel:** Displays automated plain-language pattern statements alongside comprehensive interactive charts (Donation Trend, Channel Split, Category Distribution).",
+    "created_at": "2026-09-16T10:25:13.207Z"
+  },
+  {
+    "id": 23,
+    "user_id": null,
+    "message": "How do I reset my password?",
+    "response": "I am **SevaBot**, your complete guide to the **SevaConnect NGO Donation & Resource Management System**.\n\nI can answer questions on any of the following topics:\n• **Donations:** How to pledge money or items, 80G tax exemption receipts, donation verification timeline.\n• **Campaigns:** Current active grassroots campaigns, education, healthcare, and nutrition initiatives.\n• **Volunteers:** Registration, skills setup, assigned delivery tasks, service hours, and history.\n• **Beneficiaries:** Submitting assistance requests, request approval pipeline, and status tracking.\n• **Inventory:** Centralized warehouse inventory, available stock, low-stock threshold alerts.\n• **Analytics & Insights:** Executive reports, donation trends, and V3.1 intelligent pattern insights.\n• **Accounts & Roles:** Logging in, password recovery, profile editing, and role permissions.\n\nWhat specific feature or topic would you like to explore?",
+    "created_at": "2026-09-16T10:25:13.244Z"
+  },
+  {
+    "id": 24,
+    "user_id": null,
+    "message": "How do volunteers mark a delivery complete?",
+    "response": "I am **SevaBot**, your complete guide to the **SevaConnect NGO Donation & Resource Management System**.\n\nI can answer questions on any of the following topics:\n• **Donations:** How to pledge money or items, 80G tax exemption receipts, donation verification timeline.\n• **Campaigns:** Current active grassroots campaigns, education, healthcare, and nutrition initiatives.\n• **Volunteers:** Registration, skills setup, assigned delivery tasks, service hours, and history.\n• **Beneficiaries:** Submitting assistance requests, request approval pipeline, and status tracking.\n• **Inventory:** Centralized warehouse inventory, available stock, low-stock threshold alerts.\n• **Analytics & Insights:** Executive reports, donation trends, and V3.1 intelligent pattern insights.\n• **Accounts & Roles:** Logging in, password recovery, profile editing, and role permissions.\n\nWhat specific feature or topic would you like to explore?",
+    "created_at": "2026-09-16T10:25:13.277Z"
+  },
+  {
+    "id": 25,
+    "user_id": null,
+    "message": "Can I pay online with a credit card?",
+    "response": "**Payment & Transaction Policy:**\n\nSevaConnect operates on a **verified pledge-based system** rather than an automated commercial payment gateway:\n• Donors submit official monetary or material pledges through the platform.\n• Direct bank transfers or relief pickups are verified by administrative auditors.\n• Once cross-checked, the donation status is updated to 'Verified', and an audited 80G Tax Exemption Certificate is generated.\nThis model ensures direct accountability without intermediary transaction fees diminishing grassroots relief impact.",
+    "created_at": "2026-09-16T10:25:13.311Z"
+  },
+  {
+    "id": 26,
+    "user_id": null,
+    "message": "What is SevaConnect?",
+    "response": "**About SevaConnect:**\n\nSevaConnect is an integrated **NGO Donation & Resource Management System** designed to bridge the trust and logistical gaps between donors, grassroots NGOs, and community beneficiaries.\n\n**Core Capabilities:**\n• **For Donors:** Explore verified relief campaigns, pledge monetary funds or physical relief goods, track donation progress in real-time, and download 80G tax exemption receipts.\n• **For Beneficiaries:** Directly submit assistance requests for essential relief (food, winter clothing, medical aid, study kits).\n• **For Volunteers:** Onboard with verified skill profiles, receive delivery assignments, and confirm doorstep deliveries.\n• **For Administrators:** Verify pledges, allocate warehouse resources, manage campaigns, inspect real-time inventory, and analyze executive reports.",
+    "created_at": "2026-09-16T10:25:55.049Z"
+  },
+  {
+    "id": 27,
+    "user_id": null,
+    "message": "What roles are on this website?",
+    "response": "**SevaConnect User Roles & Access Levels:**\n\n1. **Donor (Portal: `/donor`):**\n   • Can pledge money or relief items to active campaigns.\n   • View donation timeline and audit history (`/donor/history`).\n   • Download official 80G tax receipts for verified contributions.\n   • Submit feedback and ratings on verified contributions.\n   • Receive personalized campaign recommendations.\n\n2. **Volunteer (Portal: `/volunteer`):**\n   • Complete skill and availability profile (`/volunteer/profile`).\n   • View assigned community relief delivery tasks.\n   • Update task statuses ('In Progress', 'Delivered').\n   • View total service hours, completed tasks, and impact summary (`/volunteer/history`).\n\n3. **Administrator (Portal: `/admin`):**\n   • Oversee campaigns, verify/reject donations, and manage users.\n   • Review beneficiary assistance requests and allocate warehouse inventory.\n   • Assign delivery tasks to registered volunteers.\n   • Manage real-time inventory and monitor low-stock thresholds.\n   • Access executive analytics, audit logs, and intelligent pattern insights.",
+    "created_at": "2026-09-16T10:25:55.101Z"
+  },
+  {
+    "id": 28,
+    "user_id": null,
+    "message": "How do I download my 80G tax receipt?",
+    "response": "**80G Tax Exemption Receipts on SevaConnect:**\n\n• **Eligibility:** All verified monetary donations made to registered campaigns are eligible for 50% tax deduction under Section 80G of the Income Tax Act.\n• **How to Download:**\n  1. Log in to your account and go to **My Donations** (`/donor/history`).\n  2. Find any donation marked with the **Verified** or **Completed** badge.\n  3. Click **Download 80G Receipt** to obtain your official printable receipt.\n• **Digital Validation:** Each receipt includes an embedded QR validation code linking to the real-time donation verification audit.",
+    "created_at": "2026-09-16T10:25:55.139Z"
+  },
+  {
+    "id": 29,
+    "user_id": null,
+    "message": "How does the centralized inventory work?",
+    "response": "**Centralized Inventory & Stock Tracking (`/admin/inventory`):**\n\n• **Real-Time Warehouse Stock:** Tracks emergency relief items (e.g. *Family Ration Kits, Thermal Blankets, First-Aid Boxes, Hygiene Packs, Remedial Study Kits*).\n• **Stock Quantities:** Displays available stock, distributed stock, and total inventory.\n• **Low Stock Alerts:** Automatically warns administrators when available stock falls at or below the predefined minimum reorder threshold.\n• **Manual Stock Adjustments:** Admins can record additions (new supplies) or deductions with reason codes and audit tracking.\n• **Transaction History:** Full historical log of all additions, allocations, and manual adjustments.",
+    "created_at": "2026-09-16T10:25:55.187Z"
+  },
+  {
+    "id": 30,
+    "user_id": null,
+    "message": "What are the intelligent analytics insights in version 3.1?",
+    "response": "**Version 3.1 Intelligent Analytics & Executive Reports (`/admin/analytics`):**\n\n• **Donation Momentum:** Month-over-month percentage growth comparisons and fastest-growing campaign categories.\n• **Top Demanded Aid:** Identifies the highest-frequency assistance request categories across grassroots communities.\n• **Inventory Depletion Velocity:** Ranks supplies by allocation-to-availability ratio, flagging fastest-depleting relief items.\n• **Executive Insights Panel:** Displays automated plain-language pattern statements alongside comprehensive interactive charts (Donation Trend, Channel Split, Category Distribution).",
+    "created_at": "2026-09-16T10:25:55.222Z"
+  },
+  {
+    "id": 31,
+    "user_id": null,
+    "message": "How do I reset my password?",
+    "response": "**Password Recovery & Reset:**\n\n1. Go to the **Forgot Password** page (`/forgot-password`).\n2. Enter your registered email address and submit.\n3. A secure password reset link with an authorization token is dispatched.\n4. Follow the link to enter and confirm your new password.\n\n*(For testing and demo environments, generated reset links and tokens are viewable in the **Virtual Mailbox**).* ",
+    "created_at": "2026-09-16T10:25:55.268Z"
+  },
+  {
+    "id": 32,
+    "user_id": null,
+    "message": "How do volunteers mark a delivery complete?",
+    "response": "**Managing Assigned Delivery Tasks as a Volunteer:**\n\n1. Access your **Volunteer Dashboard** (`/volunteer`).\n2. View your task queue under **Assigned Relief Tasks & Deliveries**.\n3. **Start Task:** Click **Start Delivery** to update the task status to **In Progress**.\n4. **Confirm Delivery:** Once relief items reach the beneficiary, click **Mark Delivered** to record the completed handover.\n5. **Feedback:** After delivery, submit volunteer feedback and task rating to share field observations with NGO administrators.",
+    "created_at": "2026-09-16T10:25:55.313Z"
+  },
+  {
+    "id": 33,
+    "user_id": null,
+    "message": "Can I pay online with a credit card?",
+    "response": "**Payment & Transaction Policy:**\n\nSevaConnect operates on a **verified pledge-based system** rather than an automated commercial payment gateway:\n• Donors submit official monetary or material pledges through the platform.\n• Direct bank transfers or relief pickups are verified by administrative auditors.\n• Once cross-checked, the donation status is updated to 'Verified', and an audited 80G Tax Exemption Certificate is generated.\nThis model ensures direct accountability without intermediary transaction fees diminishing grassroots relief impact.",
+    "created_at": "2026-09-16T10:25:55.344Z"
+  },
+  {
+    "id": 34,
+    "user_id": null,
+    "message": "How do I donate?",
+    "response": "**How to Donate on SevaConnect:**\n\n1. **Choose a Campaign:** Visit our **Campaigns** page (`/campaigns`) or click **Donate Now** in the top navigation.\n2. **Select Donation Type:**\n   • **Monetary Funds:** Select or enter a rupee amount (e.g. ₹500, ₹1000, ₹2500, ₹5000).\n   • **Physical Relief Items:** Pledge physical items (rations, winter blankets, medicines, remedial study kits) with description and quantity.\n3. **Provide Contact Details:** Enter your name, email address, and optional phone number.\n4. **Submit Pledge:** Receive an immediate tracking token (e.g., `DON-123456`).\n5. **Verification & 80G Receipt:** Once our team verifies the contribution, you can download your official **80G Tax Exemption Receipt** with QR validation from your **Donor Dashboard**!",
+    "created_at": "2026-09-16T10:27:21.938Z"
+  },
+  {
+    "id": 35,
+    "user_id": null,
+    "message": "how will it help poor people?",
+    "response": "I am **SevaBot**, your complete guide to the **SevaConnect NGO Donation & Resource Management System**.\n\nI can answer questions on any of the following topics:\n• **Donations:** How to pledge money or items, 80G tax exemption receipts, donation verification timeline.\n• **Campaigns:** Current active grassroots campaigns, education, healthcare, and nutrition initiatives.\n• **Volunteers:** Registration, skills setup, assigned delivery tasks, service hours, and history.\n• **Beneficiaries:** Submitting assistance requests, request approval pipeline, and status tracking.\n• **Inventory:** Centralized warehouse inventory, available stock, low-stock threshold alerts.\n• **Analytics & Insights:** Executive reports, donation trends, and V3.1 intelligent pattern insights.\n• **Accounts & Roles:** Logging in, password recovery, profile editing, and role permissions.\n\nWhat specific feature or topic would you like to explore?",
+    "created_at": "2026-09-16T10:27:52.195Z"
+  },
+  {
+    "id": 36,
+    "user_id": null,
+    "message": "what is the capital of Australia?",
+    "response": "The capital of **AUSTRALIA** is **Canberra**.",
+    "created_at": "2026-09-16T10:41:37.153Z"
+  },
+  {
+    "id": 37,
+    "user_id": null,
+    "message": "how does an airplane fly?",
+    "response": "**Radio-controlled aircraft** *(Aircraft controlled remotely via radio control)*\n\nA radio-controlled aircraft is a small flying machine that is radio controlled by an operator on the ground using a hand-held radio transmitter. The transmitter continuously communicates with a receiver within the craft that sends signals to servomechanisms (servos) which move the control surfaces based on the position of joysticks on the transmitter. The control surfaces, in turn, directly affect the orientation of the plane.\n\n*(Source: Open Encyclopedic Knowledge via Wikipedia)*",
+    "created_at": "2026-09-16T10:41:38.564Z"
+  },
+  {
+    "id": 38,
+    "user_id": null,
+    "message": "calculate 45 * 32 + 180",
+    "response": "**Calculation Result:**\n\n`45 * 32 + 180` = **1,620**",
+    "created_at": "2026-09-16T10:41:38.624Z"
+  },
+  {
+    "id": 39,
+    "user_id": null,
+    "message": "what is 18% gst on 4500",
+    "response": "**Calculation Result:**\n\n`4500` = **4,500**",
+    "created_at": "2026-09-16T10:41:38.678Z"
+  },
+  {
+    "id": 40,
+    "user_id": null,
+    "message": "100 C to F",
+    "response": "**Temperature Conversion:**\n\n100°C = **212.0°F**",
+    "created_at": "2026-09-16T10:41:38.732Z"
+  },
+  {
+    "id": 41,
+    "user_id": null,
+    "message": "write python code for binary search",
+    "response": "**Binary Search Algorithm (O(log n)):**\n\nBinary search efficiently searches a sorted array by repeatedly dividing the search interval in half.\n\n**Python Implementation:**\n```python\ndef binary_search(arr, target):\n    left, right = 0, len(arr) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            return mid  # Target found at index mid\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1  # Target not found\n```\n\n**JavaScript Implementation:**\n```javascript\nfunction binarySearch(arr, target) {\n  let left = 0, right = arr.length - 1;\n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) left = mid + 1;\n    else right = mid - 1;\n  }\n  return -1;\n}\n```",
+    "created_at": "2026-09-16T10:41:38.779Z"
+  },
+  {
+    "id": 42,
+    "user_id": null,
+    "message": "what are the active campaigns on SevaConnect?",
+    "response": "**Active Public Relief Campaigns:**\n\n1. \"Winter Clothes & Blanket Drive for Homeless Families\" (Category: Community Care, Target Goal: ₹50,000, Deadline: 2026-08-31)\n2. \"Rural Mobile Medical Van & Diagnostic Health Camps\" (Category: Healthcare, Target Goal: ₹2,50,000, Deadline: 2026-11-30)\n3. \"Daily Malnutrition Prevention & Midday Meal Drive\" (Category: Nutrition, Target Goal: ₹1,80,000, Deadline: 2026-12-15)\n4. \"Senior Citizen Warmth & Community Care Outreach\" (Category: Community Care, Target Goal: ₹1,20,000, Deadline: 2026-11-20)\n5. \"Emergency Flood Relief & Food Ration Kits\" (Category: Disaster Relief, Target Goal: ₹3,00,000, Deadline: 2026-10-15)\n6. \"Clean Drinking Water & Sanitation Well Project\" (Category: Healthcare, Target Goal: ₹2,20,000, Deadline: 2026-11-30)\n7. \"Slum Child Education & Evening Nutrition Drive\" (Category: Education, Target Goal: ₹1,50,000, Deadline: 2026-12-31)\n\nYou can support any of these initiatives by visiting `/campaigns` and clicking **Donate Now**.",
+    "created_at": "2026-09-16T10:41:38.819Z"
+  },
+  {
+    "id": 43,
+    "user_id": null,
+    "message": "how do I donate clothes?",
+    "response": "**How to Donate on SevaConnect:**\n\n1. **Browse Campaigns:** Navigate to the **Campaigns** page (`/campaigns`) and choose an active cause.\n2. **Choose Donation Type:**\n   • **Monetary:** Enter the pledge amount in INR (₹) and select your payment simulation method (e.g. Razorpay, UPI, NetBanking).\n   • **Physical Relief Items:** Select categories like Food Rations, Winter Clothing, Medicines, or Study Materials, specify quantities, and choose Drop-off or Volunteer Pickup.\n3. **Confirmation & Tracking:** Your contribution immediately appears under `/donor/history`.\n4. **Tax Exemption:** Once verified by our administration team, your official 80G Tax Exemption Certificate is available for instant download.",
+    "created_at": "2026-09-16T10:41:38.871Z"
+  },
+  {
+    "id": 44,
+    "user_id": null,
+    "message": "How do I register as a volunteer?",
+    "response": "**Volunteering on SevaConnect:**\n\n• **Registration:** Sign up at `/register` selecting the **Volunteer** role.\n• **Profile Setup:** Fill in your skills (e.g. *Driving, Logistics, First Aid, Teaching*), city, and weekly availability at `/volunteer/profile`.\n• **Suggested Tasks:** The system matches open relief deliveries to your registered skills on `/volunteer`.\n• **Doorstep Fulfillment:** When assigned a task, update its status ('In Progress' → 'Delivered') to track your impact and accumulate community service hours.",
+    "created_at": "2026-09-16T10:42:09.195Z"
+  },
+  {
+    "id": 45,
+    "user_id": null,
+    "message": "What campaigns are active?",
+    "response": "**Active Public Relief Campaigns:**\n\n1. \"Winter Clothes & Blanket Drive for Homeless Families\" (Category: Community Care, Target Goal: ₹50,000, Deadline: 2026-08-31)\n2. \"Rural Mobile Medical Van & Diagnostic Health Camps\" (Category: Healthcare, Target Goal: ₹2,50,000, Deadline: 2026-11-30)\n3. \"Daily Malnutrition Prevention & Midday Meal Drive\" (Category: Nutrition, Target Goal: ₹1,80,000, Deadline: 2026-12-15)\n4. \"Senior Citizen Warmth & Community Care Outreach\" (Category: Community Care, Target Goal: ₹1,20,000, Deadline: 2026-11-20)\n5. \"Emergency Flood Relief & Food Ration Kits\" (Category: Disaster Relief, Target Goal: ₹3,00,000, Deadline: 2026-10-15)\n6. \"Clean Drinking Water & Sanitation Well Project\" (Category: Healthcare, Target Goal: ₹2,20,000, Deadline: 2026-11-30)\n7. \"Slum Child Education & Evening Nutrition Drive\" (Category: Education, Target Goal: ₹1,50,000, Deadline: 2026-12-31)\n\nYou can support any of these initiatives by visiting `/campaigns` and clicking **Donate Now**.",
+    "created_at": "2026-09-16T11:07:38.946Z"
+  },
+  {
+    "id": 46,
+    "user_id": null,
+    "message": "What campaigns are active?",
+    "response": "**Active Public Relief Campaigns:**\n\n1. \"Winter Clothes & Blanket Drive for Homeless Families\" (Category: Community Care, Target Goal: ₹50,000, Deadline: 2026-08-31)\n2. \"Rural Mobile Medical Van & Diagnostic Health Camps\" (Category: Healthcare, Target Goal: ₹2,50,000, Deadline: 2026-11-30)\n3. \"Daily Malnutrition Prevention & Midday Meal Drive\" (Category: Nutrition, Target Goal: ₹1,80,000, Deadline: 2026-12-15)\n4. \"Senior Citizen Warmth & Community Care Outreach\" (Category: Community Care, Target Goal: ₹1,20,000, Deadline: 2026-11-20)\n5. \"Emergency Flood Relief & Food Ration Kits\" (Category: Disaster Relief, Target Goal: ₹3,00,000, Deadline: 2026-10-15)\n6. \"Clean Drinking Water & Sanitation Well Project\" (Category: Healthcare, Target Goal: ₹2,20,000, Deadline: 2026-11-30)\n7. \"Slum Child Education & Evening Nutrition Drive\" (Category: Education, Target Goal: ₹1,50,000, Deadline: 2026-12-31)\n\nYou can support any of these initiatives by visiting `/campaigns` and clicking **Donate Now**.",
+    "created_at": "2026-09-16T12:03:47.848Z"
+  },
+  {
+    "id": 47,
+    "user_id": null,
+    "message": "how do i download my 80G tax receipt?",
+    "response": "**80G Tax Exemption & Receipts:**\n\n• **Eligibility:** Monetary donations made through SevaConnect are eligible for 50% tax deductions under Section 80G of the Indian Income Tax Act.\n• **How to Access:** Navigate to **Donation History** (`/donor/history`), find your verified donation record, and click **Download 80G Receipt**.\n• **Details Included:** Receipt Number, NGO Registration & PAN, Donor Name, Transaction Date, and Verified Amount.",
+    "created_at": "2026-09-16T12:05:04.976Z"
+  },
+  {
+    "id": 48,
+    "user_id": 2,
+    "message": "where can i see the donation trends?",
+    "response": "**Intelligent Pattern Insights & Analytics (`/admin/analytics`):**\n\n• **Donation Momentum:** Aggregates verified donation revenue across the last 30 days versus the preceding period, showing percentage growth and top performing categories.\n• **Aid Demand Spikes:** Analyzes beneficiary assistance requests to surface the most requested aid types and identify community needs.\n• **Inventory Depletion:** Calculates resource burn rates to identify stock items depleting fastest, allowing preemptive campaign creation.\n• **Executive Summary:** Automatically generates human-readable pattern statements alongside interactive charts (Donation Trend, Channel Split, Category Distribution).",
+    "created_at": "2026-09-16T12:12:32.478Z"
+  },
+  {
+    "id": 49,
+    "user_id": 2,
+    "message": "who are the volunteers?",
+    "response": "**Volunteering on SevaConnect:**\n\n• **Registration:** Sign up at `/register` selecting the **Volunteer** role.\n• **Profile Setup:** Fill in your skills (e.g. *Driving, Logistics, First Aid, Teaching*), city, and weekly availability at `/volunteer/profile`.\n• **Suggested Tasks:** The system matches open relief deliveries to your registered skills on `/volunteer`.\n• **Doorstep Fulfillment:** When assigned a task, update its status ('In Progress' → 'Delivered') to track your impact and accumulate community service hours.",
+    "created_at": "2026-09-16T12:15:44.455Z"
+  }
+]

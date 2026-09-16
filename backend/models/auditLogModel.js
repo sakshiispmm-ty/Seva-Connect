@@ -67,8 +67,17 @@ const auditLogModel = {
     }
 
     // Count total
-    const countSql = sql.replace(/SELECT al\.\*, u\.name as admin_name, u\.email as admin_email/, 'SELECT COUNT(*) as total');
-    const [countRows] = await query(countSql, params);
+    let countSql = 'SELECT COUNT(*) as total FROM admin_audit_log al WHERE 1=1';
+    const countParams = [];
+    if (action) {
+      countSql += ' AND al.action = ?';
+      countParams.push(action);
+    }
+    if (targetType) {
+      countSql += ' AND al.target_type = ?';
+      countParams.push(targetType);
+    }
+    const [countRows] = await query(countSql, countParams);
     const total = countRows?.[0]?.total || 0;
 
     sql += ' ORDER BY al.created_at DESC LIMIT ? OFFSET ?';

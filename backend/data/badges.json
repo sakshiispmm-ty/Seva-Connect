@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "First Steps",
+    "description": "Completed your first community assistance delivery task.",
+    "icon": "award"
+  },
+  {
+    "id": 2,
+    "name": "Dedicated Helper",
+    "description": "Successfully fulfilled 5 relief distribution tasks.",
+    "icon": "shield-check"
+  },
+  {
+    "id": 3,
+    "name": "Community Champion",
+    "description": "Completed 10 or more community relief delivery tasks.",
+    "icon": "trophy"
+  },
+  {
+    "id": 4,
+    "name": "Priority Hero",
+    "description": "Completed 3 or more High-priority emergency relief missions.",
+    "icon": "flame"
+  },
+  {
+    "id": 5,
+    "name": "Centurion",
+    "description": "Earned over 250 volunteer service points.",
+    "icon": "zap"
+  },
+  {
+    "id": 6,
+    "name": "Legendary Volunteer",
+    "description": "Reached over 500 volunteer service points.",
+    "icon": "crown"
+  }
+]

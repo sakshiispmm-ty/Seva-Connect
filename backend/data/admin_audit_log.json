@@ -1,0 +1,132 @@
+[
+  {
+    "id": 1,
+    "admin_id": 2,
+    "action": "USER_ROLE_CHANGED",
+    "target_type": "User",
+    "target_id": 22,
+    "details": "{\"previous_role\":\"Donor\",\"new_role\":\"Volunteer\",\"reason\":\"Verified field volunteer credentials & disaster response certification\"}",
+    "ip_address": "192.168.1.10",
+    "created_at": "2026-08-01T10:15:20.000Z"
+  },
+  {
+    "id": 2,
+    "admin_id": 27,
+    "action": "CAMPAIGN_STATUS_UPDATED",
+    "target_type": "Campaign",
+    "target_id": 1,
+    "details": "{\"title\":\"Slum Child Education & Evening Nutrition Drive\",\"status\":\"Active\",\"goal_amount\":150000,\"approved_by\":\"Sakshi\"}",
+    "ip_address": "192.168.1.15",
+    "created_at": "2026-08-01T11:30:00.000Z"
+  },
+  {
+    "id": 3,
+    "admin_id": 28,
+    "action": "INVENTORY_ADJUSTED",
+    "target_type": "Inventory",
+    "target_id": 1,
+    "details": "{\"item\":\"Emergency Ration Kits\",\"quantity_added\":100,\"warehouse\":\"Central Hub\",\"verified_by\":\"Sanjana Patel\"}",
+    "ip_address": "192.168.1.18",
+    "created_at": "2026-08-02T09:15:00.000Z"
+  },
+  {
+    "id": 4,
+    "admin_id": 2,
+    "action": "DONATION_VERIFIED",
+    "target_type": "Donation",
+    "target_id": 1,
+    "details": "{\"donor\":\"Rohit Verma\",\"amount\":5000,\"payment_mode\":\"UPI\",\"receipt\":\"REC-80G-001\"}",
+    "ip_address": "192.168.1.10",
+    "created_at": "2026-08-03T14:22:15.000Z"
+  },
+  {
+    "id": 5,
+    "admin_id": 27,
+    "action": "ASSISTANCE_REQUEST_APPROVED",
+    "target_type": "AssistanceRequest",
+    "target_id": 1,
+    "details": "{\"beneficiary\":\"Sunita Devi\",\"category\":\"Food & Nutrition\",\"priority\":\"High\",\"assigned_to\":\"Kavya Nair\"}",
+    "ip_address": "192.168.1.15",
+    "created_at": "2026-08-06T09:05:00.000Z"
+  },
+  {
+    "id": 6,
+    "admin_id": 29,
+    "action": "USER_ROLE_CHANGED",
+    "target_type": "User",
+    "target_id": 24,
+    "details": "{\"volunteer\":\"Aditya Kulkarni\",\"skill\":\"Education & Digital Literacy\",\"status\":\"Approved by Shreeya\"}",
+    "ip_address": "192.168.1.22",
+    "created_at": "2026-08-07T11:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "admin_id": 28,
+    "action": "DONATION_VERIFIED",
+    "target_type": "Donation",
+    "target_id": 2,
+    "details": "{\"donor\":\"Vikram Mehta\",\"amount\":12000,\"purpose\":\"Slum Nutrition Drive\",\"receipt\":\"REC-80G-002\"}",
+    "ip_address": "192.168.1.18",
+    "created_at": "2026-08-10T16:40:00.000Z"
+  },
+  {
+    "id": 8,
+    "admin_id": 27,
+    "action": "ASSISTANCE_REQUEST_APPROVED",
+    "target_type": "AssistanceRequest",
+    "target_id": 5,
+    "details": "{\"beneficiary\":\"Kishore Kumar\",\"category\":\"Food & Nutrition\",\"priority\":\"High\",\"assigned_to\":\"Kavya Nair\"}",
+    "ip_address": "192.168.1.15",
+    "created_at": "2026-08-18T15:20:00.000Z"
+  },
+  {
+    "id": 9,
+    "admin_id": 29,
+    "action": "USER_DEACTIVATED",
+    "target_type": "User",
+    "target_id": 30,
+    "details": "{\"user_email\":\"nikita@gmail.com\",\"reason\":\"Routine compliance identity audit check\"}",
+    "ip_address": "192.168.1.22",
+    "created_at": "2026-08-19T10:30:00.000Z"
+  },
+  {
+    "id": 10,
+    "admin_id": 29,
+    "action": "USER_REACTIVATED",
+    "target_type": "User",
+    "target_id": 30,
+    "details": "{\"user_email\":\"nikita@gmail.com\",\"reason\":\"Aadhaar identity re-verified by Shreeya\"}",
+    "ip_address": "192.168.1.22",
+    "created_at": "2026-08-19T14:15:00.000Z"
+  },
+  {
+    "id": 11,
+    "admin_id": 28,
+    "action": "INVENTORY_ADJUSTED",
+    "target_type": "Inventory",
+    "target_id": 2,
+    "details": "{\"item\":\"First-aid Medical Kits\",\"quantity_added\":50,\"warehouse\":\"Sector-4 Dispensary\"}",
+    "ip_address": "192.168.1.18",
+    "created_at": "2026-08-20T08:45:00.000Z"
+  },
+  {
+    "id": 12,
+    "admin_id": 2,
+    "action": "USER_DEACTIVATED",
+    "target_type": "User",
+    "target_id": 8,
+    "details": "{\"user_email\":\"rahul@gmail.com\",\"reason\":\"Temporary hold requested by user\"}",
+    "ip_address": "192.168.1.10",
+    "created_at": "2026-08-20T11:45:00.000Z"
+  },
+  {
+    "id": 13,
+    "admin_id": 27,
+    "action": "USER_REACTIVATED",
+    "target_type": "User",
+    "target_id": 8,
+    "details": "{\"user_email\":\"rahul@gmail.com\",\"reason\":\"Reactivation confirmed by Sakshi\"}",
+    "ip_address": "192.168.1.15",
+    "created_at": "2026-08-21T09:20:00.000Z"
+  }
+]

@@ -40,5 +40,12 @@ backend/data/*.json
 !backend/data/notifications.json
 !backend/data/feedback.json
 !backend/data/donation_status_history.json
+!backend/data/admin_audit_log.json
+!backend/data/badges.json
+!backend/data/user_badges.json
+!backend/data/notification_preferences.json
+!backend/data/volunteer_points.json
+!backend/data/point_transactions.json
+!backend/data/chatbot_logs.json
 
 

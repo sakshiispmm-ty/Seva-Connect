@@ -2379,7 +2379,8 @@ async function query(sql, params = []) {
       target_type: params[2] || null,
       target_id: params[3] ? parseInt(params[3], 10) : null,
       details: params[4] || '',
-      created_at: getAugustTimestamp()
+      ip_address: params[5] || '192.168.1.10',
+      created_at: params[6] || getAugustTimestamp()
     };
     auditLogs.push(newEntry);
     writeFallbackAdminAuditLog(auditLogs);
@@ -2388,15 +2389,40 @@ async function query(sql, params = []) {
 
   if (normalizedSql.includes('FROM admin_audit_log')) {
     const auditLogs = readFallbackAdminAuditLog();
-    const sorted = auditLogs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(log => {
+    let enriched = auditLogs.map(log => {
       const adminUser = users.find(u => u.id === log.admin_id);
       return {
         ...log,
-        admin_name: adminUser ? adminUser.name : `Admin #${log.admin_id}`,
-        admin_email: adminUser ? adminUser.email : ''
+        admin_name: adminUser ? adminUser.name : (log.admin_name || `Admin #${log.admin_id}`),
+        admin_email: adminUser ? adminUser.email : (log.admin_email || '')
       };
     });
-    return [sorted];
+
+    // Check filters
+    if (params && params.length > 0) {
+      if (normalizedSql.includes('al.action = ?') && normalizedSql.includes('al.target_type = ?')) {
+        enriched = enriched.filter(l => l.action === params[0] && l.target_type === params[1]);
+      } else if (normalizedSql.includes('al.action = ?')) {
+        enriched = enriched.filter(l => l.action === params[0]);
+      } else if (normalizedSql.includes('al.target_type = ?')) {
+        enriched = enriched.filter(l => l.target_type === params[0]);
+      }
+    }
+
+    if (normalizedSql.toUpperCase().includes('COUNT(')) {
+      return [[{ total: enriched.length }]];
+    }
+
+    enriched.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    // Handle pagination (LIMIT ? OFFSET ?)
+    if (normalizedSql.includes('LIMIT ? OFFSET ?') && params && params.length >= 2) {
+      const limit = parseInt(params[params.length - 2], 10);
+      const offset = parseInt(params[params.length - 1], 10);
+      enriched = enriched.slice(offset, offset + limit);
+    }
+
+    return [enriched];
   }
 
   // User Management Updates (Soft-disable & Role updates)
@@ -2446,7 +2472,6 @@ async function query(sql, params = []) {
     if (normalizedSql.startsWith('SELECT COUNT(*)')) {
       return [[{ total: filtered.length }]];
     }
-
     filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
     return [filtered];
   }
