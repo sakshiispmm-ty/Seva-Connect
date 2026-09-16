@@ -88,10 +88,10 @@ const userModel = {
   async deactivateUser(id) {
     const userId = parseInt(id, 10);
     const [result] = await query(
-      'UPDATE users SET is_active = FALSE WHERE id = ?',
-      [userId]
+      'UPDATE users SET is_active = ? WHERE id = ?',
+      [false, userId]
     );
-    return result.affectedRows > 0;
+    return Boolean(result && result.affectedRows > 0);
   },
 
   /**
@@ -100,10 +100,10 @@ const userModel = {
   async reactivateUser(id) {
     const userId = parseInt(id, 10);
     const [result] = await query(
-      'UPDATE users SET is_active = TRUE WHERE id = ?',
-      [userId]
+      'UPDATE users SET is_active = ? WHERE id = ?',
+      [true, userId]
     );
-    return result.affectedRows > 0;
+    return Boolean(result && result.affectedRows > 0);
   },
 
   /**

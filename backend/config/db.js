@@ -2426,9 +2426,21 @@ async function query(sql, params = []) {
   }
 
   // User Management Updates (Soft-disable & Role updates)
-  if (normalizedSql.startsWith('UPDATE users SET is_active = ? WHERE id = ?')) {
-    const isActive = Boolean(params[0]);
-    const uId = parseInt(params[1], 10);
+  if (normalizedSql.includes('UPDATE users SET is_active =')) {
+    let isActive = false;
+    let uId = null;
+
+    if (normalizedSql.includes('is_active = FALSE') || normalizedSql.includes('is_active = 0')) {
+      isActive = false;
+      uId = parseInt(params[0], 10);
+    } else if (normalizedSql.includes('is_active = TRUE') || normalizedSql.includes('is_active = 1')) {
+      isActive = true;
+      uId = parseInt(params[0], 10);
+    } else {
+      isActive = Boolean(params[0]);
+      uId = parseInt(params[1], 10);
+    }
+
     const idx = users.findIndex(u => u.id === uId);
     if (idx !== -1) {
       users[idx].is_active = isActive;
@@ -2467,12 +2479,47 @@ async function query(sql, params = []) {
   // Admin User Management: paginated/filtered list of users
   if (normalizedSql.includes('FROM users WHERE 1=1') || normalizedSql.includes('FROM users ORDER BY created_at DESC')) {
     let filtered = [...users];
-    
+
+    // Status filter
+    if (normalizedSql.includes('is_active = TRUE') || normalizedSql.includes('is_active = 1')) {
+      filtered = filtered.filter(u => u.is_active !== false && u.is_active !== 0);
+    } else if (normalizedSql.includes('is_active = FALSE') || normalizedSql.includes('is_active = 0')) {
+      filtered = filtered.filter(u => u.is_active === false || u.is_active === 0);
+    }
+
+    // Role filter
+    if (normalizedSql.includes('role = ?') && params && params.length > 0) {
+      const roleParam = params.find(p => ['Donor', 'Volunteer', 'Admin'].includes(p));
+      if (roleParam) {
+        filtered = filtered.filter(u => u.role === roleParam);
+      }
+    }
+
+    // Search filter
+    if (normalizedSql.includes('LOWER(name) LIKE ?') && params && params.length > 0) {
+      const searchParam = (params[0] || '').replace(/%/g, '').toLowerCase();
+      if (searchParam) {
+        filtered = filtered.filter(u => 
+          (u.name && u.name.toLowerCase().includes(searchParam)) ||
+          (u.email && u.email.toLowerCase().includes(searchParam))
+        );
+      }
+    }
+
     // Check if count query
-    if (normalizedSql.startsWith('SELECT COUNT(*)')) {
+    if (normalizedSql.toUpperCase().includes('COUNT(')) {
       return [[{ total: filtered.length }]];
     }
+
     filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    // Handle pagination (LIMIT ? OFFSET ?)
+    if (normalizedSql.includes('LIMIT ? OFFSET ?') && params && params.length >= 2) {
+      const limit = parseInt(params[params.length - 2], 10);
+      const offset = parseInt(params[params.length - 1], 10);
+      filtered = filtered.slice(offset, offset + limit);
+    }
+
     return [filtered];
   }
 

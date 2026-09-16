@@ -128,5 +128,55 @@
     "details": "{\"user_email\":\"rahul@gmail.com\",\"reason\":\"Reactivation confirmed by Sakshi\"}",
     "ip_address": "192.168.1.15",
     "created_at": "2026-08-21T09:20:00.000Z"
+  },
+  {
+    "id": 14,
+    "admin_id": 2,
+    "action": "USER_DEACTIVATED",
+    "target_type": "User",
+    "target_id": 26,
+    "details": "{\"userName\":\"Vikram Joshi\",\"userEmail\":\"vikram.volunteer@gmail.com\",\"role\":\"Volunteer\"}",
+    "ip_address": "::1",
+    "created_at": "2026-08-16T23:43:38.000Z"
+  },
+  {
+    "id": 15,
+    "admin_id": 2,
+    "action": "USER_DEACTIVATED",
+    "target_type": "User",
+    "target_id": 31,
+    "details": "{\"userName\":\"Manisha Shah\",\"userEmail\":\"manisha@gmail.com\",\"role\":\"Donor\"}",
+    "ip_address": "::1",
+    "created_at": "2026-08-16T23:54:45.000Z"
+  },
+  {
+    "id": 16,
+    "admin_id": 2,
+    "action": "USER_REACTIVATED",
+    "target_type": "User",
+    "target_id": 31,
+    "details": "{\"userName\":\"Manisha Shah\",\"userEmail\":\"manisha@gmail.com\",\"role\":\"Donor\"}",
+    "ip_address": "::1",
+    "created_at": "2026-08-16T23:54:45.000Z"
+  },
+  {
+    "id": 17,
+    "admin_id": 2,
+    "action": "USER_DEACTIVATED",
+    "target_type": "User",
+    "target_id": 26,
+    "details": "{\"userName\":\"Vikram Joshi\",\"userEmail\":\"vikram.volunteer@gmail.com\",\"role\":\"Volunteer\"}",
+    "ip_address": "::1",
+    "created_at": "2026-08-16T23:58:16.000Z"
+  },
+  {
+    "id": 18,
+    "admin_id": 2,
+    "action": "USER_REACTIVATED",
+    "target_type": "User",
+    "target_id": 26,
+    "details": "{\"userName\":\"Vikram Joshi\",\"userEmail\":\"vikram.volunteer@gmail.com\",\"role\":\"Volunteer\"}",
+    "ip_address": "::1",
+    "created_at": "2026-08-16T23:58:30.000Z"
   }
 ]
