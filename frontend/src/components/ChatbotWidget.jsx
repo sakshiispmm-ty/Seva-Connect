@@ -16,11 +16,9 @@ import {
 const SUGGESTED_PROMPTS = [
   'How do I donate?',
   'What campaigns are active?',
-  'What is photosynthesis?',
-  'Calculate 18% GST on ₹4,500',
-  'What is the capital of Australia?',
-  'Write a python binary search',
-  'How do I register as a volunteer?'
+  'How do I register as a volunteer?',
+  'How do I request assistance?',
+  'How does 80G tax exemption work?'
 ];
 
 export default function ChatbotWidget() {
@@ -29,7 +27,7 @@ export default function ChatbotWidget() {
     {
       id: 'welcome',
       sender: 'bot',
-      text: 'Hello! I am **SevaBot**, your universal AI assistant.\n\nI can answer **any question you ask** — whether it is math problems, coding, science, history, writing, advice, or navigating anything across **SevaConnect** (donations, campaigns, volunteering, 80G tax receipts, and aid requests).\n\nWhat would you like to ask or explore?',
+      text: 'Hello! I am **SevaBot**, your AI assistant.\n\nI am here to answer any questions you have. How can I help you today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -294,7 +292,7 @@ export default function ChatbotWidget() {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask me anything (SevaConnect, science, math, coding...)"
+                placeholder="Ask me anything..."
                 disabled={isTyping}
                 className="flex-1 text-xs bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-hidden focus:border-[#087F73] focus:ring-1 focus:ring-[#087F73] transition-all placeholder:text-gray-400"
               />
@@ -308,7 +306,7 @@ export default function ChatbotWidget() {
               </button>
             </form>
             <p className="text-[10px] text-gray-400 text-center mt-1.5">
-              Universal AI Assistant · Read-only guidance
+              AI Assistant · Read-only guidance
             </p>
           </div>
         </div>

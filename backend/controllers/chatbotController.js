@@ -654,26 +654,22 @@ function solveGeneralQuestion(rawMessage) {
   // 9. Conversational, Identity & Small Talk
   if (cleanMsg === 'who are you' || cleanMsg.includes('what is your name') || cleanMsg === 'what are you') {
     return (
-      "I am **SevaBot**, your universal AI assistant!\n\n" +
-      "• **Universal Capabilities:** I can answer ANY question across math, science, programming, history, geography, lifestyle, and everyday problem solving.\n" +
-      "• **SevaConnect Intelligence:** I provide comprehensive guidance across all features of the SevaConnect NGO management platform (donations, 80G tax receipts, relief campaigns, volunteer tasks, inventory, and analytics)."
+      "I am **SevaBot**, your AI assistant for SevaConnect!\n\n" +
+      "I am here to help you navigate the platform, explore campaigns, learn about donating or volunteering, and answer any questions you may have."
     );
   }
 
   if (cleanMsg.includes('how are you') || cleanMsg.includes('how are you doing')) {
-    return "I'm doing great, thank you for asking! I'm fully operational and ready to answer any questions you have, whether about SevaConnect or anything else on your mind!";
+    return "I'm doing great, thank you for asking! How can I help you today?";
   }
 
   if (cleanMsg.includes('who created you') || cleanMsg.includes('who made you')) {
-    return "I was created as the assistive AI intelligence layer for the SevaConnect platform, engineered to empower donors, volunteers, and community welfare initiatives!";
+    return "I was created as the AI assistant for SevaConnect to empower donors, volunteers, and community welfare initiatives!";
   }
 
   if (cleanMsg.includes('help me') || cleanMsg === 'help') {
     return (
-      "I'm here to help! You can ask me **anything**:\n\n" +
-      "• **SevaConnect Questions:** How to donate, download 80G receipts, volunteer tasks, active campaigns, or assistance requests.\n" +
-      "• **General Knowledge:** Science, technology, math problems, geography, coding, history, or creative writing.\n\n" +
-      "What would you like to explore?"
+      "I'm here to help! You can ask me anything about SevaConnect (donations, campaigns, volunteering, tax receipts) or any other questions you have. How can I assist you right now?"
     );
   }
 
