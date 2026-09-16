@@ -167,6 +167,23 @@ async function updateUserRole(req, res) {
     const previousRole = targetUser.role;
     await userModel.updateRole(targetUserId, role);
 
+    // If promoted to Volunteer, ensure volunteer profile exists
+    if (role === 'Volunteer') {
+      try {
+        const volunteerModel = require('../models/volunteerModel');
+        const existingProfile = await volunteerModel.findByUserId(targetUserId);
+        if (!existingProfile) {
+          await volunteerModel.upsertProfile(targetUserId, {
+            skills: 'General Assistance, Community Relief',
+            availability: 'Available on Weekends & Evenings',
+            status: 'Active'
+          });
+        }
+      } catch (vErr) {
+        console.warn('[Admin Controller] Notice on volunteer profile auto-provision:', vErr.message);
+      }
+    }
+
     await auditLogModel.log({
       adminId: requestingAdminId,
       action: 'USER_ROLE_CHANGED',

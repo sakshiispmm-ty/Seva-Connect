@@ -79,7 +79,7 @@ export default function DonorManagement() {
             <div>
               <h1 className="text-xl font-bold text-[#17243A]">Donor Registry</h1>
               <p className="text-xs text-[#667085]">
-                Track donor engagement, total contributions, and verified history (V2.1)
+                Track donor engagement, total contributions, and verified history
               </p>
             </div>
           </div>

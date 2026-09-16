@@ -1142,13 +1142,65 @@ async function query(sql, params = []) {
     return [adminList];
   }
 
-  // 9. SELECT ... FROM users ORDER BY created_at DESC
-  if (normalizedSql.includes('FROM users') && normalizedSql.includes('ORDER BY created_at DESC') && !normalizedSql.includes('LEFT JOIN donations') && !normalizedSql.includes('donations_count')) {
-    const sorted = [...users].reverse().map(({ password, ...rest }) => rest);
-    if (normalizedSql.includes('LIMIT')) {
-      return [sorted.slice(0, 10)];
+  // 9. Admin User Management & Users List (Paginated, Searchable, Filterable)
+  if (
+    normalizedSql.includes('FROM users WHERE 1=1') ||
+    normalizedSql.includes('FROM users ORDER BY created_at DESC') ||
+    (normalizedSql.includes('FROM users') && (normalizedSql.includes('is_active =') || normalizedSql.includes('LIMIT ? OFFSET ?')))
+  ) {
+    let filtered = [...users];
+
+    // Status filter
+    if (normalizedSql.includes('is_active = TRUE') || normalizedSql.includes('is_active = 1')) {
+      filtered = filtered.filter(u => u.is_active !== false && u.is_active !== 0);
+    } else if (normalizedSql.includes('is_active = FALSE') || normalizedSql.includes('is_active = 0')) {
+      filtered = filtered.filter(u => u.is_active === false || u.is_active === 0);
     }
-    return [sorted];
+
+    // Role filter
+    if (normalizedSql.includes('role = ?') && params && params.length > 0) {
+      const roleParam = params.find(p => ['Donor', 'Volunteer', 'Admin'].includes(p));
+      if (roleParam) {
+        filtered = filtered.filter(u => u.role === roleParam);
+      }
+    }
+
+    // Search filter
+    if (normalizedSql.includes('LOWER(name) LIKE ?') && params && params.length > 0) {
+      const searchParam = String(params[0] || '').replace(/%/g, '').toLowerCase().trim();
+      if (searchParam) {
+        filtered = filtered.filter(u => 
+          (u.name && u.name.toLowerCase().includes(searchParam)) ||
+          (u.email && u.email.toLowerCase().includes(searchParam)) ||
+          (u.phone && String(u.phone).includes(searchParam))
+        );
+      }
+    }
+
+    // Check if count query
+    if (normalizedSql.toUpperCase().includes('COUNT(')) {
+      return [[{ total: filtered.length }]];
+    }
+
+    // Sort newest first
+    filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    // Handle pagination (LIMIT ? OFFSET ?)
+    if (normalizedSql.includes('LIMIT ? OFFSET ?') && params && params.length >= 2) {
+      const limit = parseInt(params[params.length - 2], 10);
+      const offset = parseInt(params[params.length - 1], 10);
+      filtered = filtered.slice(offset, offset + limit);
+    } else if (normalizedSql.includes('LIMIT 10') || (normalizedSql.includes('LIMIT') && !normalizedSql.includes('OFFSET'))) {
+      filtered = filtered.slice(0, 10);
+    }
+
+    // Strip passwords and ensure is_active boolean
+    const safeUsers = filtered.map(({ password, ...rest }) => ({
+      ...rest,
+      is_active: rest.is_active !== false && rest.is_active !== 0
+    }));
+
+    return [safeUsers];
   }
 
   // ==========================================
@@ -2476,52 +2528,6 @@ async function query(sql, params = []) {
     return [completedReqs];
   }
 
-  // Admin User Management: paginated/filtered list of users
-  if (normalizedSql.includes('FROM users WHERE 1=1') || normalizedSql.includes('FROM users ORDER BY created_at DESC')) {
-    let filtered = [...users];
-
-    // Status filter
-    if (normalizedSql.includes('is_active = TRUE') || normalizedSql.includes('is_active = 1')) {
-      filtered = filtered.filter(u => u.is_active !== false && u.is_active !== 0);
-    } else if (normalizedSql.includes('is_active = FALSE') || normalizedSql.includes('is_active = 0')) {
-      filtered = filtered.filter(u => u.is_active === false || u.is_active === 0);
-    }
-
-    // Role filter
-    if (normalizedSql.includes('role = ?') && params && params.length > 0) {
-      const roleParam = params.find(p => ['Donor', 'Volunteer', 'Admin'].includes(p));
-      if (roleParam) {
-        filtered = filtered.filter(u => u.role === roleParam);
-      }
-    }
-
-    // Search filter
-    if (normalizedSql.includes('LOWER(name) LIKE ?') && params && params.length > 0) {
-      const searchParam = (params[0] || '').replace(/%/g, '').toLowerCase();
-      if (searchParam) {
-        filtered = filtered.filter(u => 
-          (u.name && u.name.toLowerCase().includes(searchParam)) ||
-          (u.email && u.email.toLowerCase().includes(searchParam))
-        );
-      }
-    }
-
-    // Check if count query
-    if (normalizedSql.toUpperCase().includes('COUNT(')) {
-      return [[{ total: filtered.length }]];
-    }
-
-    filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
-    // Handle pagination (LIMIT ? OFFSET ?)
-    if (normalizedSql.includes('LIMIT ? OFFSET ?') && params && params.length >= 2) {
-      const limit = parseInt(params[params.length - 2], 10);
-      const offset = parseInt(params[params.length - 1], 10);
-      filtered = filtered.slice(offset, offset + limit);
-    }
-
-    return [filtered];
-  }
 
   console.warn('[Database] Unhandled query in fallback mode:', sql);
   return [[]];

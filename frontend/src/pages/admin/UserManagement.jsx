@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import Pagination from '../../components/Pagination';
 import { Users, UserX, UserCheck, Shield, Search, Filter, AlertTriangle, X, Check, ArrowUpDown } from 'lucide-react';
 
 export default function UserManagement() {
+  const { user: authUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -22,8 +24,8 @@ export default function UserManagement() {
   const [deactivateModalUser, setDeactivateModalUser] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Current logged in user from storage to prevent self-deactivation / self-demotion
-  const currentUser = JSON.parse(localStorage.getItem('sevaconnect_user') || '{}');
+  // Current logged in user from context or storage to prevent self-deactivation / self-demotion
+  const currentUser = authUser || JSON.parse(localStorage.getItem('sevaconnect_user') || '{}');
 
   useEffect(() => {
     fetchUsers();
@@ -235,7 +237,10 @@ export default function UserManagement() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                   {users.map((u) => {
-                    const isSelf = u.id === currentUser.id;
+                    const isSelf = currentUser && (
+                      String(u.id) === String(currentUser.id) ||
+                      (u.email && currentUser.email && u.email.toLowerCase() === currentUser.email.toLowerCase())
+                    );
                     const isActive = u.is_active !== false && u.is_active !== 0;
 
                     let roleBadgeColor = 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800';

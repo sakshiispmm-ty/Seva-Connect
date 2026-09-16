@@ -379,7 +379,7 @@ export default function AdminDashboard() {
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-[#EAF6F3] text-[#087F73] border border-[#087F73]/20 rounded-full text-xs font-extrabold">
                   <BarChart3 className="w-3.5 h-3.5 text-[#087F73]" />
-                  <span>Version 2.2: Reports & Analytics</span>
+                  <span>Reports & Analytics</span>
                 </div>
                 <h3 className="text-xl font-black text-[#17243A] tracking-tight">
                   Executive Intelligence & Multi-Dimensional Reporting
@@ -482,7 +482,7 @@ export default function AdminDashboard() {
               <div className="space-y-2 max-w-xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-[#F7BA3E] border border-[#F7BA3E]/30 rounded-full text-xs font-extrabold backdrop-blur-xs">
                   <Sparkles className="w-3.5 h-3.5 text-[#F7BA3E]" />
-                  <span>Version 2.1: Smart Operations</span>
+                  <span>Smart Operations</span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
                   Intelligent Resource Matching & Live Dispatch Radar

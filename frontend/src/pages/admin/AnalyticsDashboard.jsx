@@ -144,12 +144,6 @@ export default function AnalyticsDashboard() {
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2.5 py-0.5 rounded-full border border-[#087F73]/20">
-                  Version 2.2
-                </span>
-                <span className="text-xs text-[#667085] hidden sm:inline">Executive Reporting</span>
-              </div>
               <h1 className="text-xl sm:text-2xl font-black text-[#17243A] tracking-tight">
                 Reports & Analytics Hub
               </h1>
@@ -179,7 +173,7 @@ export default function AnalyticsDashboard() {
               <div className="space-y-2 max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-[#F7BA3E] border border-[#F7BA3E]/30 rounded-full text-xs font-extrabold backdrop-blur-xs">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Version 2.2: Reports & Analytics Suite</span>
+                  <span>Reports & Analytics Suite</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
                   Real-Time Operational Intelligence
@@ -313,9 +307,6 @@ export default function AnalyticsDashboard() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-base font-bold text-[#17243A]">Intelligent Pattern Insights</h2>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2 py-0.5 rounded-full border border-[#087F73]/20">
-                        Version 3.1
-                      </span>
                     </div>
                     <p className="text-xs text-[#667085] mt-0.5">
                       Pattern-level observations computed directly from live operational aggregates
@@ -535,7 +526,7 @@ export default function AnalyticsDashboard() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3.5">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-[#17243A]">Donor Base Segmentation (V3.2)</h3>
+                    <h3 className="text-base font-bold text-[#17243A]">Donor Base Segmentation</h3>
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2 py-0.5 rounded-full border border-[#087F73]/20">
                       Behavioral Tiers
                     </span>
@@ -597,7 +588,7 @@ export default function AnalyticsDashboard() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3.5">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-[#17243A]">Resource Consumption Trends (V3.2)</h3>
+                    <h3 className="text-base font-bold text-[#17243A]">Resource Consumption Trends</h3>
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2 py-0.5 rounded-full border border-[#087F73]/20">
                       Temporal Demand
                     </span>
