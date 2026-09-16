@@ -79,7 +79,32 @@ function requireRole(...allowedRoles) {
   };
 }
 
+async function optionalAuth(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      if (token) {
+        try {
+          const decoded = decodeJwt(token);
+          const user = await userModel.findById(decoded.id);
+          if (user) {
+            req.user = user;
+          }
+        } catch (e) {
+          // Silently continue as guest if token expired or invalid
+        }
+      }
+    }
+    next();
+  } catch (err) {
+    next();
+  }
+}
+
 module.exports = {
   verifyToken,
-  requireRole
+  requireRole,
+  optionalAuth
 };
+

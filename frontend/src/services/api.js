@@ -158,7 +158,9 @@ export const reportService = {
   getInventorySummary: (params) => api.get('/reports/inventory/summary', { params }),
   getLowStockReport: () => api.get('/reports/inventory/low-stock'),
   getItemHistory: (id) => api.get(`/reports/inventory/${id}/history`),
-  getDashboardPayload: (params) => api.get('/reports/dashboard', { params })
+  getDashboardPayload: (params) => api.get('/reports/dashboard', { params }),
+  // Version 3.1: Intelligent Analytics Insights
+  getIntelligentInsights: () => api.get('/reports/insights')
 };
 
 // Feedback Service (V2.3)
@@ -169,6 +171,18 @@ export const feedbackService = {
   getAll: (params) => api.get('/feedback', { params })
 };
 
+// Chatbot Service (V3.1)
+export const chatbotService = {
+  sendMessage: (data) => api.post('/chatbot/message', data)
+};
+
+// Smart Recommendations Service (V3.1)
+export const recommendationService = {
+  getRecommendedCampaigns: () => api.get('/recommendations/campaigns'),
+  getSuggestedTasks: () => api.get('/recommendations/tasks')
+};
+
 export default api;
+
 
 

@@ -7,7 +7,7 @@ import Button from '../../components/Button';
 import Alert from '../../components/Alert';
 import NotificationBell from '../../components/NotificationBell';
 import FeedbackForm from '../../components/FeedbackForm';
-import { volunteerService, feedbackService } from '../../services/api';
+import { volunteerService, feedbackService, recommendationService } from '../../services/api';
 import { 
   LayoutDashboard, 
   Truck, 
@@ -31,6 +31,8 @@ export default function VolunteerDashboard() {
   const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [suggestedTasks, setSuggestedTasks] = useState([]);
+  const [volunteerSkills, setVolunteerSkills] = useState('');
   const [contributionSummary, setContributionSummary] = useState(null);
   const [myFeedbackList, setMyFeedbackList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,10 +54,11 @@ export default function VolunteerDashboard() {
     setLoading(true);
     setError('');
     try {
-      const [tasksRes, summaryRes, feedbackRes] = await Promise.all([
+      const [tasksRes, summaryRes, feedbackRes, suggestionsRes] = await Promise.all([
         volunteerService.getTasks(),
         volunteerService.getContributionSummary().catch(() => ({ data: { data: null } })),
-        feedbackService.getMyFeedback({ target_type: 'VolunteerTask' }).catch(() => ({ data: { data: [] } }))
+        feedbackService.getMyFeedback({ target_type: 'VolunteerTask' }).catch(() => ({ data: { data: [] } })),
+        recommendationService.getSuggestedTasks().catch(() => ({ data: { tasks: [] } }))
       ]);
 
       if (tasksRes.data && tasksRes.data.success) {
@@ -66,6 +69,11 @@ export default function VolunteerDashboard() {
 
       setContributionSummary(summaryRes.data?.data || null);
       setMyFeedbackList(feedbackRes.data?.data || []);
+
+      if (suggestionsRes.data && suggestionsRes.data.success) {
+        setSuggestedTasks(suggestionsRes.data.tasks || []);
+        setVolunteerSkills(suggestionsRes.data.volunteer_skills || '');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Server error loading volunteer tasks.');
     } finally {
@@ -281,6 +289,87 @@ export default function VolunteerDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Version 3.1: Suggested Volunteer Tasks */}
+          {suggestedTasks && suggestedTasks.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2.5 py-0.5 rounded-full border border-[#087F73]/20 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-[#F7BA3E]" /> Smart Suggestions
+                    </span>
+                    {volunteerSkills && (
+                      <span className="text-[11px] text-[#667085] bg-gray-100 px-2 py-0.5 rounded-full hidden sm:inline-block">
+                        Profile Skills: <strong className="text-[#17243A]">{volunteerSkills}</strong>
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold text-[#17243A] mt-1">Suggested Tasks for You</h3>
+                  <p className="text-xs text-[#667085]">Open community assistance requests matching your registered volunteer skills and availability</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {suggestedTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="p-5 bg-white rounded-2xl border border-teal-100/80 shadow-xs hover:border-[#087F73]/40 hover:shadow-md transition-all flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="text-[11px] font-bold text-white bg-[#087F73] px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-[#F7BA3E]" />
+                          {task.match_reason || 'Matched Task'}
+                        </span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                            (task.urgency || task.priority) === 'High'
+                              ? 'bg-rose-100 text-rose-700'
+                              : 'bg-amber-100 text-amber-700'
+                          }`}
+                        >
+                          {(task.urgency || task.priority || 'Medium')} Priority
+                        </span>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-extrabold text-[#17243A]">Request #REQ-00{task.id}</span>
+                          <span className="text-xs font-semibold text-[#087F73] bg-[#EAF6F3] px-2 py-0.2 rounded-md">
+                            {task.category}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#667085] mt-1 line-clamp-2 leading-relaxed">
+                          {task.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-gray-100 grid grid-cols-2 gap-2 text-[11px] text-[#667085]">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <span className="truncate">{task.delivery_address || 'Local Community Dropoff'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Package className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <span>Needs: <strong className="text-[#17243A]">{task.quantity_needed || '1 Unit'}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                      <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg">
+                        Status: {task.status}
+                      </span>
+                      <span className="text-[11px] text-gray-400">
+                        Admin assignable
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Task Feed */}
           <div className="bg-white rounded-2xl shadow-xs border border-gray-100 overflow-hidden">

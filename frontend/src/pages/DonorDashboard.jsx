@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { recommendationService } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import Button from '../components/Button';
 import {
@@ -13,12 +14,35 @@ import {
   CheckCircle,
   Info,
   TrendingUp,
-  Award
+  Award,
+  Sparkles,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 
 export default function DonorDashboard() {
   const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [recommendedCampaigns, setRecommendedCampaigns] = useState([]);
+  const [recLoading, setRecLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadRecommendations() {
+      try {
+        setRecLoading(true);
+        const res = await recommendationService.getRecommendedCampaigns();
+        if (res.data?.success) {
+          setRecommendedCampaigns(res.data.recommendations || []);
+        }
+      } catch (err) {
+        console.warn('[DonorDashboard] Could not load recommendations:', err.message);
+      } finally {
+        setRecLoading(false);
+      }
+    }
+    loadRecommendations();
+  }, []);
+
 
   const activeModules = [
     {
@@ -238,6 +262,87 @@ export default function DonorDashboard() {
               })}
             </div>
           </div>
+
+          {/* Version 3.1: Recommended Campaigns For You */}
+          {recommendedCampaigns && recommendedCampaigns.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2.5 py-0.5 rounded-full border border-[#087F73]/20 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-[#F7BA3E]" /> Smart Suggestions
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-[#17243A] mt-1">Recommended for You</h3>
+                  <p className="text-xs text-[#667085]">Personalized active campaigns matching your past giving interests and urgent community timelines</p>
+                </div>
+                <Link to="/campaigns" className="text-xs font-bold text-[#087F73] hover:underline flex items-center gap-1">
+                  View All Campaigns <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {recommendedCampaigns.map((camp) => (
+                  <div
+                    key={camp.id}
+                    className="bg-white rounded-2xl border border-teal-100/80 shadow-xs hover:border-[#087F73]/40 hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group"
+                  >
+                    <div>
+                      <div className="h-32 relative bg-gray-100 overflow-hidden">
+                        <img
+                          src={camp.image_url || '/assets/campaigns/education.jpg'}
+                          alt={camp.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2 left-2">
+                          <span className="text-[10px] font-bold text-white bg-[#17243A]/85 backdrop-blur-xs px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-[#F7BA3E]" />
+                            {camp.match_reason || 'Suggested Cause'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-4 space-y-2">
+                        <div className="flex items-center justify-between text-[11px] text-[#667085]">
+                          <span className="font-semibold text-[#087F73]">{camp.category}</span>
+                          {camp.deadline && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-amber-500" />
+                              {camp.deadline}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-xs font-bold text-[#17243A] line-clamp-2 leading-snug group-hover:text-[#087F73] transition-colors">
+                          {camp.title}
+                        </h4>
+
+                        <div className="space-y-1 pt-1">
+                          <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-[#087F73] to-[#2EAD62] rounded-full"
+                              style={{ width: `${Math.min(camp.progress_percent || 0, 100)}%` }}
+                            ></div>
+                          </div>
+                          <div className="flex justify-between text-[10px] font-bold">
+                            <span className="text-[#087F73]">₹{Number(camp.raised_amount || 0).toLocaleString('en-IN')}</span>
+                            <span className="text-gray-400">Target: ₹{Number(camp.goal_amount || 0).toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 pt-0">
+                      <Link to={`/donate?campaignId=${camp.id}`}>
+                        <Button variant="primary" size="sm" className="w-full text-xs py-1.5">
+                          Pledge Support →
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Sample Active Causes Spotlight (Preview) */}
           <div className="space-y-4">

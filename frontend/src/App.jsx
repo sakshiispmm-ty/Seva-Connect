@@ -46,6 +46,9 @@ import InventoryReports from './pages/admin/reports/InventoryReports';
 import FeedbackManagement from './pages/admin/FeedbackManagement';
 import VolunteerHistoryPage from './pages/volunteer/VolunteerHistoryPage';
 
+// V3.1 AI Chatbot Widget (App-wide)
+import ChatbotWidget from './components/ChatbotWidget';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -257,7 +260,10 @@ export default function App() {
           {/* Catch-all Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        {/* Version 3.1 AI Chatbot Floating Widget */}
+        <ChatbotWidget />
       </BrowserRouter>
     </AuthProvider>
   );
 }
+

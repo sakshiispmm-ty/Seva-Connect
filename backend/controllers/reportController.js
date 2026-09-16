@@ -263,6 +263,23 @@ async function getDashboardPayload(req, res) {
   }
 }
 
+// 7. Version 3.1: Intelligent Analytics Insights
+async function getIntelligentInsights(req, res) {
+  try {
+    const insights = await reportModel.getIntelligentInsights();
+    return res.status(200).json({
+      success: true,
+      data: insights
+    });
+  } catch (error) {
+    console.error('[Report Controller] getIntelligentInsights error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to generate intelligent insights.'
+    });
+  }
+}
+
 module.exports = {
   getDonationSummary,
   getDonationsByPeriod,
@@ -276,5 +293,7 @@ module.exports = {
   getInventorySummary,
   getLowStockReport,
   getItemHistory,
-  getDashboardPayload
+  getDashboardPayload,
+  getIntelligentInsights
 };
+

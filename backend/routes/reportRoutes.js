@@ -14,12 +14,16 @@ const {
   getInventorySummary,
   getLowStockReport,
   getItemHistory,
-  getDashboardPayload
+  getDashboardPayload,
+  getIntelligentInsights
 } = require('../controllers/reportController');
 
 // All report routes are strictly read-only and Admin-only
 router.use(verifyToken);
 router.use(requireRole('Admin'));
+
+// 0. Version 3.1: Intelligent Analytics Insights (/api/reports/insights)
+router.get('/insights', getIntelligentInsights);
 
 // 1. Donation Reports (/api/reports/donations/*)
 router.get('/donations/summary', getDonationSummary);

@@ -30,6 +30,7 @@ const resourceAllocationsFilePath = path.join(dataDir, 'resource_allocations.jso
 const notificationsFilePath = path.join(dataDir, 'notifications.json');
 const feedbackFilePath = path.join(dataDir, 'feedback.json');
 const donationStatusHistoryFilePath = path.join(dataDir, 'donation_status_history.json');
+const chatbotLogsFilePath = path.join(dataDir, 'chatbot_logs.json');
 
 const INITIAL_CAMPAIGNS = [
   {
@@ -171,6 +172,9 @@ if (!fs.existsSync(feedbackFilePath)) {
 }
 if (!fs.existsSync(donationStatusHistoryFilePath)) {
   fs.writeFileSync(donationStatusHistoryFilePath, JSON.stringify([], null, 2), 'utf8');
+}
+if (!fs.existsSync(chatbotLogsFilePath)) {
+  fs.writeFileSync(chatbotLogsFilePath, JSON.stringify([], null, 2), 'utf8');
 }
 
 
@@ -428,7 +432,22 @@ function writeFallbackDonationStatusHistory(data) {
   }
 }
 
+function readFallbackChatbotLogs() {
+  try {
+    const raw = fs.readFileSync(chatbotLogsFilePath, 'utf8');
+    return JSON.parse(raw) || [];
+  } catch (err) {
+    return [];
+  }
+}
 
+function writeFallbackChatbotLogs(data) {
+  try {
+    fs.writeFileSync(chatbotLogsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Fallback DB] Failed to save chatbot logs:', err);
+  }
+}
 
 async function initDb() {
   try {
@@ -704,6 +723,18 @@ async function initDb() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
+    // Create chatbot_logs table if not exists (V3.1)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chatbot_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NULL,
+        message TEXT NOT NULL,
+        response TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
     // Backfill donation_status_history in MySQL if empty
     try {
       await pool.query(`
@@ -714,7 +745,7 @@ async function initDb() {
     } catch (e) { /* ignore if already seeded */ }
 
     isUsingMySQL = true;
-    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". All V1.1/V1.2/V1.3/V2.1/V2.2/V2.3 tables ready.`);
+    console.log(`[Database] SUCCESS: Connected to MySQL database "${dbName}". All V1.1/V1.2/V1.3/V2.1/V2.2/V2.3/V3.1 tables ready.`);
     return true;
   } catch (error) {
     isUsingMySQL = false;
@@ -1932,6 +1963,29 @@ async function query(sql, params = []) {
     return [list];
   }
 
+  // 26. INSERT INTO chatbot_logs (user_id, message, response) VALUES (?, ?, ?)
+  if (normalizedSql.startsWith('INSERT INTO chatbot_logs')) {
+    const chatbotLogs = readFallbackChatbotLogs();
+    const nextId = chatbotLogs.length > 0 ? Math.max(...chatbotLogs.map(l => l.id || 0)) + 1 : 1;
+    const now = new Date().toISOString();
+    const newLog = {
+      id: nextId,
+      user_id: params[0] || null,
+      message: params[1] || '',
+      response: params[2] || '',
+      created_at: now
+    };
+    chatbotLogs.push(newLog);
+    writeFallbackChatbotLogs(chatbotLogs);
+    return [{ insertId: nextId, affectedRows: 1 }];
+  }
+
+  // 27. SELECT ... FROM chatbot_logs
+  if (normalizedSql.includes('FROM chatbot_logs')) {
+    const chatbotLogs = readFallbackChatbotLogs();
+    return [chatbotLogs];
+  }
+
   console.warn('[Database] Unhandled query in fallback mode:', sql);
   return [[]];
 }
@@ -1971,7 +2025,9 @@ module.exports = {
   readFallbackFeedback,
   writeFallbackFeedback,
   readFallbackDonationStatusHistory,
-  writeFallbackDonationStatusHistory
+  writeFallbackDonationStatusHistory,
+  readFallbackChatbotLogs,
+  writeFallbackChatbotLogs
 };
 
 

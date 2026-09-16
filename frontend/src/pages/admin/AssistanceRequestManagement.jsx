@@ -648,6 +648,28 @@ export default function AssistanceRequestManagement() {
             </div>
 
             <form onSubmit={handleSubmitReview} className="space-y-4">
+              {/* Version 3.1: Recommended Resource Match Preview */}
+              {(() => {
+                const topMatch = computeTopMatch(reviewModalRequest, inventoryItems);
+                if (!topMatch) return null;
+                return (
+                  <div className="p-3 bg-[#EAF6F3]/70 rounded-xl border border-[#087F73]/20 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-[#087F73] flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5 text-[#F7BA3E]" /> Recommended Resource Match
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.2 rounded-md">
+                        {topMatch.quantity_available} {topMatch.unit} In Stock
+                      </span>
+                    </div>
+                    <p className="text-xs font-bold text-[#17243A]">{topMatch.name}</p>
+                    <p className="text-[10px] text-[#667085]">
+                      Category: {topMatch.category} · Matches request requirement ({reviewModalRequest.quantity_needed || '1 unit'})
+                    </p>
+                  </div>
+                );
+              })()}
+
               <div>
                 <label className="block text-sm font-semibold text-[#17243A] mb-1.5">
                   Verification Decision <span className="text-rose-500">*</span>

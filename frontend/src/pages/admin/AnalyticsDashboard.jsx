@@ -36,6 +36,8 @@ export default function AnalyticsDashboard() {
   const [trendGroupBy, setTrendGroupBy] = useState('day');
   const [trendData, setTrendData] = useState([]);
   const [trendLoading, setTrendLoading] = useState(false);
+  const [insights, setInsights] = useState(null);
+  const [insightsLoading, setInsightsLoading] = useState(true);
 
   const [dashboardData, setDashboardData] = useState({
     summaryCards: {
@@ -59,16 +61,24 @@ export default function AnalyticsDashboard() {
     setLoading(true);
     setError('');
     try {
-      const res = await reportService.getDashboardPayload(params);
-      if (res.data?.success) {
-        setDashboardData(res.data.data);
-        setTrendData(res.data.data.donationTrend || []);
+      const [dashRes, insightsRes] = await Promise.all([
+        reportService.getDashboardPayload(params),
+        reportService.getIntelligentInsights().catch(() => ({ data: { data: null } }))
+      ]);
+
+      if (dashRes.data?.success) {
+        setDashboardData(dashRes.data.data);
+        setTrendData(dashRes.data.data.donationTrend || []);
+      }
+      if (insightsRes.data?.success) {
+        setInsights(insightsRes.data.data);
       }
     } catch (err) {
       console.error('Failed to load analytics dashboard payload:', err);
       setError('Could not load analytics reports. Please check your connection.');
     } finally {
       setLoading(false);
+      setInsightsLoading(false);
     }
   };
 
@@ -291,6 +301,103 @@ export default function AnalyticsDashboard() {
               colorScheme="navy"
             />
           </div>
+
+          {/* Version 3.1: Intelligent Analytics Insights Panel */}
+          {insights && (
+            <div className="bg-gradient-to-br from-white via-white to-[#EAF6F3]/50 rounded-2xl p-6 border border-teal-200/80 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-[#087F73] text-white shadow-2xs">
+                    <Sparkles className="w-5 h-5 text-[#F7BA3E]" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base font-bold text-[#17243A]">Intelligent Pattern Insights</h2>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#087F73] bg-[#EAF6F3] px-2 py-0.5 rounded-full border border-[#087F73]/20">
+                        Version 3.1
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#667085] mt-0.5">
+                      Pattern-level observations computed directly from live operational aggregates
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#087F73] bg-[#EAF6F3] px-3 py-1 rounded-xl self-start sm:self-auto">
+                  <TrendingUp className="w-3.5 h-3.5 text-[#2EAD62]" />
+                  <span>Real SQL Aggregates</span>
+                </div>
+              </div>
+
+              {/* 3 Metric Insight Highlight Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* 1. Donation Momentum */}
+                <div className="p-4 rounded-xl bg-white border border-gray-200/70 shadow-2xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#667085]">Donation Growth</span>
+                    <span className={`text-xs font-extrabold px-2 py-0.5 rounded-md ${insights.trends?.direction === 'increased' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                      {insights.trends?.direction === 'increased' ? '↑' : '↓'} {Math.abs(insights.trends?.percentageChange || 0)}%
+                    </span>
+                  </div>
+                  <p className="text-lg font-black text-[#17243A]">
+                    ₹{(insights.trends?.currentPeriodAmount || 0).toLocaleString('en-IN')}
+                  </p>
+                  <p className="text-[11px] text-[#667085]">
+                    Top category: <strong className="text-[#087F73]">{insights.trends?.topCategory || 'Community Care'}</strong> (₹{(insights.trends?.topCategoryAmount || 0).toLocaleString('en-IN')})
+                  </p>
+                </div>
+
+                {/* 2. Top Demanded Category */}
+                <div className="p-4 rounded-xl bg-white border border-gray-200/70 shadow-2xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#667085]">Most-Requested Aid</span>
+                    <span className="text-xs font-extrabold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">
+                      {insights.frequentlyRequested?.[0]?.percentage || 0}% of Requests
+                    </span>
+                  </div>
+                  <p className="text-lg font-black text-[#17243A] truncate">
+                    {insights.frequentlyRequested?.[0]?.category || 'Food & Nutrition'}
+                  </p>
+                  <p className="text-[11px] text-[#667085]">
+                    High community demand recorded across recent assistance requests
+                  </p>
+                </div>
+
+                {/* 3. Fast-Depleting Inventory */}
+                <div className="p-4 rounded-xl bg-white border border-gray-200/70 shadow-2xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#667085]">Fastest-Depleting Stock</span>
+                    <span className="text-xs font-extrabold px-2 py-0.5 rounded-md bg-teal-100 text-teal-800">
+                      {insights.highDemandInventory?.[0]?.allocationRatio || 0}% Allocated
+                    </span>
+                  </div>
+                  <p className="text-lg font-black text-[#17243A] truncate" title={insights.highDemandInventory?.[0]?.name}>
+                    {insights.highDemandInventory?.[0]?.name || 'Relief Supplies'}
+                  </p>
+                  <p className="text-[11px] text-[#667085]">
+                    Available: <strong className="text-[#17243A]">{insights.highDemandInventory?.[0]?.quantity_available} {insights.highDemandInventory?.[0]?.unit}</strong>
+                  </p>
+                </div>
+              </div>
+
+              {/* Plain-Language Insight Statements */}
+              {insights.statements && insights.statements.length > 0 && (
+                <div className="bg-[#EAF6F3]/50 rounded-xl p-4 border border-[#087F73]/15 space-y-2">
+                  <p className="text-[11px] uppercase tracking-wider font-extrabold text-[#087F73]">
+                    Automated Executive Observations
+                  </p>
+                  <ul className="space-y-1.5 text-xs text-[#17243A]">
+                    {insights.statements.map((stmt, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#087F73] mt-1.5 shrink-0"></span>
+                        <span className="leading-relaxed">{stmt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Primary Charts Row: Donation Trend & Donation Split */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
