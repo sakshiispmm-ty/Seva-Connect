@@ -532,7 +532,7 @@ export default function LandingPage() {
                 NGO Management Capabilities
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17243A]">
-                Platform Capabilities
+                Modules
               </h2>
               <p className="text-sm text-[#667085]">
                 Integrated modules designed to empower NGOs, donors, and communities in managing social initiatives and relief resources.

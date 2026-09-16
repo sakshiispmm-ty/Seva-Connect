@@ -53,7 +53,7 @@ export default function Footer() {
               </li>
               <li>
                 <a href="/#features" className="text-gray-300 hover:text-[#2EAD62] transition-colors">
-                  Modules Preview
+                  Modules
                 </a>
               </li>
             </ul>

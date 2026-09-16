@@ -73,7 +73,7 @@ export default function Navbar() {
               href="/#features"
               className="text-sm font-semibold text-[#17243A] hover:text-[#087F73] transition-colors"
             >
-              Modules Preview
+              Modules
             </a>
           </div>
 
@@ -246,7 +246,7 @@ export default function Navbar() {
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-semibold text-[#17243A] hover:bg-[#EAF6F3] hover:text-[#087F73]"
           >
-            Modules Preview
+            Modules
           </a>
 
           <div className="pt-4 border-t border-gray-100 space-y-2">
