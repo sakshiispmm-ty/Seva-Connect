@@ -1,3 +1,9 @@
+TEAM MEMBERS :  
+Sakshi Sardhara - 53013240010  
+Jia Patel - 53013240016  
+Sanjana Patel - 53013240028  
+Shreeya Jagtap - 53013240031  
+
 # SevaConnect — NGO Donation & Resource Management System
 
 <p align="center">
